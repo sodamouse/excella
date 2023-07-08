@@ -145,10 +145,7 @@ void load_database(const char* fp)
 
 #define reset_database() entryIdx = 0
 
-void save_database(const char* fp)
-{
-    assert(false && "TODO!");
-}
+void save_database(const char* fp) { assert(false && "TODO!"); }
 
 void draw_table()
 {
@@ -158,11 +155,30 @@ void draw_table()
     // Columns should be sortable alphabetically
     // The entire table should be searchable
     // [DONE] All cells should be editable
-    // Table headers
-    // Improve column sizes (+adjustable)
+    // [DONE] Table headers
+    // Make columns resizable
+    // Improve row elemen sizes
 
-    if (ImGui::BeginTable("Entries", 15))
+    static auto flags = ImGuiTableFlags_Resizable;
+    if (ImGui::BeginTable("Entries", 15, flags))
     {
+        ImGui::TableSetupColumn("Title");
+        ImGui::TableSetupColumn("Sorting Title");
+        ImGui::TableSetupColumn("Platform");
+        ImGui::TableSetupColumn("Region");
+        ImGui::TableSetupColumn("Release Year");
+        ImGui::TableSetupColumn("Update Status");
+        ImGui::TableSetupColumn("Archived Version");
+        ImGui::TableSetupColumn("Best Version");
+        ImGui::TableSetupColumn("DLC");
+        ImGui::TableSetupColumn("Completion");
+        ImGui::TableSetupColumn("Ratin");
+        ImGui::TableSetupColumn("S");
+        ImGui::TableSetupColumn("J");
+        ImGui::TableSetupColumn("T");
+        ImGui::TableSetupColumn("Last Played");
+        ImGui::TableHeadersRow();
+
         for (size_t i = 0; i < entryIdx; ++i)
         {
             ImGui::TableNextColumn();
