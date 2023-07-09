@@ -1,6 +1,5 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
-// TODO (Mads): Adding new entries
 // TODO (Mads): Deleting entries
 // TODO (Mads): Save
 // TODO (Mads): Save as...
@@ -206,10 +205,12 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].region);
+            ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##ON", regionStr[ENTRIES[i].region]))
             {
                 for (int n = 0; n < ARRAY_SZ(regionStr); ++n)
@@ -223,15 +224,19 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].releaseYear);
+            ImGui::PushItemWidth(-1);
             ImGui::InputInt("##On", &ENTRIES[i].releaseYear);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].updateStatus);
+            ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].updateStatus]))
             {
                 for (int n = 0; n < ARRAY_SZ(contentStatusStr); ++n)
@@ -245,20 +250,26 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].archivedVersion);
+            ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].archivedVersion);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].bestVersion);
+            ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].bestVersion);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].dlcStatus);
+            ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].dlcStatus]))
             {
                 for (int n = 0; n < 4; ++n)
@@ -272,10 +283,12 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].completion);
+            ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##ON", completionStr[ENTRIES[i].completion]))
             {
                 for (int n = 0; n < ARRAY_SZ(completionStr); ++n)
@@ -289,31 +302,50 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].rating);
+            ImGui::PushItemWidth(-1);
             ImGui::InputInt("##On", &ENTRIES[i].rating);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].s);
-            ImGui::Checkbox("S", &ENTRIES[i].s);
+            ImGui::PushItemWidth(-1);
+            ImGui::Checkbox("##On", &ENTRIES[i].s);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].j);
-            ImGui::Checkbox("J", &ENTRIES[i].j);
+            ImGui::PushItemWidth(-1);
+            ImGui::Checkbox("##On", &ENTRIES[i].j);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].t);
-            ImGui::Checkbox("T", &ENTRIES[i].t);
+            ImGui::PushItemWidth(-1);
+            ImGui::Checkbox("##On", &ENTRIES[i].t);
+            ImGui::PopItemWidth;
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].lastPlayed);
+            ImGui::PushItemWidth(-1);
             ImGui::InputInt("##On", &ENTRIES[i].lastPlayed);
+            ImGui::PopItemWidth;
+            ImGui::PopID();
+
+            // TODO (Mads): Change to a red garbage can box icon
+            ImGui::TableNextColumn();
+            ImGui::PushID(&ENTRIES[i]);
+            ImGui::PushItemWidth(-1);
+            ImGui::Button("Remove");
+            ImGui::PopItemWidth;
             ImGui::PopID();
         }
 
