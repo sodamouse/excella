@@ -1,21 +1,22 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
-// TODO (Mads): Deleting entries
 // TODO (Mads): Save
 // TODO (Mads): Save as...
 // TODO (Mads): File / edit / entry menus
 
+#include "comfyg.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_stdlib.h"
-#include "parson.h"
+#include "json.hpp"
 #include <GLFW/glfw3.h>
 
 #include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 
@@ -74,28 +75,30 @@ const char* completionStr[] {
 
 struct Entry
 {
+    bool deleted = false;
+
     std::string title;
     std::string sortingTitle;
 
-    Platform platform;
-    Region region;
-    int releaseYear;
-    ContentStatus updateStatus;
+    Platform platform = PC;
+    Region region = RE_NONE;
+    int releaseYear = -1;
+    ContentStatus updateStatus = CS_NONE;
     std::string archivedVersion;
     std::string bestVersion;
-    ContentStatus dlcStatus;
-    Completion completion;
+    ContentStatus dlcStatus = CS_NONE;
+    Completion completion = CO_NONE;
 
     // A -1 value means not-rated
-    int rating;
+    int rating = -1;
 
     // Boolean values are assumed false until proven otherwise.
-    bool s;
-    bool j;
-    bool t;
+    bool s = false;
+    bool j = false;
+    bool t = false;
 
     // A -1 value means never played
-    int lastPlayed;
+    int lastPlayed = -1;
 };
 
 #define ENTRIES_MAX 1000
@@ -111,87 +114,171 @@ Entry* create_entry()
 
 void load_database(const char* fp)
 {
-    assert(std::filesystem::exists(fp));
-
-    auto* j = json_parse_file(fp);
-    assert(json_value_get_type(j) == JSONArray);
-
-    auto* jsonEntries = json_value_get_array(j);
-    JSON_Object* jsonEntry;
-
-    for (size_t i = 0; i < json_array_get_count(jsonEntries); ++i)
+    if (!std::filesystem::exists(fp))
     {
-        jsonEntry = json_array_get_object(jsonEntries, i);
+        std::cout << "Database not found: Skipping.\n";
+        return;
+    }
+
+    std::fstream file(fp, std::ios::in);
+
+    using namespace nlohmann;
+    auto j = json::parse(file);
+
+    for (const auto& i : j)
+    {
         auto* e = create_entry();
 
-        e->title = json_object_dotget_string(jsonEntry, "title");
-        e->sortingTitle = json_object_dotget_string(jsonEntry, "sorting title");
-        e->platform = (Platform)json_object_dotget_number(jsonEntry, "platform");
-        e->region = (Region)json_object_dotget_number(jsonEntry, "region");
-        e->releaseYear = json_object_dotget_number(jsonEntry, "release year");
-        e->updateStatus = (ContentStatus)json_object_dotget_number(jsonEntry, "update");
-        e->archivedVersion = json_object_dotget_string(jsonEntry, "archived version");
-        e->bestVersion = json_object_dotget_string(jsonEntry, "best version");
-        e->dlcStatus = (ContentStatus)json_object_dotget_number(jsonEntry, "content");
-        e->completion = (Completion)json_object_dotget_number(jsonEntry, "completion");
-        e->rating = json_object_dotget_number(jsonEntry, "rating");
-        e->s = json_object_dotget_boolean(jsonEntry, "s");
-        e->j = json_object_dotget_boolean(jsonEntry, "j");
-        e->t = json_object_dotget_boolean(jsonEntry, "t");
-        e->lastPlayed = json_object_dotget_number(jsonEntry, "last played");
+        e->title = i["title"];
+        e->sortingTitle = i["sorting title"];
+        e->platform = i["platform"];
+        e->region = i["region"];
+        e->releaseYear = i["release year"];
+        e->updateStatus = i["update"];
+        e->archivedVersion = i["archived version"];
+        e->bestVersion = i["best version"];
+        e->dlcStatus = i["content"];
+        e->completion = i["completion"];
+        e->rating = i["rating"];
+        e->s = i["s"];
+        e->j = i["j"];
+        e->t = i["t"];
+        e->lastPlayed = i["last played"];
     }
+}
+
+void save_database_to_file(const char* fp)
+{
+    if (!std::filesystem::exists(fp))
+    {
+        std::cout << "Creating database...\n";
+        std::filesystem::create_directories(std::filesystem::path(fp).parent_path());
+    }
+
+    using namespace nlohmann;
+    json j = json::array();
+
+    for (size_t i = 0; i < entryIdx; ++i)
+    {
+        if (ENTRIES[i].deleted)
+            continue;
+
+        json jObject;
+        jObject["title"] = ENTRIES[i].title.c_str();
+        jObject["sorting title"] = ENTRIES[i].sortingTitle.c_str();
+        jObject["platform"] = (int)ENTRIES[i].platform;
+        jObject["region"] = (int)ENTRIES[i].region;
+        jObject["release year"] = ENTRIES[i].releaseYear;
+        jObject["update"] = (int)ENTRIES[i].updateStatus;
+        jObject["archived version"] = ENTRIES[i].archivedVersion.c_str();
+        jObject["best version"] = ENTRIES[i].bestVersion.c_str();
+        jObject["content"] = (int)ENTRIES[i].dlcStatus;
+        jObject["completion"] = (int)ENTRIES[i].completion;
+        jObject["rating"] = ENTRIES[i].rating;
+        jObject["s"] = ENTRIES[i].s;
+        jObject["j"] = ENTRIES[i].j;
+        jObject["t"] = ENTRIES[i].t;
+        jObject["last played"] = ENTRIES[i].lastPlayed;
+
+        j.push_back(jObject);
+    }
+
+    std::fstream file(fp, std::ios::out);
+    file << j;
 }
 
 #define reset_database() entryIdx = 0
 
-void save_database(const char* fp) { assert(false && "TODO!"); }
+void draw_main_menu(const char* dbPath)
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Save", "CTRL+s"))
+            {
+                save_database_to_file(dbPath);
+            }
+
+            if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
+            {
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Quit", "CTRL+q"))
+            {
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Entry"))
+        {
+            if (ImGui::MenuItem("Create entry", "CTRL+n"))
+            {
+                create_entry();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+}
 
 void draw_table()
 {
     // TODO (Mads): Create a table with entry details.
-    // [DONE] Entries should be in rows
-    // [DONE] Entry fields should be in columns
     // Columns should be sortable alphabetically
     // The entire table should be searchable
-    // [DONE] All cells should be editable
-    // [DONE] Table headers
-    // Make columns resizable
-    // Improve row elemen sizes
+    // Improve row element sizes
 
     static auto flags = ImGuiTableFlags_Resizable;
-    if (ImGui::BeginTable("Entries", 15, flags))
+    if (ImGui::BeginTable("Entries", 16, flags))
     {
-        ImGui::TableSetupColumn("Title");
+        ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthFixed, 500.0);
         ImGui::TableSetupColumn("Sorting Title");
         ImGui::TableSetupColumn("Platform");
-        ImGui::TableSetupColumn("Region");
+        ImGui::TableSetupColumn("Region", ImGuiTableColumnFlags_WidthFixed, 50.0);
         ImGui::TableSetupColumn("Release Year");
         ImGui::TableSetupColumn("Update Status");
         ImGui::TableSetupColumn("Archived Version");
         ImGui::TableSetupColumn("Best Version");
         ImGui::TableSetupColumn("DLC");
         ImGui::TableSetupColumn("Completion");
-        ImGui::TableSetupColumn("Ratin");
-        ImGui::TableSetupColumn("S");
-        ImGui::TableSetupColumn("J");
-        ImGui::TableSetupColumn("T");
+        ImGui::TableSetupColumn("Rating");
+        ImGui::TableSetupColumn("S", ImGuiTableColumnFlags_WidthFixed, 25.0);
+        ImGui::TableSetupColumn("J", ImGuiTableColumnFlags_WidthFixed, 25.0);
+        ImGui::TableSetupColumn("T", ImGuiTableColumnFlags_WidthFixed, 25.0);
         ImGui::TableSetupColumn("Last Played");
+        ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthFixed, 25.0);
         ImGui::TableHeadersRow();
 
         for (size_t i = 0; i < entryIdx; ++i)
         {
+            if (ENTRIES[i].deleted)
+                continue;
+
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].title);
+            ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].title);
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].sortingTitle);
+            ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].sortingTitle);
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].platform);
+            ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##ON", platformStr[ENTRIES[i].platform]))
             {
                 for (int n = 0; n < ARRAY_SZ(platformStr); ++n)
@@ -205,7 +292,7 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
@@ -224,14 +311,14 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].releaseYear);
             ImGui::PushItemWidth(-1);
             ImGui::InputInt("##On", &ENTRIES[i].releaseYear);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
@@ -250,21 +337,21 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].archivedVersion);
             ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].archivedVersion);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].bestVersion);
             ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].bestVersion);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
@@ -283,7 +370,7 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
@@ -302,50 +389,53 @@ void draw_table()
                 }
                 ImGui::EndCombo();
             }
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].rating);
             ImGui::PushItemWidth(-1);
             ImGui::InputInt("##On", &ENTRIES[i].rating);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].s);
             ImGui::PushItemWidth(-1);
             ImGui::Checkbox("##On", &ENTRIES[i].s);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].j);
             ImGui::PushItemWidth(-1);
             ImGui::Checkbox("##On", &ENTRIES[i].j);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].t);
             ImGui::PushItemWidth(-1);
             ImGui::Checkbox("##On", &ENTRIES[i].t);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].lastPlayed);
             ImGui::PushItemWidth(-1);
             ImGui::InputInt("##On", &ENTRIES[i].lastPlayed);
-            ImGui::PopItemWidth;
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             // TODO (Mads): Change to a red garbage can box icon
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i]);
+            ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);
-            ImGui::Button("Remove");
-            ImGui::PopItemWidth;
+            if (ImGui::Button("Remove"))
+            {
+                ENTRIES[i].deleted = true;
+            }
+            (void)ImGui::PopItemWidth();
             ImGui::PopID();
         }
 
@@ -355,9 +445,22 @@ void draw_table()
 
 int main()
 {
-    // TODO (Mads): Config file and argument handling
+    std::string username = std::getenv("USER");
+    std::string configFilePath = "/home/" + username + "/.config/amelie/amelie.conf";
+    const char** dbPath = Comfyg::config_str("database_path", "amelie.db");
+    Comfyg::load_config_file(configFilePath.c_str());
 
-    assert(glfwInit());
+    std::cout << configFilePath << '\n';
+    std::cout << *dbPath << '\n';
+    load_database(*dbPath);
+
+    if (!glfwInit())
+    {
+        // TODO (Mads): Set up proper GLFW error callback.
+        std::cerr << "Could not initialize GLFW. Aborting.\n";
+        return 1;
+    }
+
     GLFWwindow* window = glfwCreateWindow(800, 600, "Amelie", nullptr, nullptr);
     glfwMakeContextCurrent(window);
 
@@ -368,7 +471,6 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    load_database("test.json");
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.0, 0.2, 0.4, 1.0);
@@ -378,15 +480,16 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        static auto flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+        static auto flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                            ImGuiWindowFlags_NoSavedSettings;
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::Begin("Amelie", nullptr, flags);
         {
-            draw_main_menu();
+            draw_main_menu(*dbPath);
             draw_table();
-            ImGui::ShowDemoWindow();
+            // ImGui::ShowDemoWindow();
         }
         ImGui::End();
 
