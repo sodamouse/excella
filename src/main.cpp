@@ -1,15 +1,13 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
-// TODO (Mads): Save
-// TODO (Mads): Save as...
-// TODO (Mads): File / edit / entry menus
-
 #include "comfyg.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_stdlib.h"
 #include "json.hpp"
+#include "miriam.hpp"
+#include "stb_image.h"
 #include <GLFW/glfw3.h>
 
 #include <cassert>
@@ -18,7 +16,6 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
-#include <iostream>
 
 #define ARRAY_SZ(array) sizeof(array) / sizeof(const char*)
 
@@ -82,7 +79,10 @@ struct Entry
 
     Platform platform = PC;
     Region region = RE_NONE;
+
+    // A -1 value means release date is unknown
     int releaseYear = -1;
+
     ContentStatus updateStatus = CS_NONE;
     std::string archivedVersion;
     std::string bestVersion;
@@ -116,7 +116,7 @@ void load_database(const char* fp)
 {
     if (!std::filesystem::exists(fp))
     {
-        std::cout << "Database not found: Skipping.\n";
+        log_info("Database not found. Skipping.");
         return;
     }
 
@@ -151,7 +151,7 @@ void save_database_to_file(const char* fp)
 {
     if (!std::filesystem::exists(fp))
     {
-        std::cout << "Creating database...\n";
+        log_info("Creating database...");
         std::filesystem::create_directories(std::filesystem::path(fp).parent_path());
     }
 
@@ -188,6 +188,46 @@ void save_database_to_file(const char* fp)
 }
 
 #define reset_database() entryIdx = 0
+
+struct Texture
+{
+    GLuint data;
+    int width;
+    int height;
+};
+
+Texture load_texture_from_file(const char* filename)
+{
+    Texture texture;
+
+    unsigned char* imageData = stbi_load(filename, &texture.width, &texture.height, NULL, 4);
+    if (imageData == NULL)
+    {
+        log_error("Could not load texture");
+        return texture;
+    }
+
+    // Create a OpenGL texture identifier
+    glGenTextures(1, &texture.data);
+    glBindTexture(GL_TEXTURE_2D, texture.data);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+    // Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, imageData);
+    stbi_image_free(imageData);
+
+    return texture;
+}
 
 void draw_main_menu(const char* dbPath)
 {
@@ -234,7 +274,6 @@ void draw_table()
     // TODO (Mads): Create a table with entry details.
     // Columns should be sortable alphabetically
     // The entire table should be searchable
-    // Improve row element sizes
 
     static auto flags = ImGuiTableFlags_Resizable;
     if (ImGui::BeginTable("Entries", 16, flags))
@@ -427,11 +466,12 @@ void draw_table()
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
-            // TODO (Mads): Change to a red garbage can box icon
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Button("Remove"))
+            static Texture trashcan = load_texture_from_file("trashcan.jpg");
+            if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data,
+                                   ImVec2(18, 18)))
             {
                 ENTRIES[i].deleted = true;
             }
@@ -450,14 +490,11 @@ int main()
     const char** dbPath = Comfyg::config_str("database_path", "amelie.db");
     Comfyg::load_config_file(configFilePath.c_str());
 
-    std::cout << configFilePath << '\n';
-    std::cout << *dbPath << '\n';
     load_database(*dbPath);
 
     if (!glfwInit())
     {
-        // TODO (Mads): Set up proper GLFW error callback.
-        std::cerr << "Could not initialize GLFW. Aborting.\n";
+        log_fatal("Could not initialize GLFW. Aborting.");
         return 1;
     }
 
