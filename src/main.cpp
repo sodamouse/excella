@@ -1,29 +1,35 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
-
 #include "comfyg.hpp"
+#include "miriam.hpp"
+
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_stdlib.h"
-#include "json.hpp"
-#include "miriam.hpp"
 #include "stb_image.h"
 #include <GLFW/glfw3.h>
+#include <nlohmann/json.hpp>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
-#include <cstring>
 #include <filesystem>
-#include <format>
 #include <fstream>
 
 #define ARRAY_SZ(array) sizeof(array) / sizeof(const char*)
 #define TODO assert(false && "Not implemented")
 
+using size_t = std::size_t;
+using i32 = std::int32_t;
+using u32 = std::uint32_t;
+
+namespace Amelie {
+const char* version = "v1.0.0";
+const char* activeDbPath;
+} // namespace Amelie
+
 // clang-format off
-enum Platform {
-    // It is not possible for a game to not have a platform,
-    // therefore no PL_NONE
+enum Platform : u32 {
     PC,
     PSX, PS2, PS3, PS4,
     XBOX, X360, XONE,
@@ -40,7 +46,7 @@ const char* platformStr[] {
 };
 // clang-format on
 
-enum Region {
+enum Region : u32 {
     RE_NONE,
     EU,
     JP,
@@ -50,7 +56,7 @@ enum Region {
 
 const char* regionStr[] {"-", "EU", "JP", "UK", "US"};
 
-enum ContentStatus {
+enum ContentStatus : u32 {
     CS_NONE,
     AVAILABLE,
     DOWNLOADED,
@@ -59,7 +65,7 @@ enum ContentStatus {
 
 const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available"};
 
-enum Completion {
+enum Completion : u32 {
     CO_NONE,
     BEATEN,
     COMPLETED,
@@ -82,16 +88,16 @@ struct Entry
     Region region = RE_NONE;
 
     // A -1 value means release date is unknown
-    int releaseYear = -1;
+    i32 releaseYear = -1;
 
     ContentStatus updateStatus = CS_NONE;
-    std::string archivedVersion;
-    std::string bestVersion;
+    std::string archivedVersion = "Auto-Steam";
+    std::string bestVersion = "Auto-Steam";
     ContentStatus dlcStatus = CS_NONE;
     Completion completion = CO_NONE;
 
     // A -1 value means not-rated
-    int rating = -1;
+    i32 rating = -1;
 
     // Boolean values are assumed false until proven otherwise.
     bool s = false;
@@ -99,12 +105,11 @@ struct Entry
     bool t = false;
 
     // A -1 value means never played
-    int lastPlayed = -1;
+    i32 lastPlayed = -1;
 };
 
-#define ENTRIES_MAX 1000
+constexpr u32 ENTRIES_MAX = 1000;
 Entry ENTRIES[ENTRIES_MAX];
-using size_t = std::size_t;
 size_t entryIdx = 0;
 
 Entry* create_entry()
@@ -167,6 +172,8 @@ bool load_database(const char* fp)
     }
 
     log_info("Database loaded");
+    Amelie::activeDbPath = fp;
+
     return true;
 }
 
@@ -183,14 +190,14 @@ void save_database_to_file(const char* fp)
         json jObject;
         jObject["title"] = ENTRIES[i].title.c_str();
         jObject["sorting title"] = ENTRIES[i].sortingTitle.c_str();
-        jObject["platform"] = (int)ENTRIES[i].platform;
-        jObject["region"] = (int)ENTRIES[i].region;
+        jObject["platform"] = ENTRIES[i].platform;
+        jObject["region"] = ENTRIES[i].region;
         jObject["release year"] = ENTRIES[i].releaseYear;
-        jObject["update"] = (int)ENTRIES[i].updateStatus;
+        jObject["update"] = ENTRIES[i].updateStatus;
         jObject["archived version"] = ENTRIES[i].archivedVersion.c_str();
         jObject["best version"] = ENTRIES[i].bestVersion.c_str();
-        jObject["content"] = (int)ENTRIES[i].dlcStatus;
-        jObject["completion"] = (int)ENTRIES[i].completion;
+        jObject["content"] = ENTRIES[i].dlcStatus;
+        jObject["completion"] = ENTRIES[i].completion;
         jObject["rating"] = ENTRIES[i].rating;
         jObject["s"] = ENTRIES[i].s;
         jObject["j"] = ENTRIES[i].j;
@@ -205,18 +212,20 @@ void save_database_to_file(const char* fp)
 }
 
 #define reset_database() entryIdx = 0
+// FIXME (Mads): It's confusing when new entries and their data are not fully deleted
 
 struct Texture
 {
     GLuint data;
-    int width;
-    int height;
+    i32 width;
+    i32 height;
 };
 
 Texture load_texture_from_file(const char* filename)
 {
     Texture texture;
 
+    // Read bytes from file
     unsigned char* imageData = stbi_load(filename, &texture.width, &texture.height, NULL, 4);
     if (imageData == NULL)
     {
@@ -246,7 +255,9 @@ Texture load_texture_from_file(const char* filename)
     return texture;
 }
 
-void draw_main_menu(const char* dbPath)
+void draw_db_path_dialog() { TODO; }
+
+void draw_main_menu(GLFWwindow* window)
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -254,9 +265,21 @@ void draw_main_menu(const char* dbPath)
         {
             ImGui::Separator();
 
+            if (ImGui::MenuItem("New database..."))
+            {
+                // TODO (Mads): Open a file dialogue to specify new db's path
+                // reset_database();
+                // create_database("./foo.db");
+            }
+
+            if (ImGui::MenuItem("Open database...", "CTRL+o"))
+            {
+                TODO;
+            }
+
             if (ImGui::MenuItem("Save", "CTRL+s"))
             {
-                save_database_to_file(dbPath);
+                save_database_to_file(Amelie::activeDbPath);
             }
 
             if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
@@ -268,7 +291,7 @@ void draw_main_menu(const char* dbPath)
 
             if (ImGui::MenuItem("Quit", "CTRL+q"))
             {
-                TODO;
+                glfwSetWindowShouldClose(window, true);
             }
 
             ImGui::EndMenu();
@@ -288,21 +311,19 @@ void draw_main_menu(const char* dbPath)
     }
 }
 
-void draw_status_bar() { TODO; }
-
 void draw_table()
 {
     // TODO (Mads): Create a table with entry details.
-    // Columns should be sortable alphabetically
     // The entire table should be searchable
 
-    static auto flags = ImGuiTableFlags_Resizable;
+    static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable;
     if (ImGui::BeginTable("Entries", 16, flags))
     {
-        ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthFixed, 500.0);
+        static auto flags = ImGuiTableColumnFlags_WidthFixed;
+        ImGui::TableSetupColumn("Title", flags, 500.0);
         ImGui::TableSetupColumn("Sorting Title");
         ImGui::TableSetupColumn("Platform");
-        ImGui::TableSetupColumn("Region", ImGuiTableColumnFlags_WidthFixed, 50.0);
+        ImGui::TableSetupColumn("Region", flags, 50.0);
         ImGui::TableSetupColumn("Release Year");
         ImGui::TableSetupColumn("Update Status");
         ImGui::TableSetupColumn("Archived Version");
@@ -310,11 +331,11 @@ void draw_table()
         ImGui::TableSetupColumn("DLC");
         ImGui::TableSetupColumn("Completion");
         ImGui::TableSetupColumn("Rating");
-        ImGui::TableSetupColumn("S", ImGuiTableColumnFlags_WidthFixed, 25.0);
-        ImGui::TableSetupColumn("J", ImGuiTableColumnFlags_WidthFixed, 25.0);
-        ImGui::TableSetupColumn("T", ImGuiTableColumnFlags_WidthFixed, 25.0);
+        ImGui::TableSetupColumn("S", flags, 25.0);
+        ImGui::TableSetupColumn("J", flags, 25.0);
+        ImGui::TableSetupColumn("T", flags, 25.0);
         ImGui::TableSetupColumn("Last Played");
-        ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_WidthFixed, 25.0);
+        ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableHeadersRow();
 
         for (size_t i = 0; i < entryIdx; ++i)
@@ -358,7 +379,7 @@ void draw_table()
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].region);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##ON", regionStr[ENTRIES[i].region]))
+            if (ImGui::BeginCombo("##On", regionStr[ENTRIES[i].region]))
             {
                 for (size_t n = 0; n < ARRAY_SZ(regionStr); ++n)
                 {
@@ -419,7 +440,7 @@ void draw_table()
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].dlcStatus]))
             {
-                for (int n = 0; n < 4; ++n)
+                for (size_t n = 0; n < 4; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].dlcStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
@@ -436,7 +457,7 @@ void draw_table()
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].completion);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##ON", completionStr[ENTRIES[i].completion]))
+            if (ImGui::BeginCombo("##On", completionStr[ENTRIES[i].completion]))
             {
                 for (size_t n = 0; n < ARRAY_SZ(completionStr); ++n)
                 {
@@ -490,6 +511,7 @@ void draw_table()
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);
+            // TODO (Mads): Embed texture into binary
             static Texture trashcan = load_texture_from_file("trashcan.jpg");
             if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
@@ -499,6 +521,25 @@ void draw_table()
             ImGui::PopID();
         }
 
+        if (auto* specs = ImGui::TableGetSortSpecs())
+        {
+            if (specs->SpecsDirty)
+            {
+                // TODO (Mads):
+                // - sorting for the other columns
+                // - reverse sorting
+                std::sort(&ENTRIES[0], &ENTRIES[entryIdx],
+                          [](const Entry& lhs, const Entry& rhs) -> bool {
+                              auto numerical = lhs.sortingTitle.compare(rhs.sortingTitle);
+                              if (numerical < 0)
+                                  return true;
+
+                              return false;
+                          });
+            }
+
+            specs->SpecsDirty = false;
+        }
         ImGui::EndTable();
     }
 }
@@ -528,6 +569,7 @@ int main()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    // TODO (Mads): Embed font into binary
     io.Fonts->AddFontFromFileTTF("jetbrains.ttf", 18);
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
@@ -548,10 +590,9 @@ int main()
         ImGui::SetNextWindowSize(viewport->WorkSize);
         ImGui::Begin("Amelie", nullptr, flags);
         {
-            draw_main_menu(*dbPath);
+            draw_main_menu(window);
             draw_table();
-            // draw_status_bar();
-            // ImGui::ShowDemoWindow();
+            ImGui::ShowDemoWindow();
         }
         ImGui::End();
 

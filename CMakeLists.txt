@@ -4,6 +4,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(amelie)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_STANDARD 20)
 
 # ------------------------------------------------------------------------------
 # Vendor
@@ -30,6 +32,7 @@ set(IMGUI_SOURCE_FILES
 )
 
 find_package(glfw3 REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # ------------------------------------------------------------------------------
 # Source files
@@ -37,7 +40,6 @@ find_package(glfw3 REQUIRED)
 set(AMELIE_SOURCE_FILES
   src/comfyg.cpp
   src/comfyg.hpp
-  src/json.hpp
   src/main.cpp
   src/miriam.cpp
   src/miriam.hpp
@@ -51,4 +53,4 @@ set(AMELIE_SOURCE_FILES
 add_library(imgui ${IMGUI_SOURCE_FILES})
 add_executable(amelie ${AMELIE_SOURCE_FILES})
 target_compile_options(amelie PRIVATE -Werror -Wall -Wextra -Wpedantic)
-target_link_libraries(amelie PRIVATE glfw GL imgui)
+target_link_libraries(amelie PRIVATE glfw GL imgui nlohmann_json)
