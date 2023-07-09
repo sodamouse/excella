@@ -112,12 +112,31 @@ Entry* create_entry()
     return e;
 }
 
-void load_database(const char* fp)
+bool create_database(const char* fp)
+{
+    std::filesystem::create_directories(std::filesystem::path(fp).parent_path());
+    std::fstream file(fp, std::ios::out);
+    if (file)
+    {
+        log_info("Created database file.");
+        return true;
+    }
+
+    else
+    {
+        log_error("Could not create database file.");
+        return false;
+    }
+
+    return true;
+}
+
+bool load_database(const char* fp)
 {
     if (!std::filesystem::exists(fp))
     {
-        log_info("Database not found. Skipping.");
-        return;
+        log_info("Database not found. Creating...");
+        return create_database(fp);
     }
 
     std::fstream file(fp, std::ios::in);
@@ -145,16 +164,13 @@ void load_database(const char* fp)
         e->t = i["t"];
         e->lastPlayed = i["last played"];
     }
+
+    log_info("Database loaded");
+    return true;
 }
 
 void save_database_to_file(const char* fp)
 {
-    if (!std::filesystem::exists(fp))
-    {
-        log_info("Creating database...");
-        std::filesystem::create_directories(std::filesystem::path(fp).parent_path());
-    }
-
     using namespace nlohmann;
     json j = json::array();
 
@@ -268,6 +284,8 @@ void draw_main_menu(const char* dbPath)
         ImGui::EndMainMenuBar();
     }
 }
+
+void draw_status_bar() { assert(false && "TODO"); }
 
 void draw_table()
 {
@@ -470,8 +488,7 @@ void draw_table()
             ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);
             static Texture trashcan = load_texture_from_file("trashcan.jpg");
-            if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data,
-                                   ImVec2(18, 18)))
+            if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
                 ENTRIES[i].deleted = true;
             }
@@ -490,7 +507,11 @@ int main()
     const char** dbPath = Comfyg::config_str("database_path", "amelie.db");
     Comfyg::load_config_file(configFilePath.c_str());
 
-    load_database(*dbPath);
+    if (!load_database(*dbPath))
+    {
+        log_fatal("Could not load or create database. Aborting");
+        return 1;
+    }
 
     if (!glfwInit())
     {
@@ -526,6 +547,7 @@ int main()
         {
             draw_main_menu(*dbPath);
             draw_table();
+            // draw_status_bar();
             // ImGui::ShowDemoWindow();
         }
         ImGui::End();
