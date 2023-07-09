@@ -1,10 +1,10 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
 #include "comfyg.hpp"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_stdlib.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_stdlib.h"
 #include "json.hpp"
 #include "miriam.hpp"
 #include "stb_image.h"
@@ -18,6 +18,7 @@
 #include <fstream>
 
 #define ARRAY_SZ(array) sizeof(array) / sizeof(const char*)
+#define TODO assert(false && "Not implemented")
 
 // clang-format off
 enum Platform {
@@ -260,12 +261,14 @@ void draw_main_menu(const char* dbPath)
 
             if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
             {
+                TODO;
             }
 
             ImGui::Separator();
 
             if (ImGui::MenuItem("Quit", "CTRL+q"))
             {
+                TODO;
             }
 
             ImGui::EndMenu();
@@ -285,7 +288,7 @@ void draw_main_menu(const char* dbPath)
     }
 }
 
-void draw_status_bar() { assert(false && "TODO"); }
+void draw_status_bar() { TODO; }
 
 void draw_table()
 {
@@ -338,7 +341,7 @@ void draw_table()
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##ON", platformStr[ENTRIES[i].platform]))
             {
-                for (int n = 0; n < ARRAY_SZ(platformStr); ++n)
+                for (size_t n = 0; n < ARRAY_SZ(platformStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].platform == n);
                     if (ImGui::Selectable(platformStr[n], isSelected))
@@ -357,7 +360,7 @@ void draw_table()
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##ON", regionStr[ENTRIES[i].region]))
             {
-                for (int n = 0; n < ARRAY_SZ(regionStr); ++n)
+                for (size_t n = 0; n < ARRAY_SZ(regionStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].region == n);
                     if (ImGui::Selectable(regionStr[n], isSelected))
@@ -383,7 +386,7 @@ void draw_table()
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].updateStatus]))
             {
-                for (int n = 0; n < ARRAY_SZ(contentStatusStr); ++n)
+                for (size_t n = 0; n < ARRAY_SZ(contentStatusStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].updateStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
@@ -435,7 +438,7 @@ void draw_table()
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##ON", completionStr[ENTRIES[i].completion]))
             {
-                for (int n = 0; n < ARRAY_SZ(completionStr); ++n)
+                for (size_t n = 0; n < ARRAY_SZ(completionStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].completion == n);
                     if (ImGui::Selectable(completionStr[n], isSelected))
