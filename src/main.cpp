@@ -576,6 +576,24 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        if (ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl)) &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Q)))
+        {
+            glfwSetWindowShouldClose(window, true);
+        }
+
+        if (ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl)) &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)))
+        {
+            save_database_to_file(Amelie::activeDbPath);
+        }
+
+        if (ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl)) &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_N)))
+        {
+            create_entry();
+        }
+
         glClearColor(0.0, 0.2, 0.4, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
