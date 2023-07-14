@@ -1,4 +1,5 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
+
 #include "comfyg.hpp"
 #include "miriam.hpp"
 
@@ -6,6 +7,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_stdlib.h"
+#include "imgui/imgui_internal.h"
+
 #include "stb_image.h"
 #include <GLFW/glfw3.h>
 #include <nlohmann/json.hpp>
@@ -317,8 +320,11 @@ void draw_table()
     // The entire table should be searchable
 
     static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable;
+    ImGuiContext& g = *ImGui::GetCurrentContext();
     if (ImGui::BeginTable("Entries", 16, flags))
     {
+        ImGuiTable* table = g.CurrentTable;
+
         static auto flags = ImGuiTableColumnFlags_WidthFixed;
         ImGui::TableSetupColumn("Title", flags, 500.0);
         ImGui::TableSetupColumn("Sorting Title");
@@ -336,6 +342,8 @@ void draw_table()
         ImGui::TableSetupColumn("T", flags, 25.0);
         ImGui::TableSetupColumn("Last Played");
         ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
+
+        ImGui::TableSetupScrollFreeze(0, 1);    // TODO (Mads): What the fuck is this?
         ImGui::TableHeadersRow();
 
         for (size_t i = 0; i < entryIdx; ++i)
@@ -343,7 +351,9 @@ void draw_table()
             if (ENTRIES[i].deleted)
                 continue;
 
-            ImGui::TableNextColumn();
+            ImGui::TableNextRow();
+            
+            ImGui::TableSetColumnIndex(0);
             ImGui::PushID(&ENTRIES[i].title);
             ImGui::PushItemWidth(-1);
             ImGui::InputText("##On", &ENTRIES[i].title);
@@ -519,8 +529,34 @@ void draw_table()
             }
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
+
+            // Highlighting hovered row
+            ImGui::TableSetColumnIndex(table->Columns.size() - 1);  // Jump to last column in case not enough has been drawn
+
+            static ImRect rowRect(
+                table->WorkRect.Min.x,
+                table->RowPosY1,
+                table->WorkRect.Max.x,
+                table->RowPosY2
+            );
+
+            rowRect.Min.x = table->WorkRect.Min.x;
+            rowRect.Min.y = table->RowPosY1;
+            rowRect.Max.x = table->WorkRect.Max.x;
+            rowRect.Max.y = table->RowPosY2;
+
+            rowRect.ClipWith(table->BgClipRect);
+
+            bool hover =
+                ImGui::IsMouseHoveringRect(rowRect.Min, rowRect.Max, false) &&
+                ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
+                // !ImGui::IsAnyItemHovered();
+
+            if (hover)
+                table->RowBgColor[1] = ImGui::GetColorU32(ImGuiCol_Border); // set to any color of your choice
         }
 
+        // Sorting table entries
         if (auto* specs = ImGui::TableGetSortSpecs())
         {
             if (specs->SpecsDirty)
