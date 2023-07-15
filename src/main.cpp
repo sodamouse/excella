@@ -612,20 +612,17 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
-        if (ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl)) &&
-            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Q)))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
         {
             glfwSetWindowShouldClose(window, true);
         }
 
-        if (ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl)) &&
-            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_S)))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
         {
             save_database_to_file(Amelie::activeDbPath);
         }
 
-        if (ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl)) &&
-            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_N)))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
         {
             create_entry();
         }
