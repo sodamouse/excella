@@ -1,7 +1,6 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
 #include "comfyg.hpp"
-#include "miriam.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -13,6 +12,7 @@
 #include <GLFW/glfw3.h>
 #include <nlohmann/json.hpp>
 
+#include <cstdio>
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -127,13 +127,13 @@ bool create_database(const char* fp)
     std::fstream file(fp, std::ios::out);
     if (file)
     {
-        log_info("Created database file.");
+        printf("Created database file.");
         return true;
     }
 
     else
     {
-        log_error("Could not create database file.");
+        fprintf(stderr, "Could not create database file.");
         return false;
     }
 
@@ -144,7 +144,7 @@ bool load_database(const char* fp)
 {
     if (!std::filesystem::exists(fp))
     {
-        log_info("Database not found. Creating...");
+        printf("Database not found. Creating...");
         return create_database(fp);
     }
 
@@ -174,7 +174,7 @@ bool load_database(const char* fp)
         e->lastPlayed = i["last played"];
     }
 
-    log_info("Database loaded");
+    printf("[INFO] Database loaded: %lu entries\n", entryIdx);
     Amelie::activeDbPath = fp;
 
     return true;
@@ -232,7 +232,7 @@ Texture load_texture_from_file(const char* filename)
     unsigned char* imageData = stbi_load(filename, &texture.width, &texture.height, NULL, 4);
     if (imageData == NULL)
     {
-        log_error("Could not load texture");
+        fprintf(stderr, "Could not load texture");
         return texture;
     }
 
@@ -616,13 +616,13 @@ int main()
 
     if (!load_database(*dbPath))
     {
-        log_fatal("Could not load or create database. Aborting");
+        fprintf(stderr, "Could not load or create database. Aborting");
         return 1;
     }
 
     if (!glfwInit())
     {
-        log_fatal("Could not initialize GLFW. Aborting.");
+        fprintf(stderr, "Could not initialize GLFW. Aborting.");
         return 1;
     }
 

@@ -41,8 +41,6 @@ set(AMELIE_SOURCE_FILES
   src/comfyg.cpp
   src/comfyg.hpp
   src/main.cpp
-  src/miriam.cpp
-  src/miriam.hpp
   src/stb_image.cpp
   src/stb_image.h
 )
