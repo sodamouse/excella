@@ -6,8 +6,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_stdlib.h"
 #include "imgui/imgui_internal.h"
+#include "imgui/imgui_stdlib.h"
 
 #include "stb_image.h"
 #include <GLFW/glfw3.h>
@@ -27,7 +27,7 @@ using i32 = std::int32_t;
 using u32 = std::uint32_t;
 
 namespace Amelie {
-const char* version = "v1.0.0";
+const char* version = "v1.1.0";
 const char* activeDbPath;
 } // namespace Amelie
 
@@ -343,7 +343,7 @@ void draw_table()
         ImGui::TableSetupColumn("Last Played");
         ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
 
-        ImGui::TableSetupScrollFreeze(0, 1);    // TODO (Mads): What the fuck is this?
+        ImGui::TableSetupScrollFreeze(0, 1); // TODO (Mads): What the fuck is this?
         ImGui::TableHeadersRow();
 
         for (size_t i = 0; i < entryIdx; ++i)
@@ -352,7 +352,7 @@ void draw_table()
                 continue;
 
             ImGui::TableNextRow();
-            
+
             ImGui::TableSetColumnIndex(0);
             ImGui::PushID(&ENTRIES[i].title);
             ImGui::PushItemWidth(-1);
@@ -530,15 +530,42 @@ void draw_table()
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
-            // Highlighting hovered row
-            ImGui::TableSetColumnIndex(table->Columns.size() - 1);  // Jump to last column in case not enough has been drawn
+            // Highlight entries based on archive status
+            static auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
+            static auto red = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
+            static auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
 
-            static ImRect rowRect(
-                table->WorkRect.Min.x,
-                table->RowPosY1,
-                table->WorkRect.Max.x,
-                table->RowPosY2
-            );
+            auto& e = ENTRIES[i];
+            switch (e.updateStatus)
+            {
+            case AVAILABLE:
+                table->RowBgColor[1] = ImGui::GetColorU32(yellow);
+                break;
+            case NOT_AVAILABLE:
+                table->RowBgColor[1] = ImGui::GetColorU32(red);
+                break;
+            default:
+                break;
+            }
+
+            switch (e.dlcStatus)
+            {
+            case AVAILABLE:
+                table->RowBgColor[1] = ImGui::GetColorU32(orange);
+                break;
+            case NOT_AVAILABLE:
+                table->RowBgColor[1] = ImGui::GetColorU32(red);
+                break;
+            default:
+                break;
+            }
+
+            // Highlighting hovered row
+            ImGui::TableSetColumnIndex(table->Columns.size() -
+                                       1); // Jump to last column in case not enough has been drawn
+
+            static ImRect rowRect(table->WorkRect.Min.x, table->RowPosY1, table->WorkRect.Max.x,
+                                  table->RowPosY2);
 
             rowRect.Min.x = table->WorkRect.Min.x;
             rowRect.Min.y = table->RowPosY1;
@@ -547,13 +574,13 @@ void draw_table()
 
             rowRect.ClipWith(table->BgClipRect);
 
-            bool hover =
-                ImGui::IsMouseHoveringRect(rowRect.Min, rowRect.Max, false) &&
-                ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
-                // !ImGui::IsAnyItemHovered();
+            bool hover = ImGui::IsMouseHoveringRect(rowRect.Min, rowRect.Max, false) &&
+                         ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
+            // !ImGui::IsAnyItemHovered();
 
             if (hover)
-                table->RowBgColor[1] = ImGui::GetColorU32(ImGuiCol_Border); // set to any color of your choice
+                table->RowBgColor[1] =
+                    ImGui::GetColorU32(ImGuiCol_Border); // set to any color of your choice
         }
 
         // Sorting table entries
