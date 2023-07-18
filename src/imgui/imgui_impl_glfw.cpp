@@ -190,7 +190,8 @@ static ImGuiKey ImGui_ImplGlfw_KeyToImGuiKey(int key)
         case GLFW_KEY_BACKSLASH: return ImGuiKey_Backslash;
         case GLFW_KEY_RIGHT_BRACKET: return ImGuiKey_RightBracket;
         case GLFW_KEY_GRAVE_ACCENT: return ImGuiKey_GraveAccent;
-        case GLFW_KEY_CAPS_LOCK: return ImGuiKey_CapsLock;
+        // case GLFW_KEY_CAPS_LOCK: return ImGuiKey_CapsLock;
+        case GLFW_KEY_CAPS_LOCK: return ImGuiKey_LeftCtrl;
         case GLFW_KEY_SCROLL_LOCK: return ImGuiKey_ScrollLock;
         case GLFW_KEY_NUM_LOCK: return ImGuiKey_NumLock;
         case GLFW_KEY_PRINT_SCREEN: return ImGuiKey_PrintScreen;

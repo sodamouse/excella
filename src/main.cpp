@@ -143,6 +143,9 @@ bool create_database(const char* fp)
 
 bool load_database(const char* fp)
 {
+    // The fact that json::parse() needs to finish in order for this function to proceed
+    // is a bottleneck in front of multi-threading. Misagh - 2023-07-18
+
     if (!std::filesystem::exists(fp))
     {
         printf("Database not found. Creating...");
@@ -655,24 +658,16 @@ int main()
         bool focusFilter = false;
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
-        {
             glfwSetWindowShouldClose(window, true);
-        }
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        {
             save_database_to_file(Amelie::activeDbPath);
-        }
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
-        {
             create_entry();
-        }
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
-        {
             focusFilter = true;
-        }
 
         glClearColor(0.0, 0.2, 0.4, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -690,7 +685,6 @@ int main()
         {
             draw_main_menu(window);
             draw_table(focusFilter);
-            ImGui::ShowDemoWindow();
         }
         ImGui::End();
 
