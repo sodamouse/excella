@@ -27,7 +27,7 @@ using i32 = std::int32_t;
 using u32 = std::uint32_t;
 
 namespace Amelie {
-const char* version = "v1.1.0";
+const char* version = "v1.2.0";
 const char* activeDbPath;
 } // namespace Amelie
 
@@ -638,6 +638,7 @@ int main()
     ImGuiIO& io = ImGui::GetIO();
     // TODO (Mads): Embed font into binary
     io.Fonts->AddFontFromFileTTF("jetbrains.ttf", 18);
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
