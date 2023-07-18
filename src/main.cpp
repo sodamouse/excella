@@ -27,7 +27,7 @@ using i32 = std::int32_t;
 using u32 = std::uint32_t;
 
 namespace Amelie {
-const char* version = "v1.3.0";
+const char* version = "v1.3.1";
 const char* activeDbPath;
 } // namespace Amelie
 
@@ -359,8 +359,11 @@ void draw_table(bool focusFilter)
             if (ENTRIES[i].deleted)
                 continue;
 
-            if (!filter.PassFilter(ENTRIES[i].title.c_str()))
-                continue;
+            if (filter.IsActive())
+            {
+                if (!filter.PassFilter(ENTRIES[i].title.c_str()))
+                    continue;
+            }
 
             ImGui::TableNextRow();
 
