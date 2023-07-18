@@ -1,6 +1,7 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
 #include "comfyg.hpp"
+#include "miriam.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -12,7 +13,6 @@
 #include <GLFW/glfw3.h>
 #include <nlohmann/json.hpp>
 
-#include <cstdio>
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -127,7 +127,7 @@ bool create_database(const char* fp)
     std::fstream file(fp, std::ios::out);
     if (file)
     {
-        printf("Created database file.");
+        Miriam::log_info("Created database file.");
         return true;
     }
 
@@ -639,17 +639,32 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
+        // if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
+        // {
+        //     glfwSetWindowShouldClose(window, true);
+        // }
+
+        // if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_S))
+        // {
+        //     save_database_to_file(Amelie::activeDbPath);
+        // }
+
+        // if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+        // {
+        //     create_entry();
+        // }
+
+        if (ImGui::IsKeyDown(ImGuiKey_CapsLock) && ImGui::IsKeyPressed(ImGuiKey_Q))
         {
             glfwSetWindowShouldClose(window, true);
         }
 
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_S))
+        if (ImGui::IsKeyDown(ImGuiKey_CapsLock) && ImGui::IsKeyPressed(ImGuiKey_S))
         {
             save_database_to_file(Amelie::activeDbPath);
         }
 
-        if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+        if (ImGui::IsKeyDown(ImGuiKey_CapsLock) && ImGui::IsKeyPressed(ImGuiKey_N))
         {
             create_entry();
         }
