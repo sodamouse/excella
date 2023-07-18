@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <thread>
 
 #define ARRAY_SZ(array) sizeof(array) / sizeof(const char*)
 #define TODO assert(false && "Not implemented")
@@ -27,7 +28,7 @@ using i32 = std::int32_t;
 using u32 = std::uint32_t;
 
 namespace Amelie {
-const char* version = "v1.3.1";
+const char* version = "v1.4.0";
 const char* activeDbPath;
 } // namespace Amelie
 
@@ -629,11 +630,7 @@ int main()
     const char** dbPath = Comfyg::config_str("database_path", "amelie.db");
     Comfyg::load_config_file(configFilePath.c_str());
 
-    if (!load_database(*dbPath))
-    {
-        fprintf(stderr, "Could not load or create database. Aborting");
-        return 1;
-    }
+    std::thread entryLoader(load_database, *dbPath);
 
     if (!glfwInit())
     {
@@ -703,6 +700,8 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    entryLoader.join();
 
     return 0;
 }
