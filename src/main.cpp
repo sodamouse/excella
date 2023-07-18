@@ -27,7 +27,7 @@ using i32 = std::int32_t;
 using u32 = std::uint32_t;
 
 namespace Amelie {
-const char* version = "v1.2.0";
+const char* version = "v1.3.0";
 const char* activeDbPath;
 } // namespace Amelie
 
@@ -314,11 +314,16 @@ void draw_main_menu(GLFWwindow* window)
     }
 }
 
-void draw_table()
+void draw_table(bool focusFilter)
 {
-    // TODO (Mads): Create a table with entry details.
-    // The entire table should be searchable
+    if (focusFilter) ImGui::SetKeyboardFocusHere();
+    ImGui::SeparatorText("Filter");
+    ImGui::PushItemWidth(-1);
+    static ImGuiTextFilter filter;
+    (void)ImGui::PopItemWidth;
+    filter.Draw();
 
+    ImGui::Separator();
     static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY;
     ImGuiContext& g = *ImGui::GetCurrentContext();
 
@@ -346,12 +351,15 @@ void draw_table()
         ImGui::TableSetupColumn("Last Played");
         ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
 
-        ImGui::TableSetupScrollFreeze(0, 1); // TODO (Mads): What the fuck is this?
+        ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
         for (size_t i = 0; i < entryIdx; ++i)
         {
             if (ENTRIES[i].deleted)
+                continue;
+
+            if (!filter.PassFilter(ENTRIES[i].title.c_str()))
                 continue;
 
             ImGui::TableNextRow();
@@ -644,34 +652,26 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
-        // if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
-        // {
-        //     glfwSetWindowShouldClose(window, true);
-        // }
+        bool focusFilter = false;
 
-        // if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        // {
-        //     save_database_to_file(Amelie::activeDbPath);
-        // }
-
-        // if (ImGui::IsKeyDown(ImGuiMod_Ctrl) && ImGui::IsKeyPressed(ImGuiKey_N))
-        // {
-        //     create_entry();
-        // }
-
-        if (ImGui::IsKeyDown(ImGuiKey_CapsLock) && ImGui::IsKeyPressed(ImGuiKey_Q))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
         {
             glfwSetWindowShouldClose(window, true);
         }
 
-        if (ImGui::IsKeyDown(ImGuiKey_CapsLock) && ImGui::IsKeyPressed(ImGuiKey_S))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
         {
             save_database_to_file(Amelie::activeDbPath);
         }
 
-        if (ImGui::IsKeyDown(ImGuiKey_CapsLock) && ImGui::IsKeyPressed(ImGuiKey_N))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
         {
             create_entry();
+        }
+
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
+        {
+            focusFilter = true;
         }
 
         glClearColor(0.0, 0.2, 0.4, 1.0);
@@ -689,7 +689,7 @@ int main()
         ImGui::Begin("Amelie", nullptr, flags);
         {
             draw_main_menu(window);
-            draw_table();
+            draw_table(focusFilter);
             ImGui::ShowDemoWindow();
         }
         ImGui::End();
