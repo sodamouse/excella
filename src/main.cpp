@@ -319,8 +319,11 @@ void draw_table()
     // TODO (Mads): Create a table with entry details.
     // The entire table should be searchable
 
-    static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable;
+    static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY;
     ImGuiContext& g = *ImGui::GetCurrentContext();
+
+    static ImVec2 cellPadding(1.0f, 1.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
     if (ImGui::BeginTable("Entries", 16, flags))
     {
         ImGuiTable* table = g.CurrentTable;
@@ -356,14 +359,14 @@ void draw_table()
             ImGui::TableSetColumnIndex(0);
             ImGui::PushID(&ENTRIES[i].title);
             ImGui::PushItemWidth(-1);
-            ImGui::InputText("##On", &ENTRIES[i].title);
+            ImGui::InputTextWithHint("##On", "title", &ENTRIES[i].title);
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].sortingTitle);
             ImGui::PushItemWidth(-1);
-            ImGui::InputText("##On", &ENTRIES[i].sortingTitle);
+            ImGui::InputTextWithHint("##On", "sorting title", &ENTRIES[i].sortingTitle);
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -434,14 +437,14 @@ void draw_table()
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].archivedVersion);
             ImGui::PushItemWidth(-1);
-            ImGui::InputText("##On", &ENTRIES[i].archivedVersion);
+            ImGui::InputTextWithHint("##On", "archived version", &ENTRIES[i].archivedVersion);
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].bestVersion);
             ImGui::PushItemWidth(-1);
-            ImGui::InputText("##On", &ENTRIES[i].bestVersion);
+            ImGui::InputTextWithHint("##On", "known best version", &ENTRIES[i].bestVersion);
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -605,6 +608,7 @@ void draw_table()
         }
         ImGui::EndTable();
     }
+    ImGui::PopStyleVar();
 }
 
 int main()
