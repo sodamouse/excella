@@ -629,6 +629,9 @@ int main()
         return 1;
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "Amelie", nullptr, nullptr);
+    if (!window)
+        return 1;
+
     glfwMakeContextCurrent(window);
 
     IMGUI_CHECKVERSION();
