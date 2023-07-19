@@ -288,8 +288,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);
-            // TODO (Mads): Embed texture into binary
-            static Texture trashcan = load_texture_from_file("trashcan.jpg");
+            static Texture trashcan = load_texture_from_memory();
             if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
                 ENTRIES[i].deleted = true;

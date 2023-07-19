@@ -27,7 +27,7 @@ project "amelie"
     kind "ConsoleApp"
     language "c++"
     toolset "clang"
-    files { "src/*" }
+    files { "src/**" }
 
     buildoptions {
         "--std=c++20",
@@ -44,12 +44,6 @@ project "amelie"
         "GL",
         "glfw",
         "imgui",
-    }
-
-    -- "{COPY} ../res/* %{cfg.targetdir}"
-    postbuildcommands {
-        "{COPY} ../res/* ./bin/debug",
-        "{COPY} ../res/* ./bin/release"
     }
 
     filter "configurations:debug"

@@ -11,3 +11,6 @@ struct Texture
 };
 
 Texture load_texture_from_file(const char* filename);
+Texture load_texture_from_memory();
+
+extern byte trashcanBytes[14490];
