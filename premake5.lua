@@ -44,7 +44,8 @@ project "amelie"
 
     -- "{COPY} ../res/* %{cfg.targetdir}"
     postbuildcommands {
-        "{COPY} ../res/* ./bin/debug"
+        "{COPY} ../res/* ./bin/debug",
+        "{COPY} ../res/* ./bin/release"
     }
 
     filter "configurations:debug"

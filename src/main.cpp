@@ -1,7 +1,10 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
+#include "core.hpp"
 #include "comfyg.hpp"
 #include "imgui.hpp"
+#include "entry.hpp"
+#include "integer.hpp"
 
 #include "stb_image.h"
 #include <GLFW/glfw3.h>
@@ -9,112 +12,17 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <thread>
-
-#define ARRAY_SZ(array) sizeof(array) / sizeof(const char*)
-#define TODO assert(false && "Not implemented")
-
-using size_t = std::size_t;
-using i32 = std::int32_t;
-using u32 = std::uint32_t;
 
 namespace Amelie {
 const char* version = "v1.4.0";
 const char* activeDbPath;
 } // namespace Amelie
 
-// clang-format off
-enum Platform : u32 {
-    PC,
-    PSX, PS2, PS3, PS4,
-    XBOX, X360, XONE,
-    NES, SNES, GB, GBC, WII, WIIU, SWITCH,
-    PC98, PC99,
-};
-
-const char* platformStr[] {
-    "PC",
-    "PSX", "PS2", "PS3", "PS4",
-    "XBOX", "X360", "XONE",
-    "NES", "SNES", "GB", "GBC", "Wii", "WiiU", "Switch",
-    "PC98", "PC99",
-};
-// clang-format on
-
-enum Region : u32 {
-    RE_NONE,
-    EU,
-    JP,
-    UK,
-    US,
-};
-
-const char* regionStr[] {"-", "EU", "JP", "UK", "US"};
-
-enum ContentStatus : u32 {
-    CS_NONE,
-    AVAILABLE,
-    DOWNLOADED,
-    NOT_AVAILABLE,
-};
-
-const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available"};
-
-enum Completion : u32 {
-    CO_NONE,
-    BEATEN,
-    COMPLETED,
-    ENDLESS,
-    RETIRED,
-};
-
-const char* completionStr[] {
-    "-", "Beaten", "Completed", "Endless", "Retired",
-};
-
-struct Entry
-{
-    bool deleted = false;
-
-    std::string title;
-    std::string sortingTitle;
-
-    Platform platform = PC;
-    Region region = RE_NONE;
-
-    // A -1 value means release date is unknown
-    i32 releaseYear = -1;
-
-    ContentStatus updateStatus = CS_NONE;
-    std::string archivedVersion = "Auto-Steam";
-    std::string bestVersion = "Auto-Steam";
-    ContentStatus dlcStatus = CS_NONE;
-    Completion completion = CO_NONE;
-
-    // A -1 value means not-rated
-    i32 rating = -1;
-
-    // Boolean values are assumed false until proven otherwise.
-    bool s = false;
-    bool j = false;
-    bool t = false;
-
-    // A -1 value means never played
-    i32 lastPlayed = -1;
-};
-
-constexpr u32 ENTRIES_MAX = 1000;
-Entry ENTRIES[ENTRIES_MAX];
-size_t entryIdx = 0;
-
-Entry* create_entry()
-{
-    Entry* e = &ENTRIES[entryIdx++];
-    return e;
-}
+extern size_t entryIdx;
+extern Entry ENTRIES[];
 
 bool create_database(const char* fp)
 {
