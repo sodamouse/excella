@@ -82,8 +82,6 @@ struct Entry
     i32 lastPlayed = -1;
 };
 
-constexpr u32 ENTRIES_MAX = 1000;
 extern Entry ENTRIES[];
 extern size_t entryIdx;
-
 Entry* create_entry();
