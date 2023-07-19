@@ -80,6 +80,8 @@ struct Entry
 
     // A -1 value means never played
     i32 lastPlayed = -1;
+
+    std::string notes;
 };
 
 constexpr size_t ENTRIES_MAX = 1000;

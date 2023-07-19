@@ -79,7 +79,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
 
     static ImVec2 cellPadding(1.0f, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
-    if (ImGui::BeginTable("Entries", 16, flags))
+    if (ImGui::BeginTable("Entries", 17, flags))
     {
         ImGuiTable* table = g.CurrentTable;
 
@@ -99,6 +99,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
         ImGui::TableSetupColumn("J", flags, 25.0);
         ImGui::TableSetupColumn("T", flags, 25.0);
         ImGui::TableSetupColumn("Last Played");
+        ImGui::TableSetupColumn("N", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
 
         ImGui::TableSetupScrollFreeze(0, 1);
@@ -286,9 +287,29 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::PopID();
 
             ImGui::TableNextColumn();
+            ImGui::PushID(&ENTRIES[i].notes);
+            ImGui::PushItemWidth(-1);
+            static Texture edit = load_texture_from_memory(&editBytes, editBytesSize);
+            if (ImGui::ImageButton("", (void*)(intptr_t)edit.data, ImVec2(18, 18)))
+            {
+                ImGui::OpenPopup("Edit Notes");
+            }
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            if (ImGui::BeginPopupModal("Edit Notes", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500), flags);
+                if (ImGui::Button("Close"))
+                    ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+            }
+            (void)ImGui::PopItemWidth();
+            ImGui::PopID();
+
+            ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);
-            static Texture trashcan = load_texture_from_memory();
+            static Texture trashcan = load_texture_from_memory(&trashcanBytes, trashcanBytesSize);
             if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
                 ENTRIES[i].deleted = true;

@@ -59,6 +59,7 @@ bool load_database(const char* fp, const char** activeDbPath)
         e->j = i["j"];
         e->t = i["t"];
         e->lastPlayed = i["last played"];
+        e->notes = i["notes"];
     }
 
     *activeDbPath = fp;
@@ -92,6 +93,7 @@ void save_database_to_file(const char* fp)
         jObject["j"] = ENTRIES[i].j;
         jObject["t"] = ENTRIES[i].t;
         jObject["last played"] = ENTRIES[i].lastPlayed;
+        jObject["notes"] = ENTRIES[i].notes;
 
         j.push_back(jObject);
     }
