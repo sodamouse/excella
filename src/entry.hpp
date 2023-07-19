@@ -65,7 +65,7 @@ struct Entry
     // A -1 value means release date is unknown
     i32 releaseYear = -1;
 
-    ContentStatus updateStatus = CS_NONE;
+    ContentStatus updateStatus = DOWNLOADED;
     std::string archivedVersion = "Auto-Steam";
     std::string bestVersion = "Auto-Steam";
     ContentStatus dlcStatus = CS_NONE;
