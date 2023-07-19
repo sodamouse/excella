@@ -65,7 +65,7 @@ struct Entry
     // A -1 value means release date is unknown
     i32 releaseYear = -1;
 
-    ContentStatus updateStatus = CS_NONE;
+    ContentStatus updateStatus = DOWNLOADED;
     std::string archivedVersion = "Auto-Steam";
     std::string bestVersion = "Auto-Steam";
     ContentStatus dlcStatus = CS_NONE;
@@ -82,5 +82,7 @@ struct Entry
     i32 lastPlayed = -1;
 };
 
-constexpr u32 ENTRIES_MAX = 1000;
+constexpr size_t ENTRIES_MAX = 1000;
+extern Entry ENTRIES[];
+extern size_t entryIdx;
 Entry* create_entry();

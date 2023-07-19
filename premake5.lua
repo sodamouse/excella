@@ -6,7 +6,7 @@ project "imgui"
     kind "StaticLib"
     language "c++"
     toolset "clang"
-    files { "src/imgui/*" }
+    files { "vendor/imgui/*" }
 
     buildoptions {
         "--std=c++20",
@@ -34,6 +34,10 @@ project "amelie"
         "-Wall",
         "-Wextra",
         "-Wpedantic",
+    }
+
+    includedirs {
+        "vendor"
     }
 
     links {
