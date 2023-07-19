@@ -5,6 +5,7 @@
 #include "database.hpp"
 #include "entry.hpp"
 #include "imgui.hpp"
+#include "font.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -36,8 +37,7 @@ int main()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    // TODO (Mads): Embed font into binary
-    io.Fonts->AddFontFromFileTTF("jetbrains.ttf", 18);
+    io.Fonts->AddFontFromMemoryTTF(fontBytes, sizeof(fontBytes), 18);
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
