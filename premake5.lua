@@ -6,7 +6,7 @@ project "imgui"
     kind "StaticLib"
     language "c++"
     toolset "clang"
-    files { "src/imgui/*" }
+    files { "vendor/imgui/*" }
 
     buildoptions {
         "--std=c++20",
@@ -36,6 +36,10 @@ project "amelie"
         "-Wpedantic",
     }
 
+    includedirs {
+        "vendor"
+    }
+
     links {
         "GL",
         "glfw",
@@ -44,7 +48,8 @@ project "amelie"
 
     -- "{COPY} ../res/* %{cfg.targetdir}"
     postbuildcommands {
-        "{COPY} ../res/* ./bin/debug"
+        "{COPY} ../res/* ./bin/debug",
+        "{COPY} ../res/* ./bin/release"
     }
 
     filter "configurations:debug"
