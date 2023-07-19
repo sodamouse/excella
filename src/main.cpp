@@ -11,7 +11,7 @@
 #include <thread>
 
 namespace Amelie {
-const char* version = "v1.4.0";
+const char* version = "v1.5.0";
 const char* activeDbPath;
 } // namespace Amelie
 
@@ -45,6 +45,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         bool focusFilter = false;
+        bool focusNewEntry = false;
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
             glfwSetWindowShouldClose(window, true);
@@ -53,7 +54,10 @@ int main()
             save_database_to_file(Amelie::activeDbPath);
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+        {
             create_entry();
+            focusNewEntry = true;
+        }
 
         if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
             focusFilter = true;
@@ -73,7 +77,7 @@ int main()
         ImGui::Begin("Amelie", nullptr, flags);
         {
             draw_main_menu(window, Amelie::activeDbPath);
-            draw_table(focusFilter);
+            draw_table(focusFilter, focusNewEntry);
         }
         ImGui::End();
 

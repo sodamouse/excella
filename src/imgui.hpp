@@ -7,4 +7,4 @@
 #include <imgui/imgui_stdlib.h>
 
 void draw_main_menu(GLFWwindow* window, const char* fp);
-void draw_table(bool focusFilter);
+void draw_table(bool focusFilter, bool focusNewEntry);

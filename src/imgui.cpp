@@ -1,7 +1,7 @@
 #include "imgui.hpp"
 #include "core.hpp"
-#include "entry.hpp"
 #include "database.hpp"
+#include "entry.hpp"
 #include "texture.hpp"
 
 #include <GLFW/glfw3.h>
@@ -62,7 +62,7 @@ void draw_main_menu(GLFWwindow* window, const char* fp)
     }
 }
 
-void draw_table(bool focusFilter)
+void draw_table(bool focusFilter, bool focusNewEntry)
 {
     if (focusFilter)
         ImGui::SetKeyboardFocusHere();
@@ -116,6 +116,9 @@ void draw_table(bool focusFilter)
             }
 
             ImGui::TableNextRow();
+
+            if (focusNewEntry)
+                ImGui::SetKeyboardFocusHere();
 
             ImGui::TableSetColumnIndex(0);
             ImGui::PushID(&ENTRIES[i].title);
@@ -293,6 +296,9 @@ void draw_table(bool focusFilter)
             }
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
+
+            if (focusNewEntry)
+                ImGui::SetScrollHereY(0.5f);
 
             // Highlight entries based on archive status
             static auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
