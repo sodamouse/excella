@@ -1,7 +1,6 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
 #include "comfyg.hpp"
-#include "miriam.hpp"
 #include "imgui.hpp"
 
 #include "stb_image.h"
@@ -123,13 +122,11 @@ bool create_database(const char* fp)
     std::fstream file(fp, std::ios::out);
     if (file)
     {
-        Miriam::log_info("Created database file.");
         return true;
     }
 
     else
     {
-        fprintf(stderr, "Could not create database file.");
         return false;
     }
 
@@ -173,7 +170,6 @@ bool load_database(const char* fp)
         e->lastPlayed = i["last played"];
     }
 
-    printf("[INFO] Database loaded: %lu entries\n", entryIdx);
     Amelie::activeDbPath = fp;
 
     return true;
@@ -231,7 +227,6 @@ Texture load_texture_from_file(const char* filename)
     unsigned char* imageData = stbi_load(filename, &texture.width, &texture.height, NULL, 4);
     if (imageData == NULL)
     {
-        fprintf(stderr, "Could not load texture");
         return texture;
     }
 
@@ -631,10 +626,7 @@ int main()
     std::thread entryLoader(load_database, *dbPath);
 
     if (!glfwInit())
-    {
-        fprintf(stderr, "Could not initialize GLFW. Aborting.");
         return 1;
-    }
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "Amelie", nullptr, nullptr);
     glfwMakeContextCurrent(window);
