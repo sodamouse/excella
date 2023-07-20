@@ -1,5 +1,6 @@
 #include "imgui.hpp"
 #include "core.hpp"
+#include "amelie.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "texture.hpp"
@@ -7,60 +8,6 @@
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
-
-void draw_main_menu(GLFWwindow* window, const char* fp)
-{
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("New database..."))
-            {
-                // TODO (Mads): Open a file dialogue to specify new db's path
-                // reset_database();
-                // create_database("./foo.db");
-            }
-
-            if (ImGui::MenuItem("Open database...", "CTRL+o"))
-            {
-                TODO;
-            }
-
-            if (ImGui::MenuItem("Save", "CTRL+s"))
-            {
-                save_database_to_file(fp);
-            }
-
-            if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
-            {
-                TODO;
-            }
-
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Quit", "CTRL+q"))
-            {
-                glfwSetWindowShouldClose(window, true);
-            }
-
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Entry"))
-        {
-            if (ImGui::MenuItem("Create entry", "CTRL+n"))
-            {
-                create_entry();
-            }
-
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMainMenuBar();
-    }
-}
 
 void draw_table(bool focusFilter, bool focusNewEntry)
 {
@@ -396,4 +343,124 @@ void draw_table(bool focusFilter, bool focusNewEntry)
         ImGui::EndTable();
     }
     ImGui::PopStyleVar();
+}
+
+void update_imgui(GLFWwindow* window)
+{
+    bool focusFilter = false;
+    bool focusNewEntry = false;
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
+        glfwSetWindowShouldClose(window, true);
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
+        save_database_to_file(Amelie::activeDbPath);
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+    {
+        create_entry();
+        focusNewEntry = true;
+    }
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
+        focusFilter = true;
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    static auto flags =
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+
+    ImGui::Begin("Amelie", nullptr, flags);
+    {
+        // main menu
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("New database..."))
+                {
+                    // TODO (Mads): Open a file dialogue to specify new db's path
+                    // reset_database();
+                    // create_database("./foo.db");
+                }
+
+                if (ImGui::MenuItem("Open database...", "CTRL+o"))
+                {
+                    TODO;
+                }
+
+                if (ImGui::MenuItem("Save", "CTRL+s"))
+                {
+                    save_database_to_file(Amelie::activeDbPath);
+                }
+
+                if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
+                {
+                    TODO;
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Quit", "CTRL+q"))
+                {
+                    glfwSetWindowShouldClose(window, true);
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Entry"))
+            {
+                if (ImGui::MenuItem("Create entry", "CTRL+n"))
+                {
+                    create_entry();
+                    focusNewEntry = true;
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Misc"))
+            {
+                if (ImGui::MenuItem("Stats"))
+                {
+                    ImGui::OpenPopup("Database Statistics");
+                }
+
+                if (ImGui::MenuItem("About"))
+                {
+                }
+
+                if (ImGui::MenuItem("License"))
+                {
+                }
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
+
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            if (ImGui::BeginPopupModal("Database Statistics", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                if (ImGui::Button("Close"))
+                    ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+            }
+        }
+
+        draw_table(focusFilter, focusNewEntry);
+    }
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

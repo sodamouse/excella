@@ -8,3 +8,4 @@
 
 void draw_main_menu(GLFWwindow* window, const char* fp);
 void draw_table(bool focusFilter, bool focusNewEntry);
+void update_imgui(GLFWwindow* winodw);
