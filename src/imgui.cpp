@@ -271,6 +271,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             static auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
             static auto red = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
             static auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
+            static auto green = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
 
             auto& e = ENTRIES[i];
             switch (e.updateStatus)
@@ -296,6 +297,9 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             default:
                 break;
             }
+
+            if ((e.dlcStatus == DOWNLOADED || e.dlcStatus == CS_NONE) && e.updateStatus == DOWNLOADED && e.completion == COMPLETED)
+                table->RowBgColor[1] = ImGui::GetColorU32(green);
 
             // Highlighting hovered row
             ImGui::TableSetColumnIndex(table->Columns.size() -
