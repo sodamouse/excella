@@ -18,3 +18,6 @@ extern byte trashcanBytes[14490];
 
 constexpr size_t editBytesSize = 706;
 extern byte editBytes[706];
+
+constexpr size_t editWhiteBytesSize = 1380;
+extern byte editWhiteBytes[1380];

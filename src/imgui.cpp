@@ -237,7 +237,9 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::PushID(&ENTRIES[i].notes);
             ImGui::PushItemWidth(-1);
             static Texture edit = load_texture_from_memory(&editBytes, editBytesSize);
-            if (ImGui::ImageButton("", (void*)(intptr_t)edit.data, ImVec2(18, 18)))
+            static Texture editWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
+            Texture* useEdit = ENTRIES[i].notes.size() == 0 ? &edit : &editWhite;
+            if (ImGui::ImageButton("", (void*)(intptr_t)useEdit->data, ImVec2(18, 18)))
             {
                 ImGui::OpenPopup("Edit Notes");
             }
