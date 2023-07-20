@@ -165,7 +165,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].dlcStatus]))
             {
-                for (size_t n = 0; n < 4; ++n)
+                for (size_t n = 0; n < 5; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].dlcStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))

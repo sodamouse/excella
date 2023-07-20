@@ -36,9 +36,10 @@ enum ContentStatus : u32 {
     AVAILABLE,
     DOWNLOADED,
     NOT_AVAILABLE,
+    LOCKED,
 };
 
-constexpr const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available"};
+constexpr const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available", "Locked"};
 
 enum Completion : u32 {
     CO_NONE,
