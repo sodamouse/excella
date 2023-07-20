@@ -24,7 +24,7 @@ int main()
     if (!glfwInit())
         return 1;
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Amelie", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 600, Amelie::version, nullptr, nullptr);
     if (!window)
         return 1;
 
