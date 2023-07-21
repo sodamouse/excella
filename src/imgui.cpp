@@ -1,6 +1,6 @@
 #include "imgui.hpp"
-#include "core.hpp"
 #include "amelie.hpp"
+#include "core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "texture.hpp"
@@ -237,7 +237,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::PushID(&ENTRIES[i].notes);
             ImGui::PushItemWidth(-1);
             static Texture edit = load_texture_from_memory(&editBytes, editBytesSize);
-            static Texture editWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
+            static Texture editWhite =
+                load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
             Texture* useEdit = ENTRIES[i].notes.size() == 0 ? &edit : &editWhite;
             if (ImGui::ImageButton("", (void*)(intptr_t)useEdit->data, ImVec2(18, 18)))
             {
@@ -301,7 +302,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             }
 
             if ((e.dlcStatus == DOWNLOADED || e.dlcStatus == CS_NONE) &&
-                (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) && e.completion == COMPLETED)
+                (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) &&
+                e.completion == COMPLETED)
                 table->RowBgColor[1] = ImGui::GetColorU32(green);
 
             // Highlighting hovered row
