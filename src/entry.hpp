@@ -8,7 +8,7 @@ enum Platform : u32 {
     PC,
     PSX, PS2, PS3, PS4,
     XBOX, X360, XONE,
-    NES, SNES, GB, GBC, WII, WIIU, SWITCH,
+    NES, SNES, GC, GBC, WII, WIIU, SWITCH,
     PC98, PC99,
 };
 
@@ -16,7 +16,7 @@ constexpr const char* platformStr[] {
     "PC",
     "PSX", "PS2", "PS3", "PS4",
     "XBOX", "X360", "XONE",
-    "NES", "SNES", "GB", "GBC", "Wii", "WiiU", "Switch",
+    "NES", "SNES", "GC", "GB / GBC", "Wii", "WiiU", "Switch",
     "PC98", "PC99",
 };
 // clang-format on

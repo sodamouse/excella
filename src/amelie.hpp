@@ -4,7 +4,7 @@
 
 namespace Amelie {
 
-constexpr const char* version = "Amelie v1.6.0";
+constexpr const char* version = "Amelie v1.7.0";
 extern const char* activeDbPath;
 extern size_t startHash;
 extern int actualTotalEntries;
