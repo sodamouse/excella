@@ -61,8 +61,6 @@ bool load_database(const char* fp)
         e->t = i["t"];
         e->lastPlayed = i["last played"];
         e->notes = i["notes"];
-
-        Amelie::actualTotalEntries += 1;
     }
 
     Amelie::activeDbPath = fp;
