@@ -5,5 +5,6 @@ namespace Amelie {
 
 const char* activeDbPath;
 size_t startHash;
+int actualTotalEntries = 0;
 
 } // namespace Amelie

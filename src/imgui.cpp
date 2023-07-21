@@ -263,6 +263,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
                 ENTRIES[i].deleted = true;
+                --Amelie::actualTotalEntries;
             }
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
@@ -386,6 +387,8 @@ void update_imgui(GLFWwindow* window)
 
     ImGui::Begin("Amelie", nullptr, flags);
     {
+        static void (*showPopup)() = []() {};
+
         // main menu
         if (ImGui::BeginMainMenuBar())
         {
@@ -438,10 +441,29 @@ void update_imgui(GLFWwindow* window)
 
             if (ImGui::BeginMenu("Misc"))
             {
-                if (ImGui::MenuItem("Stats"))
+                if (ImGui::MenuItem("Statistics"))
                 {
-                    ImGui::OpenPopup("Database Statistics");
+                    showPopup = []() {
+                        if (!ImGui::IsPopupOpen("Statistics"))
+                            ImGui::OpenPopup("Statistics");
+
+                        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+                        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+                        if (ImGui::BeginPopupModal("Statistics"))
+                        {
+                            ImGui::Text("Current entries: %i", Amelie::actualTotalEntries);
+
+                            if (ImGui::Button("Close", ImVec2(80, 0)))
+                            {
+                                ImGui::CloseCurrentPopup();
+                                showPopup = []() {};
+                            }
+                            ImGui::EndPopup();
+                        }
+                    };
                 }
+
+                ImGui::Separator();
 
                 if (ImGui::MenuItem("About"))
                 {
@@ -455,17 +477,9 @@ void update_imgui(GLFWwindow* window)
             }
 
             ImGui::EndMainMenuBar();
-
-            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-            if (ImGui::BeginPopupModal("Database Statistics", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-            {
-                if (ImGui::Button("Close"))
-                    ImGui::CloseCurrentPopup();
-                ImGui::EndPopup();
-            }
         }
 
+        showPopup();
         draw_table(focusFilter, focusNewEntry);
     }
     ImGui::End();
