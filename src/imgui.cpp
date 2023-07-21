@@ -300,7 +300,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                 break;
             }
 
-            if ((e.dlcStatus == DOWNLOADED || e.dlcStatus == CS_NONE) && e.updateStatus == DOWNLOADED && e.completion == COMPLETED)
+            if ((e.dlcStatus == DOWNLOADED || e.dlcStatus == CS_NONE) &&
+                (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) && e.completion == COMPLETED)
                 table->RowBgColor[1] = ImGui::GetColorU32(green);
 
             // Highlighting hovered row
