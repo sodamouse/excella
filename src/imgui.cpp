@@ -452,6 +452,45 @@ void update_imgui(GLFWwindow* window)
                         if (ImGui::BeginPopupModal("Statistics"))
                         {
                             ImGui::Text("Current entries: %i", Amelie::actualTotalEntries);
+                            ImGui::Text("Max Supported entries: %zu", ENTRIES_MAX);
+
+                            i32 countBeaten = 0;
+                            i32 countCompleted = 0;
+                            i32 countEndless = 0;
+                            i32 countRetired = 0;
+                            for (size_t i = 0; i < entryIdx; ++i)
+                            {
+                                // clang-format off
+                                switch (ENTRIES[i].completion) {
+                                case BEATEN:    ++countBeaten;    break;
+                                case COMPLETED: ++countCompleted; break;
+                                case ENDLESS:   ++countEndless;   break;
+                                case RETIRED:    ++countRetired;  break;
+                                default: continue;
+                                }
+                                // clang-format on
+                            }
+
+                            ImGui::Separator();
+                            ImGui::Text("Play Status");
+                            ImGui::Text("\tBeaten: %i", countBeaten);
+                            ImGui::Text("\tCompleted: %i", countCompleted);
+                            ImGui::Text("\tEndless: %i", countEndless);
+                            ImGui::Text("\tRetired: %i", countRetired);
+
+                            ImGui::Separator();
+                            ImGui::Text("Platform Breakdown");
+                            // TODO (Mads): Change into a table with multiple columns, instead of all in rows
+                            for (size_t i = 0; i < ARRAY_SZ(platformStr); ++i)
+                            {
+                                i32 count = 0;
+                                for (size_t j = 0; j < entryIdx; ++j)
+                                {
+                                    if (ENTRIES[j].platform == i)
+                                        ++count;
+                                }
+                                ImGui::Text("\t%s: %i", platformStr[i], count);
+                            }
 
                             if (ImGui::Button("Close", ImVec2(80, 0)))
                             {
