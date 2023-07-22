@@ -5,6 +5,7 @@
 #include "entry.hpp"
 #include "texture.hpp"
 
+#include "file_browser/filebrowser.hpp"
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
@@ -360,11 +361,16 @@ void update_imgui(GLFWwindow* window)
     bool focusFilter = false;
     bool focusNewEntry = false;
 
+    static auto browserFlags = ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CloseOnEsc | ImGuiFileBrowserFlags_CreateNewDir;
+    static ImGui::FileBrowser browser(browserFlags);
+    static bool browserWantsSave = false;
+    static bool browserWantsLoad = false;
+
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
         glfwSetWindowShouldClose(window, true);
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        save_database_to_file(Amelie::activeDbPath);
+        save_database_to_file(Amelie::activeDbPath.c_str());
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
@@ -396,26 +402,23 @@ void update_imgui(GLFWwindow* window)
             {
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("New database..."))
+                if (ImGui::MenuItem("Open database..."))
                 {
-                    // TODO (Mads): Open a file dialogue to specify new db's path
-                    // reset_database();
-                    // create_database("./foo.db");
-                }
-
-                if (ImGui::MenuItem("Open database...", "CTRL+o"))
-                {
-                    TODO;
+                    browser.Open();
+                    browserWantsSave = false;
+                    browserWantsLoad = true;
                 }
 
                 if (ImGui::MenuItem("Save", "CTRL+s"))
                 {
-                    save_database_to_file(Amelie::activeDbPath);
+                    save_database_to_file(Amelie::activeDbPath.c_str());
                 }
 
                 if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
                 {
-                    TODO;
+                    browser.Open();
+                    browserWantsSave = true;
+                    browserWantsLoad = false;
                 }
 
                 ImGui::Separator();
@@ -427,6 +430,7 @@ void update_imgui(GLFWwindow* window)
 
                 ImGui::EndMenu();
             }
+
 
             if (ImGui::BeginMenu("Entry"))
             {
@@ -515,7 +519,30 @@ void update_imgui(GLFWwindow* window)
                 ImGui::EndMenu();
             }
 
+            ImGui::Text("%s", Amelie::activeDbPath.c_str());
+
             ImGui::EndMainMenuBar();
+        }
+
+        browser.Display();
+
+        if (browser.HasSelected() && browserWantsSave)
+        {
+            std::string newPath = browser.GetSelected().string();
+            Amelie::activeDbPath = newPath.c_str();
+            save_database_to_file(Amelie::activeDbPath.c_str());
+            browser.ClearSelected();
+            reset_database();
+            load_database(Amelie::activeDbPath.c_str());
+        }
+
+        if (browser.HasSelected() && browserWantsLoad)
+        {
+            std::string newPath = browser.GetSelected().string();
+            Amelie::activeDbPath = newPath.c_str();
+            reset_database();
+            load_database(Amelie::activeDbPath.c_str());
+            browser.ClearSelected();
         }
 
         showPopup();

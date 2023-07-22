@@ -102,3 +102,13 @@ void save_database_to_file(const char* fp)
     std::fstream file(fp, std::ios::out);
     file << j;
 }
+
+void reset_database()
+{
+    for (size_t i = 0; i < entryIdx; ++i)
+    {
+        ENTRIES[i] = {};
+    }
+    entryIdx = 0;
+    Amelie::actualTotalEntries = 0;
+}

@@ -3,7 +3,7 @@
 
 namespace Amelie {
 
-const char* activeDbPath;
+std::string activeDbPath;
 size_t startHash;
 int actualTotalEntries = 0;
 
