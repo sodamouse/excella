@@ -361,7 +361,9 @@ void update_imgui(GLFWwindow* window)
     bool focusFilter = false;
     bool focusNewEntry = false;
 
-    static auto browserFlags = ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CloseOnEsc | ImGuiFileBrowserFlags_CreateNewDir;
+    static auto browserFlags = ImGuiFileBrowserFlags_EnterNewFilename |
+                               ImGuiFileBrowserFlags_CloseOnEsc |
+                               ImGuiFileBrowserFlags_CreateNewDir;
     static ImGui::FileBrowser browser(browserFlags);
     static bool browserWantsSave = false;
     static bool browserWantsLoad = false;
@@ -431,7 +433,6 @@ void update_imgui(GLFWwindow* window)
                 ImGui::EndMenu();
             }
 
-
             if (ImGui::BeginMenu("Entry"))
             {
                 if (ImGui::MenuItem("Create entry", "CTRL+n"))
@@ -484,7 +485,8 @@ void update_imgui(GLFWwindow* window)
 
                             ImGui::Separator();
                             ImGui::Text("Platform Breakdown");
-                            // TODO (Mads): Change into a table with multiple columns, instead of all in rows
+                            // TODO (Mads): Change into a table with multiple columns, instead of
+                            // all in rows
                             for (size_t i = 0; i < ARRAY_SZ(platformStr); ++i)
                             {
                                 i32 count = 0;
@@ -504,16 +506,6 @@ void update_imgui(GLFWwindow* window)
                             ImGui::EndPopup();
                         }
                     };
-                }
-
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("About"))
-                {
-                }
-
-                if (ImGui::MenuItem("License"))
-                {
                 }
 
                 ImGui::EndMenu();
