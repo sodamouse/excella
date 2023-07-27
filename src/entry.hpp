@@ -14,7 +14,7 @@ enum Platform : u32 {
 
 constexpr const char* platformStr[] {
     "PC",
-    "PSX", "PS2", "PS3", "PS4",
+    "PSX", "PS2", "PSP", "PS3", "PS4",
     "XBOX", "X360", "XONE",
     "NES", "SNES", "GC", "GB / GBC", "Wii", "WiiU", "Switch",
     "PC98", "PC99",
