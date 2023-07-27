@@ -37,15 +37,15 @@ void draw_table(bool focusFilter, bool focusNewEntry)
         ImGui::TableSetupColumn("Platform");
         ImGui::TableSetupColumn("Region", flags, 50.0);
         ImGui::TableSetupColumn("Release Year");
-        ImGui::TableSetupColumn("Update Status");
-        ImGui::TableSetupColumn("Archived Version");
-        ImGui::TableSetupColumn("Best Version");
-        ImGui::TableSetupColumn("DLC");
+        ImGui::TableSetupColumn("Update Status", ImGuiTableColumnFlags_NoSort);
+        ImGui::TableSetupColumn("Archived Version", ImGuiTableColumnFlags_NoSort);
+        ImGui::TableSetupColumn("Best Version", ImGuiTableColumnFlags_NoSort);
+        ImGui::TableSetupColumn("DLC", ImGuiTableColumnFlags_NoSort);
         ImGui::TableSetupColumn("Completion");
         ImGui::TableSetupColumn("Rating");
-        ImGui::TableSetupColumn("S", flags, 25.0);
-        ImGui::TableSetupColumn("J", flags, 25.0);
-        ImGui::TableSetupColumn("T", flags, 25.0);
+        ImGui::TableSetupColumn("S", flags | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("J", flags | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("T", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("Last Played");
         ImGui::TableSetupColumn("N", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
@@ -324,7 +324,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
 
             bool hover = ImGui::IsMouseHoveringRect(rowRect.Min, rowRect.Max, false) &&
                          ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
-            // !ImGui::IsAnyItemHovered();
+            // !ImGui::IsAnyItemHovered(); This can optionally disable row highlighting if any cells
+            // are hovered.
 
             if (hover)
                 table->RowBgColor[1] =
@@ -332,25 +333,142 @@ void draw_table(bool focusFilter, bool focusNewEntry)
         }
 
         // Sorting table entries
-        if (auto* specs = ImGui::TableGetSortSpecs())
+        // clang-format off
+        if (auto* sortSpecs = ImGui::TableGetSortSpecs())
         {
-            if (specs->SpecsDirty)
+            if (sortSpecs->SpecsDirty)
             {
-                // TODO (Mads):
-                // - sorting for the other columns
-                // - reverse sorting
-                std::sort(&ENTRIES[0], &ENTRIES[entryIdx],
-                          [](const Entry& lhs, const Entry& rhs) -> bool {
-                              auto numerical = lhs.sortingTitle.compare(rhs.sortingTitle);
-                              if (numerical < 0)
-                                  return true;
+                std::sort(
+                &ENTRIES[0], &ENTRIES[entryIdx],
+                [&sortSpecs](const Entry& lhs, const Entry& rhs) -> bool {
+                    for (i32 i = 0; i < sortSpecs->SpecsCount; ++i)     // i here is always 1...
+                    {
+                        const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+                        bool sort = false;
+                        switch (currentSpecs->ColumnIndex)
+                        {
+                            // Title
+                            case 0: {
+                                auto numeric = lhs.title.compare(rhs.title);
+                                sort = numeric < 0 ? true : false;
+                            }; break;
 
-                              return false;
-                          });
+                            // Sorting Title
+                            case 1: {
+                                auto numeric = lhs.sortingTitle.compare(rhs.sortingTitle);
+                                sort = numeric < 0 ? true : false;
+                            }; break;
+
+                            // Platform
+                            case 2: {
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
+                                {
+                                    return lhs.platform < rhs.platform;
+                                }
+                                else
+                                {
+                                    if (lhs.platform > rhs.platform || rhs.platform < lhs.platform)
+                                        return true;
+
+                                    return false;
+                                }
+                            }; break;
+
+                            // Region
+                            case 3: {
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
+                                {
+                                    return lhs.region < rhs.region;
+                                }
+                                else
+                                {
+                                    if (lhs.region > rhs.region || rhs.region < lhs.region)
+                                        return true;
+
+                                    return false;
+                                }
+                            }; break;
+
+                            // Release year
+                            case 4: {
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
+                                {
+                                    return lhs.releaseYear < rhs.releaseYear;
+                                }
+                                else
+                                {
+                                    if (lhs.releaseYear > rhs.releaseYear || rhs.releaseYear < lhs.releaseYear)
+                                        return true;
+
+                                    return false;
+                                }
+                            }; break;
+
+                            // Completion
+                            case 9: {
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
+                                {
+                                    return lhs.completion < rhs.completion;
+                                }
+                                else
+                                {
+                                    if (lhs.completion > rhs.completion || rhs.completion < lhs.completion)
+                                        return true;
+
+                                    return false;
+                                }
+                            }; break;
+
+                            // Rating
+                            case 10: {
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
+                                {
+                                    return lhs.rating < rhs.rating;
+                                }
+                                else
+                                {
+                                    if (lhs.rating > rhs.rating || rhs.rating < lhs.rating)
+                                        return true;
+
+                                    return false;
+                                }
+                            }; break;
+
+                            // S
+                            // J
+                            // T
+
+                            // Last played
+                            case 14: {
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
+                                {
+                                    return lhs.lastPlayed < rhs.lastPlayed;
+                                }
+                                else
+                                {
+                                    if (lhs.lastPlayed > rhs.lastPlayed || rhs.lastPlayed < lhs.lastPlayed)
+                                        return true;
+
+                                    return false;
+                                }
+                            }; break;
+
+                            default: {
+                                assert(false && "Something fucky this way comes");
+                                return false;
+                            }; break;
+                        }
+                        return currentSpecs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
+                    }
+                    assert(false && "Something fucky this way comes");
+                    return false;
+                });
+            sortSpecs->SpecsDirty = false;
+            sortSpecs->SpecsDirty = false;
+                sortSpecs->SpecsDirty = false;
             }
-
-            specs->SpecsDirty = false;
         }
+        // clang-format on
         ImGui::EndTable();
     }
     ImGui::PopStyleVar();
