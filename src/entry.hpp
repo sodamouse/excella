@@ -8,16 +8,18 @@ enum Platform : u32 {
     PC,
     PSX, PS2, PS3, PS4,
     XBOX, X360, XONE,
-    NES, SNES, GC, GBC, WII, WIIU, SWITCH,
+    NES, SNES, GB, GBA, GBC, GC, DS, DS3, WII, WIIU, SWITCH,
     PC98, PC99,
+    GENESIS,
 };
 
 constexpr const char* platformStr[] {
     "PC",
     "PSX", "PS2", "PSP", "PS3", "PS4",
     "XBOX", "X360", "XONE",
-    "NES", "SNES", "GC", "GB / GBC", "Wii", "WiiU", "Switch",
+    "NES", "SNES", "GB", "GBA", "GBC", "GC", "DS", "3DS", "Wii", "WiiU", "Switch",
     "PC98", "PC99",
+    "Genesis"
 };
 // clang-format on
 
@@ -39,7 +41,8 @@ enum ContentStatus : u32 {
     LOCKED,
 };
 
-constexpr const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available", "Locked"};
+constexpr const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available",
+                                          "Locked"};
 
 enum Completion : u32 {
     CO_NONE,
