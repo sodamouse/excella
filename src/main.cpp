@@ -1,6 +1,6 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
-#include "amelie.hpp"
+#include "excella.hpp"
 #include "comfyg.hpp"
 #include "core.hpp"
 #include "database.hpp"
@@ -15,8 +15,8 @@
 int main()
 {
     std::string username = std::getenv("USER");
-    std::string configFilePath = "/home/" + username + "/.config/amelie/amelie.conf";
-    const char** dbPath = Comfyg::config_str("database_path", "amelie.db");
+    std::string configFilePath = "/home/" + username + "/.config/excella/excella.conf";
+    const char** dbPath = Comfyg::config_str("database_path", "excella.db");
     Comfyg::load_config_file(configFilePath.c_str());
 
     std::thread entryLoader(load_database, *dbPath);
@@ -24,7 +24,7 @@ int main()
     if (!glfwInit())
         return 1;
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, Amelie::version, nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 600, Excella::version, nullptr, nullptr);
     if (!window)
         return 1;
 

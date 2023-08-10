@@ -1,4 +1,4 @@
-workspace "Amelie"
+workspace "Excella"
     location "./build"
     configurations { "debug", "release" }
 
@@ -23,7 +23,7 @@ project "imgui"
         defines { "NDEBUG" }
         optimize "On"
 
-project "amelie"
+project "excella"
     kind "ConsoleApp"
     language "c++"
     toolset "clang"

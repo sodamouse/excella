@@ -1,10 +1,10 @@
-#include "amelie.hpp"
+#include "excella.hpp"
 #include "integer.hpp"
 
-namespace Amelie {
+namespace Excella {
 
 std::string activeDbPath;
 size_t startHash;
 int actualTotalEntries = 0;
 
-} // namespace Amelie
+} // namespace Excella

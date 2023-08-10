@@ -1,5 +1,5 @@
 #include "imgui.hpp"
-#include "amelie.hpp"
+#include "excella.hpp"
 #include "core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
@@ -264,7 +264,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
                 ENTRIES[i].deleted = true;
-                --Amelie::actualTotalEntries;
+                --Excella::actualTotalEntries;
             }
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
@@ -490,7 +490,7 @@ void update_imgui(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        save_database_to_file(Amelie::activeDbPath.c_str());
+        save_database_to_file(Excella::activeDbPath.c_str());
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
@@ -511,7 +511,7 @@ void update_imgui(GLFWwindow* window)
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
 
-    ImGui::Begin("Amelie", nullptr, flags);
+    ImGui::Begin("Excella", nullptr, flags);
     {
         static void (*showPopup)() = []() {};
 
@@ -531,7 +531,7 @@ void update_imgui(GLFWwindow* window)
 
                 if (ImGui::MenuItem("Save", "CTRL+s"))
                 {
-                    save_database_to_file(Amelie::activeDbPath.c_str());
+                    save_database_to_file(Excella::activeDbPath.c_str());
                 }
 
                 if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
@@ -574,7 +574,7 @@ void update_imgui(GLFWwindow* window)
                         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
                         if (ImGui::BeginPopupModal("Statistics"))
                         {
-                            ImGui::Text("Current entries: %i", Amelie::actualTotalEntries);
+                            ImGui::Text("Current entries: %i", Excella::actualTotalEntries);
                             ImGui::Text("Max Supported entries: %zu", ENTRIES_MAX);
 
                             i32 countBeaten = 0;
@@ -629,7 +629,7 @@ void update_imgui(GLFWwindow* window)
                 ImGui::EndMenu();
             }
 
-            ImGui::Text("%s", Amelie::activeDbPath.c_str());
+            ImGui::Text("%s", Excella::activeDbPath.c_str());
 
             ImGui::EndMainMenuBar();
         }
@@ -639,19 +639,19 @@ void update_imgui(GLFWwindow* window)
         if (browser.HasSelected() && browserWantsSave)
         {
             std::string newPath = browser.GetSelected().string();
-            Amelie::activeDbPath = newPath.c_str();
-            save_database_to_file(Amelie::activeDbPath.c_str());
+            Excella::activeDbPath = newPath.c_str();
+            save_database_to_file(Excella::activeDbPath.c_str());
             browser.ClearSelected();
             reset_database();
-            load_database(Amelie::activeDbPath.c_str());
+            load_database(Excella::activeDbPath.c_str());
         }
 
         if (browser.HasSelected() && browserWantsLoad)
         {
             std::string newPath = browser.GetSelected().string();
-            Amelie::activeDbPath = newPath.c_str();
+            Excella::activeDbPath = newPath.c_str();
             reset_database();
-            load_database(Amelie::activeDbPath.c_str());
+            load_database(Excella::activeDbPath.c_str());
             browser.ClearSelected();
         }
 

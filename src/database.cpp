@@ -1,5 +1,5 @@
 #include "database.hpp"
-#include "amelie.hpp"
+#include "excella.hpp"
 #include "entry.hpp"
 
 #include <nlohmann/json.hpp>
@@ -63,7 +63,7 @@ bool load_database(const char* fp)
         e->notes = i["notes"];
     }
 
-    Amelie::activeDbPath = fp;
+    Excella::activeDbPath = fp;
 
     return true;
 }
@@ -110,5 +110,5 @@ void reset_database()
         ENTRIES[i] = {};
     }
     entryIdx = 0;
-    Amelie::actualTotalEntries = 0;
+    Excella::actualTotalEntries = 0;
 }
