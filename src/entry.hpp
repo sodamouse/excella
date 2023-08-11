@@ -10,7 +10,7 @@ enum Platform : u32 {
     XBOX, X360, XONE,
     NES, SNES, GB, GBA, GBC, GC, DS, DS3, WII, WIIU, SWITCH,
     PC98, PC99,
-    GENESIS,
+    SG_1000, MASTER_SYSTEM, GENESIS, GAME_GEAR, SEGA_CD, SEGA_PICO, X32, SATURN, DREAMCAST, ADVANCED_PICO
 };
 
 constexpr const char* platformStr[] {
@@ -19,7 +19,7 @@ constexpr const char* platformStr[] {
     "XBOX", "X360", "XONE",
     "NES", "SNES", "GB", "GBA", "GBC", "GC", "DS", "3DS", "Wii", "WiiU", "Switch",
     "PC98", "PC99",
-    "Genesis"
+    "SG-100", "Master System", "Genesis", "Game Gear", "Sega CD", "Sega Pico", "32X", "Saturn", "Dreamcast", "APB"
 };
 // clang-format on
 

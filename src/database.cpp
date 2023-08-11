@@ -28,7 +28,7 @@ bool create_database(const char* fp)
 bool load_database(const char* fp)
 {
     // The fact that json::parse() needs to finish in order for this function to proceed
-    // is a bottleneck in front of multi-threading. Misagh - 2023-07-18
+    // is a bottleneck in front of multi-threading. Mads - 2023-07-18
 
     if (!std::filesystem::exists(fp))
     {
