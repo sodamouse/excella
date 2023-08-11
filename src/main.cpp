@@ -1,12 +1,13 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
-#include "excella.hpp"
 #include "comfyg.hpp"
 #include "core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
+#include "excella.hpp"
 #include "font.hpp"
 #include "imgui.hpp"
+#include "profile.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -45,8 +46,10 @@ int main()
 
         update_imgui(window);
 
-        glfwSwapBuffers(window);
         glfwPollEvents();
+        glfwSwapBuffers(window);
+
+        MARK;
     }
 
     entryLoader.join();

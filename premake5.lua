@@ -1,6 +1,6 @@
 workspace "Excella"
     location "./build"
-    configurations { "debug", "release" }
+    configurations { "debug", "release", "profile" }
 
 project "imgui"
     kind "StaticLib"
@@ -27,7 +27,10 @@ project "excella"
     kind "ConsoleApp"
     language "c++"
     toolset "clang"
-    files { "src/**" }
+    files {
+        "src/**",
+        "vendor/tracy/public/TracyClient.cpp"
+    }
 
     buildoptions {
         "--std=c++20",
@@ -53,3 +56,7 @@ project "excella"
     filter "configurations:release"
         defines { "NDEBUG" }
         optimize "On"
+
+    filter "configurations:profile"
+        defines { "PROFILE", "TRACY_ENABLE" }
+        symbols "On"
