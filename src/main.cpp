@@ -11,8 +11,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 #include <thread>
 
 int main()

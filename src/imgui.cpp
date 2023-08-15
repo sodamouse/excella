@@ -13,12 +13,17 @@
 
 void draw_table(bool focusFilter, bool focusNewEntry)
 {
-    if (focusFilter)
-        ImGui::SetKeyboardFocusHere();
     ImGui::SeparatorText("Filter");
     ImGui::PushItemWidth(-1);
     static ImGuiTextFilter filter;
     (void)ImGui::PopItemWidth;
+    ImGui::SameLine();
+    if (ImGui::Button("Clear"))
+    {
+        filter.Clear();
+    }
+    if (focusFilter)
+        ImGui::SetKeyboardFocusHere();
     filter.Draw();
 
     ImGui::Separator();
