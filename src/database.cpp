@@ -1,12 +1,15 @@
 #include "database.hpp"
-#include "excella.hpp"
 #include "entry.hpp"
+#include "excella.hpp"
 
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 bool create_database(const char* fp)
 {
@@ -64,6 +67,18 @@ bool load_database(const char* fp)
     }
 
     Excella::activeDbPath = fp;
+
+    if (std::find(Excella::cachedDbPaths.begin(), Excella::cachedDbPaths.end(),
+                  Excella::activeDbPath) == Excella::cachedDbPaths.end())
+    {
+        Excella::cachedDbPaths.push_back(fp);
+        std::fstream file(Excella::cachedDbPathsFilePath, file.out);
+        for (const auto& line : Excella::cachedDbPaths)
+        {
+            file << line;
+            file << '\n';
+        }
+    }
 
     return true;
 }

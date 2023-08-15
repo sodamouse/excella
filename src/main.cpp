@@ -11,6 +11,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <fstream>
+#include <filesystem>
 #include <thread>
 
 int main()
@@ -19,6 +21,23 @@ int main()
     std::string configFilePath = "/home/" + username + "/.config/excella/excella.conf";
     const char** dbPath = Comfyg::config_str("database_path", "excella.db");
     Comfyg::load_config_file(configFilePath.c_str());
+
+    std::string cacheDirPath = "/home/" + username + "/.cache/excella/";
+    Excella::cachedDbPathsFilePath = cacheDirPath + "excella.cache";
+    if (std::filesystem::exists(cacheDirPath))
+    {
+        std::fstream cache(Excella::cachedDbPathsFilePath, cache.in);
+        std::string line;
+        while (cache >> line)
+        {
+            Excella::cachedDbPaths.push_back(line);
+        }
+    }
+
+    else
+    {
+        std::filesystem::create_directories(cacheDirPath);
+    }
 
     std::thread entryLoader(load_database, *dbPath);
 

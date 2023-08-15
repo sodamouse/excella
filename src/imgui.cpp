@@ -1,14 +1,15 @@
 #include "imgui.hpp"
-#include "excella.hpp"
 #include "core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
+#include "excella.hpp"
 #include "texture.hpp"
 
 #include "file_browser/filebrowser.hpp"
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
+#include <fstream>
 
 void draw_table(bool focusFilter, bool focusNewEntry)
 {
@@ -539,6 +540,21 @@ void update_imgui(GLFWwindow* window)
                     browser.Open();
                     browserWantsSave = true;
                     browserWantsLoad = false;
+                }
+
+                if (!Excella::cachedDbPaths.empty())
+                {
+                    ImGui::Separator();
+
+                    for (const auto& line : Excella::cachedDbPaths)
+                    {
+                        if (ImGui::MenuItem(line.c_str()))
+                        {
+                            Excella::activeDbPath = line;
+                            reset_database();
+                            load_database(Excella::activeDbPath.c_str());
+                        }
+                    }
                 }
 
                 ImGui::Separator();
