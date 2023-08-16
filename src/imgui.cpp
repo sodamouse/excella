@@ -1,24 +1,28 @@
 #include "imgui.hpp"
-#include "excella.hpp"
 #include "core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
+#include "excella.hpp"
 #include "texture.hpp"
 
 #include "file_browser/filebrowser.hpp"
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
+#include <fstream>
 
 void draw_table(bool focusFilter, bool focusNewEntry)
 {
+    ImGui::SeparatorText("Filter");
+    static ImGuiTextFilter filter;
+    ImGui::SameLine();
+    if (ImGui::Button("Clear"))
+    {
+        filter.Clear();
+    }
     if (focusFilter)
         ImGui::SetKeyboardFocusHere();
-    ImGui::SeparatorText("Filter");
-    ImGui::PushItemWidth(-1);
-    static ImGuiTextFilter filter;
-    (void)ImGui::PopItemWidth;
-    filter.Draw();
+    filter.Draw("##On", -1.0f);
 
     ImGui::Separator();
     static auto flags =
@@ -490,7 +494,7 @@ void update_imgui(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        save_database_to_file(Excella::activeDbPath.c_str());
+        save_database(Excella::activeDbPath.c_str());
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
@@ -531,7 +535,7 @@ void update_imgui(GLFWwindow* window)
 
                 if (ImGui::MenuItem("Save", "CTRL+s"))
                 {
-                    save_database_to_file(Excella::activeDbPath.c_str());
+                    save_database(Excella::activeDbPath.c_str());
                 }
 
                 if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
@@ -539,6 +543,21 @@ void update_imgui(GLFWwindow* window)
                     browser.Open();
                     browserWantsSave = true;
                     browserWantsLoad = false;
+                }
+
+                if (!Excella::cachedDbPaths.empty())
+                {
+                    ImGui::Separator();
+
+                    for (const auto& line : Excella::cachedDbPaths)
+                    {
+                        if (ImGui::MenuItem(line.c_str()))
+                        {
+                            Excella::activeDbPath = line;
+                            reset_database();
+                            load_database(Excella::activeDbPath.c_str());
+                        }
+                    }
                 }
 
                 ImGui::Separator();
@@ -640,7 +659,7 @@ void update_imgui(GLFWwindow* window)
         {
             std::string newPath = browser.GetSelected().string();
             Excella::activeDbPath = newPath.c_str();
-            save_database_to_file(Excella::activeDbPath.c_str());
+            save_database(Excella::activeDbPath.c_str());
             browser.ClearSelected();
             reset_database();
             load_database(Excella::activeDbPath.c_str());
