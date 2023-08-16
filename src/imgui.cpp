@@ -14,9 +14,7 @@
 void draw_table(bool focusFilter, bool focusNewEntry)
 {
     ImGui::SeparatorText("Filter");
-    ImGui::PushItemWidth(-1);
     static ImGuiTextFilter filter;
-    (void)ImGui::PopItemWidth;
     ImGui::SameLine();
     if (ImGui::Button("Clear"))
     {
@@ -24,7 +22,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
     }
     if (focusFilter)
         ImGui::SetKeyboardFocusHere();
-    filter.Draw();
+    filter.Draw("##On", -1.0f);
 
     ImGui::Separator();
     static auto flags =
