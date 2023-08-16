@@ -7,7 +7,6 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 
 bool create_database(const char* fp)
 {
@@ -137,7 +136,7 @@ bool load_database(const char* fp)
     return true;
 }
 
-void save_database_to_file(const char* fp)
+void save_database(const char* fp)
 {
     std::fstream out(fp, out.out | out.binary);
     assert(out.is_open() && "Could not create output file");

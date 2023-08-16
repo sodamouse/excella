@@ -494,7 +494,7 @@ void update_imgui(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        save_database_to_file(Excella::activeDbPath.c_str());
+        save_database(Excella::activeDbPath.c_str());
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
@@ -535,7 +535,7 @@ void update_imgui(GLFWwindow* window)
 
                 if (ImGui::MenuItem("Save", "CTRL+s"))
                 {
-                    save_database_to_file(Excella::activeDbPath.c_str());
+                    save_database(Excella::activeDbPath.c_str());
                 }
 
                 if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
@@ -659,7 +659,7 @@ void update_imgui(GLFWwindow* window)
         {
             std::string newPath = browser.GetSelected().string();
             Excella::activeDbPath = newPath.c_str();
-            save_database_to_file(Excella::activeDbPath.c_str());
+            save_database(Excella::activeDbPath.c_str());
             browser.ClearSelected();
             reset_database();
             load_database(Excella::activeDbPath.c_str());
