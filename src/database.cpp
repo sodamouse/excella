@@ -133,11 +133,15 @@ bool load_database(const char* fp)
         }
     }
 
+    Excella::dirty = false;
     return true;
 }
 
 void save_database(const char* fp)
 {
+    if (!Excella::dirty)
+        return;
+
     std::fstream out(fp, out.out | out.binary);
     assert(out.is_open() && "Could not create output file");
 
@@ -215,4 +219,6 @@ void save_database(const char* fp)
     out.seekp(0);
     entryIdx -= reduce;
     out.write((const char*)&entryIdx, sizeof(entryIdx));
+
+    Excella::dirty = false;
 }

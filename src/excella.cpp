@@ -8,5 +8,6 @@ std::string cachedDbPathsFilePath;
 std::vector<std::string> cachedDbPaths;
 size_t startHash;
 int actualTotalEntries = 0;
+bool dirty = false;
 
 } // namespace Excella

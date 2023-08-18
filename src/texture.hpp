@@ -21,3 +21,9 @@ extern byte editBytes[706];
 
 constexpr size_t editWhiteBytesSize = 1380;
 extern byte editWhiteBytes[1380];
+
+constexpr size_t disketteRedBytesSize = 1484;
+extern byte disketteRedBytes[1484];
+
+constexpr size_t disketteGrayBytesSize = 9844;
+extern byte disketteGrayBytes[9844];

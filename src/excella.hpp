@@ -12,5 +12,6 @@ extern std::string cachedDbPathsFilePath;
 extern std::vector<std::string> cachedDbPaths;
 extern size_t startHash;
 extern int actualTotalEntries;
+extern bool dirty;
 
 } // namespace Excella

@@ -29,7 +29,7 @@ project "excella"
     toolset "clang"
     files {
         "src/**",
-        "vendor/tracy/public/TracyClient.cpp"
+        #"vendor/tracy/public/TracyClient.cpp"
     }
 
     buildoptions {

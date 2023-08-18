@@ -76,14 +76,16 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::TableSetColumnIndex(0);
             ImGui::PushID(&ENTRIES[i].title);
             ImGui::PushItemWidth(-1);
-            ImGui::InputTextWithHint("##On", "title", &ENTRIES[i].title);
+            if (ImGui::InputTextWithHint("##On", "title", &ENTRIES[i].title))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].sortingTitle);
             ImGui::PushItemWidth(-1);
-            ImGui::InputTextWithHint("##On", "sorting title", &ENTRIES[i].sortingTitle);
+            if (ImGui::InputTextWithHint("##On", "sorting title", &ENTRIES[i].sortingTitle))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -96,7 +98,10 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                 {
                     const bool isSelected = (ENTRIES[i].platform == n);
                     if (ImGui::Selectable(platformStr[n], isSelected))
+                    {
                         ENTRIES[i].platform = (Platform)n;
+                        Excella::dirty = true;
+                    }
 
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
@@ -115,7 +120,10 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                 {
                     const bool isSelected = (ENTRIES[i].region == n);
                     if (ImGui::Selectable(regionStr[n], isSelected))
+                    {
                         ENTRIES[i].region = (Region)n;
+                        Excella::dirty = true;
+                    }
 
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
@@ -128,7 +136,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].releaseYear);
             ImGui::PushItemWidth(-1);
-            ImGui::InputInt("##On", &ENTRIES[i].releaseYear);
+            if (ImGui::InputInt("##On", &ENTRIES[i].releaseYear))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -141,7 +150,10 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                 {
                     const bool isSelected = (ENTRIES[i].updateStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
+                    {
                         ENTRIES[i].updateStatus = (ContentStatus)n;
+                        Excella::dirty = true;
+                    }
 
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
@@ -154,14 +166,16 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].archivedVersion);
             ImGui::PushItemWidth(-1);
-            ImGui::InputTextWithHint("##On", "archived version", &ENTRIES[i].archivedVersion);
+            if (ImGui::InputTextWithHint("##On", "archived version", &ENTRIES[i].archivedVersion))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].bestVersion);
             ImGui::PushItemWidth(-1);
-            ImGui::InputTextWithHint("##On", "known best version", &ENTRIES[i].bestVersion);
+            if (ImGui::InputTextWithHint("##On", "known best version", &ENTRIES[i].bestVersion))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -174,7 +188,10 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                 {
                     const bool isSelected = (ENTRIES[i].dlcStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
+                    {
                         ENTRIES[i].dlcStatus = (ContentStatus)n;
+                        Excella::dirty = true;
+                    }
 
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
@@ -193,7 +210,10 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                 {
                     const bool isSelected = (ENTRIES[i].completion == n);
                     if (ImGui::Selectable(completionStr[n], isSelected))
+                    {
                         ENTRIES[i].completion = (Completion)n;
+                        Excella::dirty = true;
+                    }
 
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
@@ -206,35 +226,40 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].rating);
             ImGui::PushItemWidth(-1);
-            ImGui::InputInt("##On", &ENTRIES[i].rating);
+            if (ImGui::InputInt("##On", &ENTRIES[i].rating))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].s);
             ImGui::PushItemWidth(-1);
-            ImGui::Checkbox("##On", &ENTRIES[i].s);
+            if (ImGui::Checkbox("##On", &ENTRIES[i].s))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].j);
             ImGui::PushItemWidth(-1);
-            ImGui::Checkbox("##On", &ENTRIES[i].j);
+            if (ImGui::Checkbox("##On", &ENTRIES[i].j))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].t);
             ImGui::PushItemWidth(-1);
-            ImGui::Checkbox("##On", &ENTRIES[i].t);
+            if (ImGui::Checkbox("##On", &ENTRIES[i].t))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].lastPlayed);
             ImGui::PushItemWidth(-1);
-            ImGui::InputInt("##On", &ENTRIES[i].lastPlayed);
+            if (ImGui::InputInt("##On", &ENTRIES[i].lastPlayed))
+                Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -253,7 +278,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Edit Notes", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500), flags);
+                if (ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500), flags))
+                    Excella::dirty = true;
                 if (ImGui::Button("Close"))
                     ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
@@ -269,6 +295,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             {
                 ENTRIES[i].deleted = true;
                 --Excella::actualTotalEntries;
+                Excella::dirty = true;
             }
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
@@ -491,7 +518,10 @@ void update_imgui(GLFWwindow* window)
     static bool browserWantsLoad = false;
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
+    {
+        // TODO (Mads): Show save prompt if excella dirty
         glfwSetWindowShouldClose(window, true);
+    }
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
         save_database(Excella::activeDbPath.c_str());
@@ -564,6 +594,44 @@ void update_imgui(GLFWwindow* window)
 
                 if (ImGui::MenuItem("Quit", "CTRL+q"))
                 {
+                    if (Excella::dirty)
+                    {
+                        showPopup = []() {
+                            if (!ImGui::IsPopupOpen("Unsaved Changes"))
+                                ImGui::OpenPopup("Unsaved Changes");
+
+                            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+                            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
+                                                    ImVec2(0.5f, 0.5f));
+                            if (ImGui::BeginPopupModal("Unsaved Changes"))
+                            {
+                                ImGui::Text("Save Changes to document before closing?");
+                                ImGui::Text("Your changes will be lost if you don't save them.");
+
+                                if (ImGui::Button("Don't Save", ImVec2(80, 0)))
+                                {
+                                    ImGui::CloseCurrentPopup();
+                                    showPopup = []() {};
+                                }
+
+                                ImGui::SameLine();
+                                if (ImGui::Button("Cancel", ImVec2(80, 0)))
+                                {
+                                    ImGui::CloseCurrentPopup();
+                                    showPopup = []() {};
+                                }
+
+                                ImGui::SameLine();
+                                if (ImGui::Button("Save", ImVec2(80, 0)))
+                                {
+                                    save_database(Excella::activeDbPath.c_str());
+                                    ImGui::CloseCurrentPopup();
+                                    showPopup = []() {};
+                                }
+                                ImGui::EndPopup();
+                            }
+                        };
+                    }
                     glfwSetWindowShouldClose(window, true);
                 }
 
@@ -649,6 +717,14 @@ void update_imgui(GLFWwindow* window)
             }
 
             ImGui::Text("%s", Excella::activeDbPath.c_str());
+
+            static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
+            static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
+            Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
+            if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18)))
+            {
+                save_database(Excella::activeDbPath.c_str());
+            }
 
             ImGui::EndMainMenuBar();
         }
