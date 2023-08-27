@@ -6,7 +6,7 @@
 
 namespace Excella {
 
-constexpr const char* version = "Excella v1.11.1";
+constexpr const char* version = "Excella v1.11.2";
 extern std::string activeDbPath;
 extern std::string cachedDbPathsFilePath;
 extern std::vector<std::string> cachedDbPaths;

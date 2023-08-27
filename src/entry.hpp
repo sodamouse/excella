@@ -50,10 +50,14 @@ enum Completion : u32 {
     COMPLETED,
     ENDLESS,
     RETIRED,
+    UNPLAYABLE,
+    WAITING,
+    WATCHED,
+    SKIPPED,
 };
 
 constexpr const char* completionStr[] {
-    "-", "Beaten", "Completed", "Endless", "Retired",
+    "-", "Beaten", "Completed", "Endless", "Retired", "Unplayable", "Waiting", "Watched", "Skipped"
 };
 
 struct Entry
