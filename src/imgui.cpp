@@ -37,7 +37,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
 
         static auto flags = ImGuiTableColumnFlags_WidthFixed;
         ImGui::TableSetupColumn("Title", flags, 500.0);
-        ImGui::TableSetupColumn("Sorting Title");
+        ImGui::TableSetupColumn("Sorting Title", ImGuiTableColumnFlags_DefaultSort);
         ImGui::TableSetupColumn("Platform");
         ImGui::TableSetupColumn("Region", flags, 50.0);
         ImGui::TableSetupColumn("Release Year");
