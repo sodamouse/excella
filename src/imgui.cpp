@@ -494,8 +494,8 @@ void draw_table(bool focusFilter, bool focusNewEntry)
                     assert(false && "Something fucky this way comes");
                     return false;
                 });
-            sortSpecs->SpecsDirty = false;
-            sortSpecs->SpecsDirty = false;
+                sortSpecs->SpecsDirty = false;
+                sortSpecs->SpecsDirty = false;
                 sortSpecs->SpecsDirty = false;
             }
         }
