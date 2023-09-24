@@ -11,18 +11,148 @@
 #include <algorithm>
 #include <fstream>
 
-void draw_table(bool focusFilter, bool focusNewEntry)
+static ImGuiTextFilter search;
+
+struct Filter
 {
-    ImGui::SeparatorText("Filter");
-    static ImGuiTextFilter filter;
+    bool active = false;
+
+    bool platformsSelected[ARRAY_SZ(platformStr)] {};
+    bool platformActive = false;
+
+    i32 releaseYear = 0;
+    bool releaseYearActive = false;
+
+    i32 lastPlayed = 0;
+    bool lastPlayedActive = false;
+
+    i32 rating = 0;
+    bool ratingActive = false;
+
+    bool completionsSelected[ARRAY_SZ(completionStr)] {};
+    bool completionActive = false;
+
+    bool sActive = false;
+    bool jActive = false;
+    bool tActive = false;
+};
+
+static Filter filter {};
+
+void draw_table(bool focusSearch, bool focusNewEntry)
+{
+    ImGui::SeparatorText("Search");
     ImGui::SameLine();
-    if (ImGui::Button("Clear"))
+    if (ImGui::Button("Clear Search"))
     {
-        filter.Clear();
+        search.Clear();
     }
-    if (focusFilter)
+    ImGui::SameLine();
+    if (ImGui::Button("Clear All"))
+    {
+        filter = Filter {};
+        search.Clear();
+    }
+
+    if (focusSearch)
         ImGui::SetKeyboardFocusHere();
-    filter.Draw("##On", -1.0f);
+    search.Draw("##On", -1.0f);
+
+    // Filtering setup
+    if (ImGui::TreeNode("Filter"))
+    {
+        if (ImGui::BeginTable("Platforms", ARRAY_SZ(platformStr))) // TODO this should be changed to correct number of columns
+        {
+            for (u64 n = 0; n < ARRAY_SZ(platformStr); ++n)
+            {
+                if (n % 16 == 0) ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+
+                if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n]))
+                {
+                    filter.platformActive = true;
+                }
+            }
+            ImGui::EndTable();
+        }
+        ImGui::Separator();
+
+        if (ImGui::InputInt("Release Year", &filter.releaseYear))
+        {
+            filter.releaseYearActive = true;
+        }
+
+        if (ImGui::InputInt("Last Played", &filter.lastPlayed))
+        {
+            filter.lastPlayedActive = true;
+        }
+        ImGui::Separator();
+
+        if (ImGui::InputInt("Rating", &filter.rating))
+        {
+            filter.ratingActive = true;
+        }
+        ImGui::Separator();
+
+        if (ImGui::BeginTable("Completion", ARRAY_SZ(completionStr))) // TODO this should be changed to correct no of columns
+        {
+            for (u64 n = 0; n < ARRAY_SZ(completionStr); ++n)
+            {
+                if (n % 5 == 0) ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+
+                if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n]))
+                {
+                    filter.completionActive = true;
+                }
+            }
+            ImGui::EndTable();
+        }
+        ImGui::Separator();
+
+        // clang-format off
+        if (ImGui::Checkbox("S", &filter.sActive))
+            ;
+        ImGui::SameLine();
+        if (ImGui::Checkbox("j", &filter.jActive))
+            ;
+        ImGui::SameLine();
+        if (ImGui::Checkbox("t", &filter.tActive))
+            ;
+        // clang-format on
+        ImGui::Separator();
+
+        // Filter test
+        bool test = false;
+        for (u64 i = 0; i < ARRAY_SZ(platformStr); ++i)
+        {
+            if (filter.platformsSelected[i])
+                test = true;
+        }
+        filter.platformActive = test;
+
+        test = false;
+        for (u64 i = 0; i < ARRAY_SZ(completionStr); ++i)
+        {
+            if (filter.completionsSelected[i])
+                test = true;
+        }
+        filter.completionActive = test;
+
+        // clang-format off
+        filter.active =
+            filter.platformActive    ||
+            filter.releaseYearActive ||
+            filter.lastPlayedActive  ||
+            filter.ratingActive      ||
+            filter.completionActive  ||
+            filter.sActive           ||
+            filter.jActive           ||
+            filter.tActive;
+        // clang-format on
+
+        ImGui::TreePop();
+    }
 
     ImGui::Separator();
     static auto flags =
@@ -62,10 +192,76 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             if (ENTRIES[i].deleted)
                 continue;
 
-            if (filter.IsActive())
+            if (search.IsActive())
             {
-                if (!filter.PassFilter(ENTRIES[i].title.c_str()))
+                if (!search.PassFilter(ENTRIES[i].title.c_str()))
                     continue;
+            }
+
+            // Filtering
+            if (filter.active)
+            {
+                if (filter.platformActive)
+                {
+                    bool shouldSkip = true;
+                    for (u64 j = 0; j < ARRAY_SZ(platformStr); ++j)
+                    {
+                        if (filter.platformsSelected[ENTRIES[i].platform])
+                            shouldSkip = false;
+                    }
+
+                    if (shouldSkip)
+                        continue;
+                }
+
+                if (filter.releaseYearActive)
+                {
+                    if (ENTRIES[i].releaseYear != filter.releaseYear)
+                        continue;
+                }
+
+                if (filter.lastPlayedActive)
+                {
+                    if (ENTRIES[i].lastPlayed != filter.lastPlayed)
+                        continue;
+                }
+
+                if (filter.ratingActive)
+                {
+                    if (ENTRIES[i].rating != filter.rating)
+                        continue;
+                }
+
+                if (filter.completionActive)
+                {
+                    bool shouldSkip = true;
+                    for (u64 j = 0; j < ARRAY_SZ(completionStr); ++j)
+                    {
+                        if (filter.completionsSelected[ENTRIES[i].completion])
+                        {
+                            shouldSkip = false;
+                        }
+                    }
+
+                    if (shouldSkip)
+                        continue;
+                }
+
+                // TODO These should probably be rephrased.
+                if (filter.sActive)
+                {
+                    if (!ENTRIES[i].s) continue;
+                }
+
+                if (filter.jActive)
+                {
+                    if (!ENTRIES[i].j) continue;
+                }
+
+                if (filter.tActive)
+                {
+                    if (!ENTRIES[i].t) continue;
+                }
             }
 
             ImGui::TableNextRow();
@@ -92,7 +288,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].platform);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##ON", platformStr[ENTRIES[i].platform]))
+            if (ImGui::BeginCombo("##On", platformStr[ENTRIES[i].platform]))
             {
                 for (size_t n = 0; n < ARRAY_SZ(platformStr); ++n)
                 {
@@ -507,7 +703,7 @@ void draw_table(bool focusFilter, bool focusNewEntry)
 
 void update_imgui(GLFWwindow* window)
 {
-    bool focusFilter = false;
+    bool focusSearch = false;
     bool focusNewEntry = false;
 
     static auto browserFlags = ImGuiFileBrowserFlags_EnterNewFilename |
@@ -528,12 +724,14 @@ void update_imgui(GLFWwindow* window)
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
+        search.Clear();
+        filter = {};
         create_entry();
         focusNewEntry = true;
     }
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
-        focusFilter = true;
+        focusSearch = true;
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -642,6 +840,8 @@ void update_imgui(GLFWwindow* window)
             {
                 if (ImGui::MenuItem("Create entry", "CTRL+n"))
                 {
+                    search.Clear();
+                    filter = {};
                     create_entry();
                     focusNewEntry = true;
                 }
@@ -653,6 +853,7 @@ void update_imgui(GLFWwindow* window)
             {
                 if (ImGui::MenuItem("Statistics"))
                 {
+                    // TODO: This needs a complete re-write. It might even be merged with the filter.
                     showPopup = []() {
                         if (!ImGui::IsPopupOpen("Statistics"))
                             ImGui::OpenPopup("Statistics");
@@ -690,8 +891,6 @@ void update_imgui(GLFWwindow* window)
 
                             ImGui::Separator();
                             ImGui::Text("Platform Breakdown");
-                            // TODO (Mads): Change into a table with multiple columns, instead of
-                            // all in rows
                             for (size_t i = 0; i < ARRAY_SZ(platformStr); ++i)
                             {
                                 i32 count = 0;
@@ -751,7 +950,7 @@ void update_imgui(GLFWwindow* window)
         }
 
         showPopup();
-        draw_table(focusFilter, focusNewEntry);
+        draw_table(focusSearch, focusNewEntry);
     }
     ImGui::End();
 

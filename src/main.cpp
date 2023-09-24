@@ -49,6 +49,7 @@ int main()
         return 1;
 
     glfwMakeContextCurrent(window);
+    glfwMaximizeWindow(window);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

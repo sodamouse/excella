@@ -1,0 +1,12 @@
+Version: 1.12.0 (2023-09-24)
+---------------------------------
+Add filtering
+Entries can now be filtered based on most of their attributes.
+The previous name-only filtering has been renamed to `search` as it better describes the function.
+
+Fix creating new entry while search / filter active would not focus the new entry correctly.
+
+Add new type `u64`
+This is a typedef to unsigned int and meant to replace size_t
+
+Excella window is now maximized by default
