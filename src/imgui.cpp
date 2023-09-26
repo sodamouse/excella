@@ -38,6 +38,8 @@ struct Filter
 };
 
 static Filter filter {};
+auto filterNodeOpen = false;
+ImGuiTreeNodeFlags filterNodeFlags;
 
 void draw_table(bool focusSearch, bool focusNewEntry)
 {
@@ -59,7 +61,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     search.Draw("##On", -1.0f);
 
     // Filtering setup
-    if (ImGui::TreeNode("Filter"))
+    if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
         if (ImGui::BeginTable("Platforms", ARRAY_SZ(platformStr))) // TODO this should be changed to correct number of columns
         {
@@ -732,6 +734,14 @@ void update_imgui(GLFWwindow* window)
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
         focusSearch = true;
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
+    {
+        filterNodeOpen = !filterNodeOpen;
+        if (filterNodeOpen)
+            filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+        else filterNodeFlags = {};
+    }
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
