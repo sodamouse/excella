@@ -807,48 +807,7 @@ void update_imgui(GLFWwindow* window)
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("Quit", "CTRL+q"))
-                {
-                    if (Excella::dirty)
-                    {
-                        showPopup = []() {
-                            if (!ImGui::IsPopupOpen("Unsaved Changes"))
-                                ImGui::OpenPopup("Unsaved Changes");
-
-                            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-                            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing,
-                                                    ImVec2(0.5f, 0.5f));
-                            if (ImGui::BeginPopupModal("Unsaved Changes"))
-                            {
-                                ImGui::Text("Save Changes to document before closing?");
-                                ImGui::Text("Your changes will be lost if you don't save them.");
-
-                                if (ImGui::Button("Don't Save", ImVec2(80, 0)))
-                                {
-                                    ImGui::CloseCurrentPopup();
-                                    showPopup = []() {};
-                                }
-
-                                ImGui::SameLine();
-                                if (ImGui::Button("Cancel", ImVec2(80, 0)))
-                                {
-                                    ImGui::CloseCurrentPopup();
-                                    showPopup = []() {};
-                                }
-
-                                ImGui::SameLine();
-                                if (ImGui::Button("Save", ImVec2(80, 0)))
-                                {
-                                    save_database(Excella::activeDbPath.c_str());
-                                    ImGui::CloseCurrentPopup();
-                                    showPopup = []() {};
-                                }
-                                ImGui::EndPopup();
-                            }
-                        };
-                    }
-                    glfwSetWindowShouldClose(window, true);
-                }
+                if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(window, true);
 
                 ImGui::EndMenu();
             }
