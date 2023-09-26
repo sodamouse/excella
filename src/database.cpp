@@ -124,12 +124,7 @@ void load_database(const char* fp)
                   Excella::activeDbPath) == Excella::cachedDbPaths.end())
     {
         Excella::cachedDbPaths.push_back(fp);
-        std::fstream file(Excella::cacheFilePath, file.out);
-        for (const auto& line : Excella::cachedDbPaths)
-        {
-            file << line;
-            file << '\n';
-        }
+        save_cache_file();
     }
 
     Excella::dirty = false;
@@ -219,4 +214,14 @@ void save_database(const char* fp)
     out.write((const char*)&entryIdx, sizeof(entryIdx));
 
     Excella::dirty = false;
+}
+
+void save_cache_file()
+{
+    std::fstream file(Excella::cacheFilePath, file.out);
+    for (const auto& line : Excella::cachedDbPaths)
+    {
+        file << line;
+        file << '\n';
+    }
 }

@@ -786,6 +786,13 @@ void update_imgui(GLFWwindow* window)
                             load_database(Excella::activeDbPath.c_str());
                         }
                     }
+
+                    ImGui::Separator();
+                    if (ImGui::MenuItem("Clear Recent Items"))
+                    {
+                        Excella::cachedDbPaths.clear();
+                        save_cache_file();
+                    }
                 }
 
                 ImGui::Separator();
