@@ -134,6 +134,12 @@ std::string strip_string(const std::string& str)
 void load_config_file(const char* path)
 {
     std::fstream file(path, std::ios::in);
+    if (!file.is_open())
+    {
+        std::cout << "Could not load config file: `" << path << "`\n";
+        return;
+    }
+
     std::string line;
 
     // Stores a pair of strings, corresponding to key/value of a single config.

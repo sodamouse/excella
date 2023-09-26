@@ -4,9 +4,14 @@ Add filtering
 Entries can now be filtered based on most of their attributes.
 The previous name-only filtering has been renamed to `search` as it better describes the function.
 
-Fix creating new entry while search / filter active would not focus the new entry correctly.
+Fix creating new entry while search / filter active would not focus the new entry correctly
 
 Add new type `u64`
 This is a typedef to unsigned int and meant to replace size_t
 
 Excella window is now maximized by default
+
+Improve database loading / creation behavior
+On boot excella will behave as the following:
+The config file is loaded. If it does not exist, the CWD is used to create `excella.db`. If this fails, the application exits.
+If the config file does exist, and default db path is specified, excella will attempt to create it. On success, the db is used, on fail, the application will exit.

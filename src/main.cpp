@@ -17,13 +17,17 @@
 
 int main()
 {
+    // TODO (Mads): Windows support
     std::string username = std::getenv("USER");
     std::string configFilePath = "/home/" + username + "/.config/excella/excella.conf";
-    const char** dbPath = Comfyg::config_str("database_path", "excella.db");
+    const char** dbPath = Comfyg::config_str("database_path", "./excella.db");
     Comfyg::load_config_file(configFilePath.c_str());
 
+    // TODO (Mads): Windows support - This should also be sourcable from config file
     std::string cacheDirPath = "/home/" + username + "/.cache/excella/";
     Excella::cachedDbPathsFilePath = cacheDirPath + "excella.cache";
+
+    // TODO (Mads): This should be move somewhere else
     if (std::filesystem::exists(cacheDirPath))
     {
         std::fstream cache(Excella::cachedDbPathsFilePath, cache.in);

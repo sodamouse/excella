@@ -7,22 +7,24 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
-bool create_database(const char* fp)
+void create_database(const char* fp)
 {
+    // TODO (Mads): Double check cppreference. How does this actually behave? WTF knows.
+    // true if a directory was created for the directory p resolves to, false otherwise.
+    // What if directory already exists?
+
     std::filesystem::create_directories(std::filesystem::path(fp).parent_path());
     std::fstream file(fp, std::ios::out);
-    if (file)
+
+    if (!std::filesystem::exists(fp))
     {
-        return true;
+        std::cout << "Could not create database: `" << fp << "`. Aborting.\n";
+        exit(-1);
     }
 
-    else
-    {
-        return false;
-    }
-
-    return true;
+    std::cout << "Created: `" << fp << "`.\n";
 }
 
 void reset_database()
@@ -35,18 +37,15 @@ void reset_database()
     Excella::actualTotalEntries = 0;
 }
 
-bool load_database(const char* fp)
+void load_database(const char* fp)
 {
     if (!std::filesystem::exists(fp))
     {
-        // TODO (Mads): Check the logic here. Should the database file be created
-        // if it doesn't exist? (2023-08-16)
-        printf("Database not found. Creating...");
-        return create_database(fp);
+        printf("Database not found. Creating...\n");
+        create_database(fp);
     }
 
     std::fstream in(fp, in.in | in.binary);
-    assert(in.is_open() && "Could not create output file!");
 
     // TODO (Mads): Query EXCL header. If file type is wrong, do not crash! (2023-08-16)
     size_t count = 0;
@@ -134,7 +133,6 @@ bool load_database(const char* fp)
     }
 
     Excella::dirty = false;
-    return true;
 }
 
 void save_database(const char* fp)
