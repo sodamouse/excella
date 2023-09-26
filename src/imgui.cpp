@@ -187,7 +187,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
-        for (size_t i = 0; i < entryIdx; ++i)
+        for (u64 i = 0; i < entryIdx; ++i)
         {
             if (ENTRIES[i].deleted)
                 continue;
@@ -290,7 +290,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", platformStr[ENTRIES[i].platform]))
             {
-                for (size_t n = 0; n < ARRAY_SZ(platformStr); ++n)
+                for (u64 n = 0; n < ARRAY_SZ(platformStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].platform == n);
                     if (ImGui::Selectable(platformStr[n], isSelected))
@@ -312,7 +312,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", regionStr[ENTRIES[i].region]))
             {
-                for (size_t n = 0; n < ARRAY_SZ(regionStr); ++n)
+                for (u64 n = 0; n < ARRAY_SZ(regionStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].region == n);
                     if (ImGui::Selectable(regionStr[n], isSelected))
@@ -342,7 +342,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].updateStatus]))
             {
-                for (size_t n = 0; n < ARRAY_SZ(contentStatusStr); ++n)
+                for (u64 n = 0; n < ARRAY_SZ(contentStatusStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].updateStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
@@ -380,7 +380,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].dlcStatus]))
             {
-                for (size_t n = 0; n < 5; ++n)
+                for (u64 n = 0; n < 5; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].dlcStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
@@ -402,7 +402,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", completionStr[ENTRIES[i].completion]))
             {
-                for (size_t n = 0; n < ARRAY_SZ(completionStr); ++n)
+                for (u64 n = 0; n < ARRAY_SZ(completionStr); ++n)
                 {
                     const bool isSelected = (ENTRIES[i].completion == n);
                     if (ImGui::Selectable(completionStr[n], isSelected))
@@ -876,7 +876,7 @@ void update_imgui(GLFWwindow* window)
                             i32 countCompleted = 0;
                             i32 countEndless = 0;
                             i32 countRetired = 0;
-                            for (size_t i = 0; i < entryIdx; ++i)
+                            for (u64 i = 0; i < entryIdx; ++i)
                             {
                                 // clang-format off
                                 switch (ENTRIES[i].completion) {
@@ -898,10 +898,10 @@ void update_imgui(GLFWwindow* window)
 
                             ImGui::Separator();
                             ImGui::Text("Platform Breakdown");
-                            for (size_t i = 0; i < ARRAY_SZ(platformStr); ++i)
+                            for (u64 i = 0; i < ARRAY_SZ(platformStr); ++i)
                             {
                                 i32 count = 0;
-                                for (size_t j = 0; j < entryIdx; ++j)
+                                for (u64 j = 0; j < entryIdx; ++j)
                                 {
                                     if (ENTRIES[j].platform == i)
                                         ++count;

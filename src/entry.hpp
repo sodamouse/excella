@@ -92,7 +92,7 @@ struct Entry
     std::string notes;
 };
 
-constexpr size_t ENTRIES_MAX = 2000;    // double every time the capacity is exceeded
+constexpr u64 ENTRIES_MAX = 2000;    // double every time the capacity is exceeded
 extern Entry ENTRIES[];
-extern size_t entryIdx;
+extern u64 entryIdx;
 Entry* create_entry();

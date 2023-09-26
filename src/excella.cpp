@@ -6,7 +6,7 @@ namespace Excella {
 std::string activeDbPath;
 std::string cacheFilePath;
 std::vector<std::string> cachedDbPaths;
-size_t startHash;
+u64 startHash;
 int actualTotalEntries = 0;
 bool dirty = false;
 

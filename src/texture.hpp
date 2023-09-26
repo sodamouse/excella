@@ -11,19 +11,19 @@ struct Texture
 };
 
 Texture load_texture_from_file(const char* filename);
-Texture load_texture_from_memory(void* data, size_t size);
+Texture load_texture_from_memory(void* data, u64 size);
 
-constexpr size_t trashcanBytesSize = 14490;
+constexpr u64 trashcanBytesSize = 14490;
 extern byte trashcanBytes[14490];
 
-constexpr size_t editBytesSize = 706;
+constexpr u64 editBytesSize = 706;
 extern byte editBytes[706];
 
-constexpr size_t editWhiteBytesSize = 1380;
+constexpr u64 editWhiteBytesSize = 1380;
 extern byte editWhiteBytes[1380];
 
-constexpr size_t disketteRedBytesSize = 1484;
+constexpr u64 disketteRedBytesSize = 1484;
 extern byte disketteRedBytes[1484];
 
-constexpr size_t disketteGrayBytesSize = 9844;
+constexpr u64 disketteGrayBytesSize = 9844;
 extern byte disketteGrayBytes[9844];

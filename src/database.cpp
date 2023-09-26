@@ -29,7 +29,7 @@ void create_database(const char* fp)
 
 void reset_database()
 {
-    for (size_t i = 0; i < entryIdx; ++i)
+    for (u64 i = 0; i < entryIdx; ++i)
     {
         ENTRIES[i] = {};
     }
@@ -48,14 +48,14 @@ void load_database(const char* fp)
     std::fstream in(fp, in.in | in.binary);
 
     // TODO (Mads): Query EXCL header. If file type is wrong, do not crash! (2023-08-16)
-    size_t count = 0;
-    in.read((char*)&count, sizeof(size_t));
+    u64 count = 0;
+    in.read((char*)&count, sizeof(u64));
     for (u32 i = 0; i < count; ++i)
     {
         Entry* e = create_entry();
 
         // title
-        size_t size = 0;
+        u64 size = 0;
         in.read((char*)&size, sizeof(size));
         e->title.resize(size);
         in.read((char*)e->title.data(), size);
@@ -140,7 +140,7 @@ void save_database(const char* fp)
 
     // TODO (Mads): Write the magic number into the header (2023-08-16)
     out.write((const char*)&entryIdx, sizeof(entryIdx));
-    size_t reduce = 0;
+    u64 reduce = 0;
 
     for (u32 i = 0; i < entryIdx; ++i)
     {

@@ -32,7 +32,7 @@ Texture load_texture_from_file(const char* filename)
     return texture;
 }
 
-Texture load_texture_from_memory(void* data, size_t size)
+Texture load_texture_from_memory(void* data, u64 size)
 {
     Texture texture;
 
