@@ -3,8 +3,9 @@ Excella is a fast and lightweight GPU-enabled database application for keeping t
 
 ## Features
 ![](/screenshot/screenshot.png)
+- Fuzzy searching entries by name
+- Extensive filtering options
 - Conditional entry highlighting
-- Filtering entries by name
 - Sorting columns by value
 - Adding notes to entries
 
@@ -16,14 +17,6 @@ cd build
 make config=release
 ```
 
-## Usage
-- Create $USER/.config/excella/excella.conf and specify a path where Excella should store its default database file.
-
-## Design philosophy
-Excella has been made with a performance-aware mindset. It is largely data-oriented, lacks templates and inheritance, and other OOP garbage. It currently uses std::string and nlohmann::json (which *is* OOP) with plans to completely get rid of them in the future.
-
 # TODO
 1. Disable spawning multiple instances
-2. Change default sort to `sortingTitle`
 3. Overhaul statistics page with new features and graphs
-4. Replace JSON with a custom, performant data serialization strategy
