@@ -114,14 +114,11 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         }
         ImGui::Separator();
 
-        if (ImGui::Checkbox("S", &filter.sActive))
-            ;
+        if (ImGui::Checkbox("S", &filter.sActive)) {}
         ImGui::SameLine();
-        if (ImGui::Checkbox("j", &filter.jActive))
-            ;
+        if (ImGui::Checkbox("j", &filter.jActive)) {}
         ImGui::SameLine();
-        if (ImGui::Checkbox("t", &filter.tActive))
-            ;
+        if (ImGui::Checkbox("t", &filter.tActive)) {}
         ImGui::Separator();
 
         // Filter test

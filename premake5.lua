@@ -60,7 +60,6 @@ project "glfw"
 project "imgui"
     kind "StaticLib"
     language "c++"
-    toolset "clang"
     files { "vendor/imgui/*" }
 
     buildoptions {
@@ -86,7 +85,6 @@ project "imgui"
 project "excella"
     kind "ConsoleApp"
     language "c++"
-    toolset "clang"
     files {
         "src/**",
     }
@@ -96,6 +94,7 @@ project "excella"
         "-Wall",
         "-Wextra",
         "-Wpedantic",
+        "-Werror"
     }
 
     includedirs {
