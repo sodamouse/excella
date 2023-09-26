@@ -124,7 +124,7 @@ void load_database(const char* fp)
                   Excella::activeDbPath) == Excella::cachedDbPaths.end())
     {
         Excella::cachedDbPaths.push_back(fp);
-        std::fstream file(Excella::cachedDbPathsFilePath, file.out);
+        std::fstream file(Excella::cacheFilePath, file.out);
         for (const auto& line : Excella::cachedDbPaths)
         {
             file << line;

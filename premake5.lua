@@ -1,6 +1,6 @@
 workspace "Excella"
     location "./build"
-    configurations { "debug", "release", "profile" }
+    configurations { "debug", "release" }
 
 project "imgui"
     kind "StaticLib"
@@ -29,7 +29,6 @@ project "excella"
     toolset "clang"
     files {
         "src/**",
-        #"vendor/tracy/public/TracyClient.cpp"
     }
 
     buildoptions {
@@ -43,11 +42,19 @@ project "excella"
         "vendor"
     }
 
+    -- TODO (Mads) glfw should be a vendor include
+    -- TODO (Mads) on windows, opengl library is called differently
     links {
-        "GL",
         "glfw",
         "imgui",
     }
+
+    filter "system:linux"
+        defines { "OS_UNIX" }
+        links { "GL" }
+
+    filter "system:windows"
+        defines { "OS_WINDOWS" }
 
     filter "configurations:debug"
         defines { "DEBUG" }
@@ -56,7 +63,3 @@ project "excella"
     filter "configurations:release"
         defines { "NDEBUG" }
         optimize "On"
-
-    filter "configurations:profile"
-        defines { "PROFILE", "TRACY_ENABLE" }
-        symbols "On"

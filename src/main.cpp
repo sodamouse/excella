@@ -17,20 +17,26 @@
 
 int main()
 {
-    // TODO (Mads): Windows support
+    const char** dbPath = Comfyg::config_str("database_path", "./excella.db");
+
+#ifdef OS_UNIX
     std::string username = std::getenv("USER");
     std::string configFilePath = "/home/" + username + "/.config/excella/excella.conf";
-    const char** dbPath = Comfyg::config_str("database_path", "./excella.db");
+    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "./cache.db");
+#endif // OS_UNIX
+
+#ifdef OS_WINDOWS
+    std::string username = std::getenv("USERNAME");
+    std::string configFilePath = "C:/Users/" + username + "/My Documents/excella/excella.conf";
+    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "./cache.db");
+#endif // OS_WINDOWS
+
     Comfyg::load_config_file(configFilePath.c_str());
+    Excella::cacheFilePath = *cacheFilePath;
 
-    // TODO (Mads): Windows support - This should also be sourcable from config file
-    std::string cacheDirPath = "/home/" + username + "/.cache/excella/";
-    Excella::cachedDbPathsFilePath = cacheDirPath + "excella.cache";
-
-    // TODO (Mads): This should be move somewhere else
-    if (std::filesystem::exists(cacheDirPath))
+    if (std::filesystem::exists(Excella::cacheFilePath))
     {
-        std::fstream cache(Excella::cachedDbPathsFilePath, cache.in);
+        std::fstream cache(Excella::cacheFilePath, cache.in);
         std::string line;
         while (cache >> line)
         {
@@ -40,7 +46,8 @@ int main()
 
     else
     {
-        std::filesystem::create_directories(cacheDirPath);
+        assert(false && "Could not find cache file");
+        std::filesystem::create_directories(Excella::cacheFilePath); // FIXME Try create the root path of the cache dir
     }
 
     std::thread entryLoader(load_database, *dbPath);
@@ -65,15 +72,13 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.0, 0.2, 0.4, 1.0);
+        glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
         update_imgui(window);
 
         glfwPollEvents();
         glfwSwapBuffers(window);
-
-        MARK;
     }
 
     entryLoader.join();
