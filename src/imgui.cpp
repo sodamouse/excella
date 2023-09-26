@@ -41,6 +41,8 @@ static Filter filter {};
 auto filterNodeOpen = false;
 ImGuiTreeNodeFlags filterNodeFlags;
 
+static void (*showPopup)() = []() {};
+
 void draw_table(bool focusSearch, bool focusNewEntry)
 {
     ImGui::SeparatorText("Search");
@@ -755,8 +757,6 @@ void update_imgui(GLFWwindow* window)
 
     ImGui::Begin("Excella", nullptr, flags);
     {
-        static void (*showPopup)() = []() {};
-
         // main menu
         if (ImGui::BeginMainMenuBar())
         {
@@ -866,11 +866,11 @@ void update_imgui(GLFWwindow* window)
                 ImGui::EndMenu();
             }
 
+#if 0
             if (ImGui::BeginMenu("Misc"))
             {
                 if (ImGui::MenuItem("Statistics"))
                 {
-                    // TODO: This needs a complete re-write. It might even be merged with the filter.
                     showPopup = []() {
                         if (!ImGui::IsPopupOpen("Statistics"))
                             ImGui::OpenPopup("Statistics");
@@ -879,58 +879,13 @@ void update_imgui(GLFWwindow* window)
                         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
                         if (ImGui::BeginPopupModal("Statistics"))
                         {
-                            ImGui::Text("Current entries: %i", Excella::actualTotalEntries);
-                            ImGui::Text("Max Supported entries: %zu", ENTRIES_MAX);
-
-                            i32 countBeaten = 0;
-                            i32 countCompleted = 0;
-                            i32 countEndless = 0;
-                            i32 countRetired = 0;
-                            for (u64 i = 0; i < entryIdx; ++i)
-                            {
-                                // clang-format off
-                                switch (ENTRIES[i].completion) {
-                                case BEATEN:    ++countBeaten;    break;
-                                case COMPLETED: ++countCompleted; break;
-                                case ENDLESS:   ++countEndless;   break;
-                                case RETIRED:    ++countRetired;  break;
-                                default: continue;
-                                }
-                                // clang-format on
-                            }
-
-                            ImGui::Separator();
-                            ImGui::Text("Play Status");
-                            ImGui::Text("\tBeaten: %i", countBeaten);
-                            ImGui::Text("\tCompleted: %i", countCompleted);
-                            ImGui::Text("\tEndless: %i", countEndless);
-                            ImGui::Text("\tRetired: %i", countRetired);
-
-                            ImGui::Separator();
-                            ImGui::Text("Platform Breakdown");
-                            for (u64 i = 0; i < ARRAY_SZ(platformStr); ++i)
-                            {
-                                i32 count = 0;
-                                for (u64 j = 0; j < entryIdx; ++j)
-                                {
-                                    if (ENTRIES[j].platform == i)
-                                        ++count;
-                                }
-                                ImGui::Text("\t%s: %i", platformStr[i], count);
-                            }
-
-                            if (ImGui::Button("Close", ImVec2(80, 0)))
-                            {
-                                ImGui::CloseCurrentPopup();
-                                showPopup = []() {};
-                            }
-                            ImGui::EndPopup();
                         }
                     };
                 }
 
                 ImGui::EndMenu();
             }
+#endif
 
             ImGui::Text("%s", Excella::activeDbPath.c_str());
 

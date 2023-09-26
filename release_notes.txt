@@ -15,6 +15,9 @@ On boot excella will behave as the following:
 The config file is loaded. If it does not exist, the CWD is used to create `excella.db`. If this fails, the application exits.
 If the config file does exist, and default db path is specified, excella will attempt to create it. On success, the db is used, on fail, the application will exit.
 
+Disable statistics page.
+This feature will either be completely re-written or entirely removed in a future version.
+
 Add new type `u64`
 Replace all instances of size_t with u64. On an amd64 machine, they are both 8 unsigned bytes, so this currently makes no functional difference.
 
