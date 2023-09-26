@@ -114,7 +114,6 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         }
         ImGui::Separator();
 
-        // clang-format off
         if (ImGui::Checkbox("S", &filter.sActive))
             ;
         ImGui::SameLine();
@@ -123,7 +122,6 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         ImGui::SameLine();
         if (ImGui::Checkbox("t", &filter.tActive))
             ;
-        // clang-format on
         ImGui::Separator();
 
         // Filter test
@@ -143,7 +141,6 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         }
         filter.completionActive = test;
 
-        // clang-format off
         filter.active =
             filter.platformActive    ||
             filter.releaseYearActive ||
@@ -153,7 +150,6 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             filter.sActive           ||
             filter.jActive           ||
             filter.tActive;
-        // clang-format on
 
         ImGui::TreePop();
     }
@@ -564,7 +560,6 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         }
 
         // Sorting table entries
-        // clang-format off
         if (auto* sortSpecs = ImGui::TableGetSortSpecs())
         {
             if (sortSpecs->SpecsDirty)
@@ -699,7 +694,6 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                 sortSpecs->SpecsDirty = false;
             }
         }
-        // clang-format on
         ImGui::EndTable();
     }
     ImGui::PopStyleVar();

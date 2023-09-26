@@ -3,7 +3,6 @@
 #include "integer.hpp"
 #include <string>
 
-// clang-format off
 enum Platform : u32 {
     PC,
     PSX, PS2, PS3, PS4,
@@ -21,7 +20,6 @@ constexpr const char* platformStr[] {
     "PC98", "PC99",
     "SG-100", "Master System", "Genesis", "Game Gear", "Sega CD", "Sega Pico", "32X", "Saturn", "Dreamcast", "APB"
 };
-// clang-format on
 
 enum Region : u32 {
     RE_NONE,
