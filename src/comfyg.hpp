@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef OS_WINDOWS
+#include <string>
+#endif
+
 namespace Comfyg {
 
 bool* config_bool(const char* name, bool defaultValue);
