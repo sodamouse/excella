@@ -3,6 +3,10 @@
 
 #include <stb_image/stb_image.h>
 
+#ifdef OS_WINDOWS
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
 Texture load_texture_from_file(const char* filename)
 {
     Texture texture;
