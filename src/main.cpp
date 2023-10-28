@@ -33,26 +33,19 @@ int main()
 #ifdef OS_WINDOWS
     std::string username = std::getenv("USERNAME");
     std::string configFilePath = "C:/Users/" + username + "/Documents/excella/excella.conf";
-    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "/Documents/excella/cache.db");
+    Excella::cacheFilePath = "C:/Users/" + username + "/Documents/excella/excella.cache";
 #endif // OS_WINDOWS
 
     Comfyg::load_config_file(configFilePath.c_str());
-    Excella::cacheFilePath = *cacheFilePath;
 
     if (std::filesystem::exists(Excella::cacheFilePath))
     {
-        std::fstream cache(Excella::cacheFilePath, cache.in);
+        std::fstream cache(Excella::cacheFilePath, std::ios::in);
         std::string line;
         while (cache >> line)
         {
             Excella::cachedDbPaths.push_back(line);
         }
-    }
-
-    else
-    {
-        assert(false && "Could not find cache file");
-        std::filesystem::create_directories(Excella::cacheFilePath); // FIXME Try create the root path of the cache dir
     }
 
     std::thread entryLoader(load_database, *dbPath);
