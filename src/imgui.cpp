@@ -573,13 +573,17 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                             // Title
                             case 0: {
                                 auto numeric = lhs.title.compare(rhs.title);
-                                sort = numeric < 0 ? true : false;
+                                if (numeric == 0) return false;
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending) return numeric < 0;
+                                return numeric > 0;
                             }; break;
 
                             // Sorting Title
                             case 1: {
                                 auto numeric = lhs.sortingTitle.compare(rhs.sortingTitle);
-                                sort = numeric < 0 ? true : false;
+                                if (numeric == 0) return false;
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending) return numeric < 0;
+                                return numeric > 0;
                             }; break;
 
                             // Platform
@@ -686,8 +690,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                     assert(false && "Something fucky this way comes");
                     return false;
                 });
-                sortSpecs->SpecsDirty = false;
-                sortSpecs->SpecsDirty = false;
+
                 sortSpecs->SpecsDirty = false;
             }
         }
