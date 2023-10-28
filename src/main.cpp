@@ -32,8 +32,8 @@ int main()
 
 #ifdef OS_WINDOWS
     std::string username = std::getenv("USERNAME");
-    std::string configFilePath = "C:/Users/" + username + "/My Documents/excella/excella.conf";
-    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "./cache.db");
+    std::string configFilePath = "C:/Users/" + username + "/Documents/excella/excella.conf";
+    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "/Documents/excella/cache.db");
 #endif // OS_WINDOWS
 
     Comfyg::load_config_file(configFilePath.c_str());
