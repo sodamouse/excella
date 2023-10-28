@@ -43,6 +43,8 @@ project "glfw"
         "vendor/glfw/src/xkb_unicode.c"
     }
 
+    architecture "x86_64"
+
     filter "system:linux"
         defines { "_GLFW_X11" }
 
@@ -74,6 +76,8 @@ project "imgui"
         "vendor/glfw/include"
     }
 
+    architecture "x86_64"
+
     filter "configurations:debug"
         defines { "DEBUG" }
         symbols "On"
@@ -89,13 +93,7 @@ project "excella"
         "src/**",
     }
 
-    buildoptions {
-        "--std=c++20",
-        "-Wall",
-        "-Wextra",
-        "-Wpedantic",
-        "-Werror"
-    }
+    cppdialect "C++20"
 
     includedirs {
         "vendor",
@@ -106,6 +104,8 @@ project "excella"
         "glfw",
         "imgui",
     }
+
+    architecture "x86_64"
 
     filter "system:linux"
         defines { "OS_UNIX" }
