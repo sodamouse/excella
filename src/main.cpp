@@ -15,7 +15,12 @@
 #include <fstream>
 #include <thread>
 
+#ifdef OS_WINDOWS
+#include <Windows.h>
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main()
+#endif
 {
     const char** dbPath = Comfyg::config_str("database_path", "./excella.db");
 
