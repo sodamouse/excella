@@ -41,13 +41,13 @@ void load_database(const char* fp)
 {
     if (!std::filesystem::exists(fp))
     {
-        printf("Database not found. Creating...\n");
+        std::cout << "Database not found. Creating...\n";
         create_database(fp);
     }
 
-    std::fstream in(fp, in.in | in.binary);
+    std::fstream in(fp, std::ios::in | std::ios::binary);
 
-    // TODO (Mads): Query EXCL header. If file type is wrong, do not crash! (2023-08-16)
+    // @TODO (Mads): Query EXCL header. If file type is wrong, do not crash! (2023-08-16)
     u64 count = 0;
     in.read((char*)&count, sizeof(u64));
     for (u32 i = 0; i < count; ++i)
@@ -145,13 +145,12 @@ void load_database(const char* fp)
 
 void save_database(const char* fp)
 {
-    if (!Excella::dirty)
-        return;
+    if (!Excella::dirty) return;
 
-    std::fstream out(fp, out.out | out.binary);
-    assert(out.is_open() && "Could not create output file");
+    std::fstream out(fp, std::ios::out | std::ios::binary);
+    assert(out.is_open() && "Could not create output file");    // @HACK runtime error checking
 
-    // TODO (Mads): Write the magic number into the header (2023-08-16)
+    // @TODO (Mads): Write the magic number into the header (2023-08-16)
     out.write((const char*)&entryIdx, sizeof(entryIdx));
     u64 reduce = 0;
 
@@ -241,7 +240,9 @@ void save_database(const char* fp)
 
 void save_cache_file()
 {
-    std::fstream file(Excella::cacheFilePath, file.out);
+    std::fstream file(Excella::cacheFilePath, std::ios::out);
+    if (!file.is_open()) return;
+
     for (const auto& line : Excella::cachedDbPaths)
     {
         file << line;

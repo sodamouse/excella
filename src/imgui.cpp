@@ -1,5 +1,4 @@
 #include "imgui.hpp"
-#include "core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "excella.hpp"
@@ -17,7 +16,7 @@ struct Filter
 {
     bool active = false;
 
-    bool platformsSelected[ARRAY_SZ(platformStr)] {};
+    bool platformsSelected[COUNT_PLATFORM] {};
     bool platformActive = false;
 
     i32 releaseYear = 0;
@@ -29,7 +28,7 @@ struct Filter
     i32 rating = 0;
     bool ratingActive = false;
 
-    bool completionsSelected[ARRAY_SZ(completionStr)] {};
+    bool completionsSelected[COUNT_COMPLETION] {};
     bool completionActive = false;
 
     bool sActive = false;
@@ -69,9 +68,9 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     // Filtering setup
     if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
-        if (ImGui::BeginTable("Platforms", ARRAY_SZ(platformStr))) // TODO this should be changed to correct number of columns
+        if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // TODO this should be changed to correct number of columns
         {
-            for (u64 n = 0; n < ARRAY_SZ(platformStr); ++n)
+            for (u64 n = 0; n < COUNT_PLATFORM; ++n)
             {
                 if (n % 16 == 0) ImGui::TableNextRow();
                 ImGui::TableNextColumn();
@@ -102,9 +101,9 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         }
         ImGui::Separator();
 
-        if (ImGui::BeginTable("Completion", ARRAY_SZ(completionStr))) // TODO this should be changed to correct no of columns
+        if (ImGui::BeginTable("Completion", COUNT_COMPLETION)) // TODO this should be changed to correct no of columns
         {
-            for (u64 n = 0; n < ARRAY_SZ(completionStr); ++n)
+            for (u64 n = 0; n < COUNT_COMPLETION; ++n)
             {
                 if (n % 5 == 0) ImGui::TableNextRow();
                 ImGui::TableNextColumn();
@@ -150,7 +149,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
         // Filter test
         bool test = false;
-        for (u64 i = 0; i < ARRAY_SZ(platformStr); ++i)
+        for (u64 i = 0; i < COUNT_PLATFORM; ++i)
         {
             if (filter.platformsSelected[i])
                 test = true;
@@ -158,7 +157,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         filter.platformActive = test;
 
         test = false;
-        for (u64 i = 0; i < ARRAY_SZ(completionStr); ++i)
+        for (u64 i = 0; i < COUNT_COMPLETION; ++i)
         {
             if (filter.completionsSelected[i])
                 test = true;
@@ -229,38 +228,34 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                 if (filter.platformActive)
                 {
                     bool shouldSkip = true;
-                    for (u64 j = 0; j < ARRAY_SZ(platformStr); ++j)
+                    for (u64 j = 0; j < COUNT_PLATFORM; ++j)
                     {
                         if (filter.platformsSelected[ENTRIES[i].platform])
                             shouldSkip = false;
                     }
 
-                    if (shouldSkip)
-                        continue;
+                    if (shouldSkip) continue;
                 }
 
                 if (filter.releaseYearActive)
                 {
-                    if (ENTRIES[i].releaseYear != filter.releaseYear)
-                        continue;
+                    if (ENTRIES[i].releaseYear != filter.releaseYear) continue;
                 }
 
                 if (filter.lastPlayedActive)
                 {
-                    if (ENTRIES[i].lastPlayed != filter.lastPlayed)
-                        continue;
+                    if (ENTRIES[i].lastPlayed != filter.lastPlayed) continue;
                 }
 
                 if (filter.ratingActive)
                 {
-                    if (ENTRIES[i].rating != filter.rating)
-                        continue;
+                    if (ENTRIES[i].rating != filter.rating) continue;
                 }
 
                 if (filter.completionActive)
                 {
                     bool shouldSkip = true;
-                    for (u64 j = 0; j < ARRAY_SZ(completionStr); ++j)
+                    for (u64 j = 0; j < COUNT_COMPLETION; ++j)
                     {
                         if (filter.completionsSelected[ENTRIES[i].completion])
                         {
@@ -272,7 +267,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                         continue;
                 }
 
-                // TODO These should probably be rephrased.
+                // @HACK These should probably be rephrased.
                 if (filter.sActive)
                 {
                     if (!ENTRIES[i].s) continue;
@@ -327,7 +322,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", platformStr[ENTRIES[i].platform]))
             {
-                for (u64 n = 0; n < ARRAY_SZ(platformStr); ++n)
+                for (u64 n = 0; n < COUNT_PLATFORM; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].platform == n);
                     if (ImGui::Selectable(platformStr[n], isSelected))
@@ -349,7 +344,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", regionStr[ENTRIES[i].region]))
             {
-                for (u64 n = 0; n < ARRAY_SZ(regionStr); ++n)
+                for (u64 n = 0; n < COUNT_REGION; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].region == n);
                     if (ImGui::Selectable(regionStr[n], isSelected))
@@ -379,7 +374,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].updateStatus]))
             {
-                for (u64 n = 0; n < ARRAY_SZ(contentStatusStr); ++n)
+                for (u64 n = 0; n < COUNT_CONTENT_STATUS; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].updateStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
@@ -439,7 +434,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PushItemWidth(-1);
             if (ImGui::BeginCombo("##On", completionStr[ENTRIES[i].completion]))
             {
-                for (u64 n = 0; n < ARRAY_SZ(completionStr); ++n)
+                for (u64 n = 0; n < COUNT_COMPLETION; ++n)
                 {
                     const bool isSelected = (ENTRIES[i].completion == n);
                     if (ImGui::Selectable(completionStr[n], isSelected))

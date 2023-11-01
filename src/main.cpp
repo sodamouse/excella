@@ -7,7 +7,6 @@
 #include "excella.hpp"
 #include "font.hpp"
 #include "imgui.hpp"
-#include "profile.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -25,15 +24,15 @@ int main()
     const char** dbPath = Comfyg::config_str("database_path", "./excella.db");
 
 #ifdef OS_UNIX
-    std::string username = std::getenv("USER");
+    std::string username       = std::getenv("USER");
     std::string configFilePath = "/home/" + username + "/.config/excella/excella.conf";
     const char** cacheFilePath = Comfyg::config_str("cache_file_path", "./cache.db");
 #endif // OS_UNIX
 
 #ifdef OS_WINDOWS
-    std::string username = std::getenv("USERNAME");
+    std::string username       = std::getenv("USERNAME");
     std::string configFilePath = "C:/Users/" + username + "/Documents/excella/excella.conf";
-    Excella::cacheFilePath = "C:/Users/" + username + "/Documents/excella/excella.cache";
+    Excella::cacheFilePath     = "C:/Users/" + username + "/Documents/excella/excella.cache";
 #endif // OS_WINDOWS
 
     Comfyg::load_config_file(configFilePath.c_str());
@@ -50,12 +49,10 @@ int main()
 
     std::thread entryLoader(load_database, *dbPath);
 
-    if (!glfwInit())
-        return 1;
+    if (!glfwInit()) return 1;
 
     GLFWwindow* window = glfwCreateWindow(800, 600, Excella::version, nullptr, nullptr);
-    if (!window)
-        return 1;
+    if (!window) return 1;
 
     glfwMakeContextCurrent(window);
     glfwMaximizeWindow(window);

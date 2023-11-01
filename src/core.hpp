@@ -1,4 +1,4 @@
 #pragma once
 
-#define ARRAY_SZ(array) sizeof(array) / sizeof(const char*)
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 #define TODO assert(false && "Not implemented")

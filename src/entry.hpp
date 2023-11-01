@@ -1,6 +1,7 @@
 #pragma once
 
 #include "integer.hpp"
+#include "core.hpp"
 #include <string>
 #include <vector>
 
@@ -21,6 +22,7 @@ constexpr const char* platformStr[] {
     "PC98", "PC99",
     "SG-100", "Master System", "Genesis", "Game Gear", "Sega CD", "Sega Pico", "32X", "Saturn", "Dreamcast", "APB"
 };
+constexpr u64 COUNT_PLATFORM = ARRAY_SIZE(platformStr);
 
 enum Region : u32 {
     RE_NONE,
@@ -31,6 +33,7 @@ enum Region : u32 {
 };
 
 constexpr const char* regionStr[] {"-", "EU", "JP", "UK", "US"};
+constexpr u64 COUNT_REGION = ARRAY_SIZE(regionStr);
 
 enum ContentStatus : u32 {
     CS_NONE,
@@ -40,8 +43,8 @@ enum ContentStatus : u32 {
     LOCKED,
 };
 
-constexpr const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available",
-                                          "Locked"};
+constexpr const char* contentStatusStr[] {"-", "Available", "Downloaded", "Not Available", "Locked"};
+constexpr u64 COUNT_CONTENT_STATUS = ARRAY_SIZE(contentStatusStr);
 
 enum Completion : u32 {
     CO_NONE,
@@ -58,6 +61,7 @@ enum Completion : u32 {
 constexpr const char* completionStr[] {
     "-", "Beaten", "Completed", "Endless", "Retired", "Unplayable", "Waiting", "Watched", "Skipped"
 };
+constexpr u64 COUNT_COMPLETION = ARRAY_SIZE(completionStr);
 
 struct Entry
 {
