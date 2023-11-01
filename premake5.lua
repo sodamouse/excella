@@ -4,7 +4,9 @@ workspace "Excella"
 
 project "glfw"
     kind "StaticLib"
+    architecture "x86_64"
     language "C"
+
     files {
         "vendor/glfw/src/cocoa_time.c",
         "vendor/glfw/src/context.c",
@@ -43,8 +45,6 @@ project "glfw"
         "vendor/glfw/src/xkb_unicode.c"
     }
 
-    architecture "x86_64"
-
     filter "system:linux"
         defines { "_GLFW_X11" }
 
@@ -61,22 +61,16 @@ project "glfw"
 
 project "imgui"
     kind "StaticLib"
+    architecture "x86_64"
     language "c++"
+
     files { "vendor/imgui/*" }
 
-    buildoptions {
-        "--std=c++20",
-    }
-
-    links {
-        "glfw"
-    }
+    links { "glfw" }
 
     includedirs {
         "vendor/glfw/include"
     }
-
-    architecture "x86_64"
 
     filter "configurations:debug"
         defines { "DEBUG" }
@@ -87,13 +81,14 @@ project "imgui"
         optimize "On"
 
 project "excella"
-    kind "ConsoleApp"
+    kind "WindowedApp"
+    architecture "x86_64"
     language "c++"
+    cppdialect "C++20"
+
     files {
         "src/**",
     }
-
-    cppdialect "C++20"
 
     includedirs {
         "vendor",
@@ -104,8 +99,6 @@ project "excella"
         "glfw",
         "imgui",
     }
-
-    architecture "x86_64"
 
     filter "system:linux"
         defines { "OS_UNIX" }
