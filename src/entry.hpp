@@ -2,6 +2,7 @@
 
 #include "integer.hpp"
 #include <string>
+#include <vector>
 
 enum Platform : u32 {
     PC,
@@ -88,6 +89,8 @@ struct Entry
     i32 lastPlayed = -1;
 
     std::string notes;
+
+    std::vector<std::string> tags;
 };
 
 constexpr u64 ENTRIES_MAX = 2000;    // double every time the capacity is exceeded

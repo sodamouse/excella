@@ -41,7 +41,10 @@ static Filter filter {};
 auto filterNodeOpen = false;
 ImGuiTreeNodeFlags filterNodeFlags;
 
+static std::vector<std::string> activeTags;
+
 static void (*showPopup)() = []() {};
+
 
 void draw_table(bool focusSearch, bool focusNewEntry)
 {
@@ -56,6 +59,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     {
         filter = Filter {};
         search.Clear();
+        activeTags.clear();
     }
 
     if (focusSearch)
@@ -121,6 +125,29 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         if (ImGui::Checkbox("t", &filter.tActive)) {}
         ImGui::Separator();
 
+        // Filter by tag
+        static std::string tagString;
+        if (ImGui::InputText("##On", &tagString));
+        ImGui::SameLine();
+        if (ImGui::Button("Add Tag Filter"))
+        {
+            activeTags.push_back(tagString);
+            tagString.clear();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear"))
+        {
+            activeTags.clear();
+        }
+        for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
+        {
+            if (ImGui::Button(activeTags[tagIdx].c_str()))
+            {
+                activeTags.erase(activeTags.begin() + tagIdx);
+;           }
+            ImGui::SameLine();
+        }
+
         // Filter test
         bool test = false;
         for (u64 i = 0; i < ARRAY_SZ(platformStr); ++i)
@@ -158,12 +185,12 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
     static ImVec2 cellPadding(1.0f, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
-    if (ImGui::BeginTable("Entries", 17, flags))
+    if (ImGui::BeginTable("Entries", 18, flags))
     {
         ImGuiTable* table = g.CurrentTable;
 
         static auto flags = ImGuiTableColumnFlags_WidthFixed;
-        ImGui::TableSetupColumn("Title", flags, 500.0);
+        ImGui::TableSetupColumn("Title", flags, 475.0);
         ImGui::TableSetupColumn("Sorting Title", ImGuiTableColumnFlags_DefaultSort);
         ImGui::TableSetupColumn("Platform");
         ImGui::TableSetupColumn("Region", flags, 50.0);
@@ -178,6 +205,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         ImGui::TableSetupColumn("J", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("T", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("Last Played");
+        ImGui::TableSetupColumn("T", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("N", flags | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
 
@@ -260,6 +288,18 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                     if (!ENTRIES[i].t) continue;
                 }
             }
+
+            // Filtering by tag
+            auto breakLoop = false;
+            if (!activeTags.empty())
+            {
+                for (const auto& tag : activeTags)
+                {
+                    if (std::find(ENTRIES[i].tags.begin(), ENTRIES[i].tags.end(), tag) == std::end(ENTRIES[i].tags))
+                        breakLoop = true;
+                }
+            }
+            if (breakLoop) continue;
 
             ImGui::TableNextRow();
 
@@ -457,17 +497,60 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::PopID();
 
             ImGui::TableNextColumn();
+            ImGui::PushID(&ENTRIES[i].tags);
+            ImGui::PushItemWidth(-1);
+            static Texture tags      = load_texture_from_memory(&editBytes, editBytesSize);
+            static Texture tagsWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
+            Texture* useTags = ENTRIES[i].notes.size() == 0 ? &tags : &tags;
+            if (ImGui::ImageButton("", (void*)(intptr_t)useTags->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit Tags");
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            if (ImGui::BeginPopupModal("Edit Tags", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                static std::string newTag;
+                ImGui::InputText("##On", &newTag);
+                ImGui::SameLine();
+                if (ImGui::Button("Add") && newTag.size() > 0)
+                {
+                    ENTRIES[i].tags.push_back(newTag);
+                    newTag.clear();
+                    Excella::dirty = true;
+                }
+                if (ImGui::BeginTable("Tags", 2))
+                {
+                    for (u64 tagIdx = 0; tagIdx < ENTRIES[i].tags.size(); ++tagIdx)
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::Text(ENTRIES[i].tags[tagIdx].c_str(), &ENTRIES[i].tags[tagIdx]);
+
+                        ImGui::TableNextColumn();
+                        ImGui::PushID(&ENTRIES[i].tags[tagIdx]);
+                        if (ImGui::Button("Delete"))
+                        {
+                            ENTRIES[i].tags.erase(ENTRIES[i].tags.begin() + tagIdx);
+                            Excella::dirty = true;
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::EndTable();
+                }
+
+                if (ImGui::Button("Close"))
+                    ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+            }
+            (void)ImGui::PopItemWidth();
+            ImGui::PopID();
+
+            ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].notes);
             ImGui::PushItemWidth(-1);
-            static Texture edit = load_texture_from_memory(&editBytes, editBytesSize);
-            static Texture editWhite =
-                load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
+            static Texture edit      = load_texture_from_memory(&editBytes, editBytesSize);
+            static Texture editWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
             Texture* useEdit = ENTRIES[i].notes.size() == 0 ? &edit : &editWhite;
-            if (ImGui::ImageButton("", (void*)(intptr_t)useEdit->data, ImVec2(18, 18)))
-            {
-                ImGui::OpenPopup("Edit Notes");
-            }
-            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            if (ImGui::ImageButton("", (void*)(intptr_t)useEdit->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit Notes");
+            center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Edit Notes", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
@@ -648,17 +731,9 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
                             // Rating
                             case 10: {
-                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
-                                {
-                                    return lhs.rating < rhs.rating;
-                                }
-                                else
-                                {
-                                    if (lhs.rating > rhs.rating || rhs.rating < lhs.rating)
-                                        return true;
-
-                                    return false;
-                                }
+                                if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending) return lhs.rating < rhs.rating;
+                                if (lhs.rating == rhs.rating) return false;
+                                return lhs.rating > rhs.rating;
                             }; break;
 
                             // S

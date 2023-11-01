@@ -116,6 +116,19 @@ void load_database(const char* fp)
         in.read((char*)&size, sizeof(size));
         e->notes.resize(size);
         in.read((char*)e->notes.data(), size);
+
+        // tags
+        size = 0;
+        in.read((char*)&size, sizeof(size));
+        for (u64 i = 0; i < size; ++i)
+        {
+            u64 tagSize = 0;
+            std::string tag;
+            in.read((char*)&tagSize, sizeof(tagSize));
+            tag.resize(tagSize);
+            in.read((char*)tag.data(), tagSize);
+            e->tags.push_back(tag);
+        }
     }
 
     Excella::activeDbPath = fp;
@@ -206,6 +219,16 @@ void save_database(const char* fp)
         size = ENTRIES[i].notes.size();
         out.write((const char*)&size, sizeof(size));
         out.write(ENTRIES[i].notes.data(), size);
+
+        // tags
+        size = ENTRIES[i].tags.size();
+        out.write((const char*)&size, sizeof(size));
+        for (const auto& tag : ENTRIES[i].tags)
+        {
+            size = tag.size();
+            out.write((const char*)&size, sizeof(size));
+            out.write(tag.data(), size);
+        }
     }
 
     // TODO (Mads): This can be simplified with a header... (2023-08-16)
