@@ -27,3 +27,9 @@ extern byte disketteRedBytes[1484];
 
 constexpr u64 disketteGrayBytesSize = 9844;
 extern byte disketteGrayBytes[9844];
+
+constexpr u64 tagGreenBytesSize = 1995;
+extern byte tagGreenBytes[1995];
+
+constexpr u64 tagBlackBytesSize = 1575;
+extern byte tagBlackBytes[1575];

@@ -37,7 +37,7 @@ struct Filter
 };
 
 static Filter filter {};
-auto filterNodeOpen = false;
+bool filterNodeOpen = false;
 ImGuiTreeNodeFlags filterNodeFlags;
 
 static std::vector<std::string> activeTags;
@@ -49,10 +49,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 {
     ImGui::SeparatorText("Search");
     ImGui::SameLine();
-    if (ImGui::Button("Clear Search"))
-    {
-        search.Clear();
-    }
+    if (ImGui::Button("Clear Search")) search.Clear();
     ImGui::SameLine();
     if (ImGui::Button("Clear All"))
     {
@@ -61,57 +58,39 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         activeTags.clear();
     }
 
-    if (focusSearch)
-        ImGui::SetKeyboardFocusHere();
+    if (focusSearch) ImGui::SetKeyboardFocusHere();
     search.Draw("##On", -1.0f);
 
     // Filtering setup
     if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
-        if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // TODO this should be changed to correct number of columns
+        if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
         {
             for (u64 n = 0; n < COUNT_PLATFORM; ++n)
             {
                 if (n % 16 == 0) ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-
-                if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n]))
-                {
-                    filter.platformActive = true;
-                }
+                if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n])) filter.platformActive = true;
             }
             ImGui::EndTable();
         }
         ImGui::Separator();
 
-        if (ImGui::InputInt("Release Year", &filter.releaseYear))
-        {
-            filter.releaseYearActive = true;
-        }
-
-        if (ImGui::InputInt("Last Played", &filter.lastPlayed))
-        {
-            filter.lastPlayedActive = true;
-        }
+        if (ImGui::InputInt("Release Year", &filter.releaseYear)) filter.releaseYearActive = true;
+        if (ImGui::InputInt("Last Played", &filter.lastPlayed)) filter.lastPlayedActive = true;
         ImGui::Separator();
 
-        if (ImGui::InputInt("Rating", &filter.rating))
-        {
-            filter.ratingActive = true;
-        }
+        if (ImGui::InputInt("Rating", &filter.rating)) filter.ratingActive = true;
         ImGui::Separator();
 
-        if (ImGui::BeginTable("Completion", COUNT_COMPLETION)) // TODO this should be changed to correct no of columns
+        if (ImGui::BeginTable("Completion", COUNT_COMPLETION)) // TODO this should be changed to correct no. of columns
         {
             for (u64 n = 0; n < COUNT_COMPLETION; ++n)
             {
                 if (n % 5 == 0) ImGui::TableNextRow();
+                
                 ImGui::TableNextColumn();
-
-                if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n]))
-                {
-                    filter.completionActive = true;
-                }
+                if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n])) filter.completionActive = true;
             }
             ImGui::EndTable();
         }
@@ -140,10 +119,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         }
         for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
         {
-            if (ImGui::Button(activeTags[tagIdx].c_str()))
-            {
-                activeTags.erase(activeTags.begin() + tagIdx);
-;           }
+            if (ImGui::Button(activeTags[tagIdx].c_str())) activeTags.erase(activeTags.begin() + tagIdx);
             ImGui::SameLine();
         }
 
@@ -151,8 +127,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         bool test = false;
         for (u64 i = 0; i < COUNT_PLATFORM; ++i)
         {
-            if (filter.platformsSelected[i])
-                test = true;
+            if (filter.platformsSelected[i]) test = true;
         }
         filter.platformActive = test;
 
@@ -178,8 +153,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     }
 
     ImGui::Separator();
-    static auto flags =
-        ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY;
+    static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY;
     ImGuiContext& g = *ImGui::GetCurrentContext();
 
     static ImVec2 cellPadding(1.0f, 1.0f);
@@ -213,14 +187,10 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
         for (u64 i = 0; i < entryIdx; ++i)
         {
-            if (ENTRIES[i].deleted)
-                continue;
+            if (ENTRIES[i].deleted) continue;
 
-            if (search.IsActive())
-            {
-                if (!search.PassFilter(ENTRIES[i].title.c_str()))
-                    continue;
-            }
+            // Search (fuzzy filtering based on entry title)
+            if (search.IsActive() && !search.PassFilter(ENTRIES[i].title.c_str())) continue;
 
             // Filtering
             if (filter.active)
@@ -237,51 +207,26 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                     if (shouldSkip) continue;
                 }
 
-                if (filter.releaseYearActive)
-                {
-                    if (ENTRIES[i].releaseYear != filter.releaseYear) continue;
-                }
+                if (filter.releaseYearActive && ENTRIES[i].releaseYear != filter.releaseYear) continue;
 
-                if (filter.lastPlayedActive)
-                {
-                    if (ENTRIES[i].lastPlayed != filter.lastPlayed) continue;
-                }
+                if (filter.lastPlayedActive && ENTRIES[i].lastPlayed != filter.lastPlayed) continue;
 
-                if (filter.ratingActive)
-                {
-                    if (ENTRIES[i].rating != filter.rating) continue;
-                }
+                if (filter.ratingActive && ENTRIES[i].rating != filter.rating) continue;
 
                 if (filter.completionActive)
                 {
                     bool shouldSkip = true;
                     for (u64 j = 0; j < COUNT_COMPLETION; ++j)
                     {
-                        if (filter.completionsSelected[ENTRIES[i].completion])
-                        {
-                            shouldSkip = false;
-                        }
+                        if (filter.completionsSelected[ENTRIES[i].completion]) shouldSkip = false;
                     }
 
-                    if (shouldSkip)
-                        continue;
+                    if (shouldSkip) continue;
                 }
 
-                // @HACK These should probably be rephrased.
-                if (filter.sActive)
-                {
-                    if (!ENTRIES[i].s) continue;
-                }
-
-                if (filter.jActive)
-                {
-                    if (!ENTRIES[i].j) continue;
-                }
-
-                if (filter.tActive)
-                {
-                    if (!ENTRIES[i].t) continue;
-                }
+                if (filter.sActive && !ENTRIES[i].s) continue;
+                if (filter.jActive && !ENTRIES[i].j) continue;
+                if (filter.tActive && !ENTRIES[i].t) continue;
             }
 
             // Filtering by tag
@@ -298,22 +243,19 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
             ImGui::TableNextRow();
 
-            if (focusNewEntry)
-                ImGui::SetKeyboardFocusHere();
+            if (focusNewEntry) ImGui::SetKeyboardFocusHere();
 
             ImGui::TableSetColumnIndex(0);
             ImGui::PushID(&ENTRIES[i].title);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "title", &ENTRIES[i].title))
-                Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "title", &ENTRIES[i].title)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].sortingTitle);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "sorting title", &ENTRIES[i].sortingTitle))
-                Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "sorting title", &ENTRIES[i].sortingTitle)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -331,8 +273,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                         Excella::dirty = true;
                     }
 
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
+                    if (isSelected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
@@ -353,8 +294,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                         Excella::dirty = true;
                     }
 
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
+                    if (isSelected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
@@ -364,8 +304,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].releaseYear);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputInt("##On", &ENTRIES[i].releaseYear))
-                Excella::dirty = true;
+            if (ImGui::InputInt("##On", &ENTRIES[i].releaseYear)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -383,8 +322,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                         Excella::dirty = true;
                     }
 
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
+                    if (isSelected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
@@ -394,16 +332,14 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].archivedVersion);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "archived version", &ENTRIES[i].archivedVersion))
-                Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "archived version", &ENTRIES[i].archivedVersion)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].bestVersion);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "known best version", &ENTRIES[i].bestVersion))
-                Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "known best version", &ENTRIES[i].bestVersion)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -421,8 +357,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                         Excella::dirty = true;
                     }
 
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
+                    if (isSelected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
@@ -443,8 +378,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                         Excella::dirty = true;
                     }
 
-                    if (isSelected)
-                        ImGui::SetItemDefaultFocus();
+                    if (isSelected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
@@ -454,49 +388,44 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].rating);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputInt("##On", &ENTRIES[i].rating))
-                Excella::dirty = true;
+            if (ImGui::InputInt("##On", &ENTRIES[i].rating)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].s);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Checkbox("##On", &ENTRIES[i].s))
-                Excella::dirty = true;
+            if (ImGui::Checkbox("##On", &ENTRIES[i].s)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].j);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Checkbox("##On", &ENTRIES[i].j))
-                Excella::dirty = true;
+            if (ImGui::Checkbox("##On", &ENTRIES[i].j)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].t);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Checkbox("##On", &ENTRIES[i].t))
-                Excella::dirty = true;
+            if (ImGui::Checkbox("##On", &ENTRIES[i].t)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].lastPlayed);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputInt("##On", &ENTRIES[i].lastPlayed))
-                Excella::dirty = true;
+            if (ImGui::InputInt("##On", &ENTRIES[i].lastPlayed)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].tags);
             ImGui::PushItemWidth(-1);
-            static Texture tags      = load_texture_from_memory(&editBytes, editBytesSize);
-            static Texture tagsWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
-            Texture* useTags = ENTRIES[i].notes.size() == 0 ? &tags : &tags;
+            static Texture tagsBlack = load_texture_from_memory(&tagBlackBytes, tagBlackBytesSize);
+            static Texture tagsBlue = load_texture_from_memory(&tagGreenBytes, tagGreenBytesSize);
+            Texture* useTags = ENTRIES[i].tags.size() == 0 ? &tagsBlack : &tagsBlue;
             if (ImGui::ImageButton("", (void*)(intptr_t)useTags->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit Tags");
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -531,8 +460,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                     ImGui::EndTable();
                 }
 
-                if (ImGui::Button("Close"))
-                    ImGui::CloseCurrentPopup();
+                if (ImGui::Button("Close")) ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
             }
             (void)ImGui::PopItemWidth();
@@ -549,10 +477,8 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Edit Notes", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                if (ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500), flags))
-                    Excella::dirty = true;
-                if (ImGui::Button("Close"))
-                    ImGui::CloseCurrentPopup();
+                if (ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500), flags)) Excella::dirty = true;
+                if (ImGui::Button("Close")) ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
             }
             (void)ImGui::PopItemWidth();
@@ -571,14 +497,13 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
-            if (focusNewEntry)
-                ImGui::SetScrollHereY(0.5f);
+            if (focusNewEntry) ImGui::SetScrollHereY(0.5f); // @BUG Why is this grayed-out?
 
             // Highlight entries based on archive status
             static auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
-            static auto red = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
+            static auto red    = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
             static auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
-            static auto green = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
+            static auto green  = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
 
             auto& e = ENTRIES[i];
             switch (e.updateStatus)
@@ -605,17 +530,15 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                 break;
             }
 
-            if ((e.dlcStatus == DOWNLOADED || e.dlcStatus == CS_NONE) &&
-                (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) &&
-                e.completion == COMPLETED)
-                table->RowBgColor[1] = ImGui::GetColorU32(green);
+            bool shouldHighlightGreen = (e.dlcStatus    == DOWNLOADED || e.dlcStatus == CS_NONE)   &&
+                                        (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) &&
+                                        (e.completion   == COMPLETED);
+            if (shouldHighlightGreen) table->RowBgColor[1] = ImGui::GetColorU32(green);
 
             // Highlighting hovered row
-            ImGui::TableSetColumnIndex(table->Columns.size() -
-                                       1); // Jump to last column in case not enough has been drawn
+            ImGui::TableSetColumnIndex(table->Columns.size() - 1); // Jump to last column in case not enough has been drawn
 
-            static ImRect rowRect(table->WorkRect.Min.x, table->RowPosY1, table->WorkRect.Max.x,
-                                  table->RowPosY2);
+            static ImRect rowRect(table->WorkRect.Min.x, table->RowPosY1, table->WorkRect.Max.x, table->RowPosY2);
 
             rowRect.Min.x = table->WorkRect.Min.x;
             rowRect.Min.y = table->RowPosY1;
@@ -626,12 +549,9 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
             bool hover = ImGui::IsMouseHoveringRect(rowRect.Min, rowRect.Max, false) &&
                          ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
-            // !ImGui::IsAnyItemHovered(); This can optionally disable row highlighting if any cells
-            // are hovered.
+            // !ImGui::IsAnyItemHovered(); This can optionally disable row highlighting if any cells are hovered.
 
-            if (hover)
-                table->RowBgColor[1] =
-                    ImGui::GetColorU32(ImGuiCol_Border); // set to any color of your choice
+            if (hover) table->RowBgColor[1] = ImGui::GetColorU32(ImGuiCol_Border);
         }
 
         // Sorting table entries
@@ -775,20 +695,16 @@ void update_imgui(GLFWwindow* window)
     bool focusNewEntry = false;
 
     static auto browserFlags = ImGuiFileBrowserFlags_EnterNewFilename |
-                               ImGuiFileBrowserFlags_CloseOnEsc |
+                               ImGuiFileBrowserFlags_CloseOnEsc       |
                                ImGuiFileBrowserFlags_CreateNewDir;
     static ImGui::FileBrowser browser(browserFlags);
     static bool browserWantsSave = false;
     static bool browserWantsLoad = false;
 
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q))
-    {
-        // TODO (Mads): Show save prompt if excella dirty
-        glfwSetWindowShouldClose(window, true);
-    }
+    // @FEATURE (Mads): Show save prompt if excella dirty
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(window, true);
 
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S))
-        save_database(Excella::activeDbPath.c_str());
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
@@ -798,14 +714,12 @@ void update_imgui(GLFWwindow* window)
         focusNewEntry = true;
     }
 
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F))
-        focusSearch = true;
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
     {
         filterNodeOpen = !filterNodeOpen;
-        if (filterNodeOpen)
-            filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+        if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         else filterNodeFlags = {};
     }
 
@@ -813,8 +727,7 @@ void update_imgui(GLFWwindow* window)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    static auto flags =
-        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+    static auto flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -835,10 +748,7 @@ void update_imgui(GLFWwindow* window)
                     browserWantsLoad = true;
                 }
 
-                if (ImGui::MenuItem("Save", "CTRL+s"))
-                {
-                    save_database(Excella::activeDbPath.c_str());
-                }
+                if (ImGui::MenuItem("Save", "CTRL+s")) save_database(Excella::activeDbPath.c_str());
 
                 if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
                 {
@@ -889,36 +799,14 @@ void update_imgui(GLFWwindow* window)
                 ImGui::EndMenu();
             }
 
-#if 0
-            if (ImGui::BeginMenu("Misc"))
-            {
-                if (ImGui::MenuItem("Statistics"))
-                {
-                    showPopup = []() {
-                        if (!ImGui::IsPopupOpen("Statistics"))
-                            ImGui::OpenPopup("Statistics");
-
-                        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-                        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-                        if (ImGui::BeginPopupModal("Statistics"))
-                        {
-                        }
-                    };
-                }
-
-                ImGui::EndMenu();
-            }
-#endif
+            // @FEATURE There should be a count of entries currenty shown / total entries
 
             ImGui::Text("%s", Excella::activeDbPath.c_str());
 
             static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
             static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
             Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
-            if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18)))
-            {
-                save_database(Excella::activeDbPath.c_str());
-            }
+            if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
 
             ImGui::EndMainMenuBar();
         }
