@@ -113,7 +113,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         static std::string tagString;
         if (ImGui::InputText("##On", &tagString));
         ImGui::SameLine();
-        if (ImGui::Button("Add Tag Filter"))
+        if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
         {
             activeTags.push_back(tagString);
             tagString.clear();
