@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <cstring>
 
 static ImGuiTextFilter search;
 
@@ -44,6 +45,8 @@ static std::vector<std::string> activeTags;
 
 static void (*showPopup)() = []() {};
 
+// @HACK move to context(?)
+static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
 
 void draw_table(bool focusSearch, bool focusNewEntry)
 {
@@ -62,7 +65,10 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     search.Draw("##On", -1.0f);
 
     // Filtering setup
-    if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
+    static char filterTextBuffer[64];
+    memset(filterTextBuffer, 0, 64);
+    sprintf(&filterTextBuffer[0], "Filter (%u)", countLogicalEntries);
+    if (ImGui::TreeNodeEx(&filterTextBuffer[0], filterNodeFlags))
     {
         if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
         {
@@ -185,6 +191,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
+        countLogicalEntries = 0;
         for (u64 i = 0; i < entryIdx; ++i)
         {
             if (ENTRIES[i].deleted) continue;
@@ -240,6 +247,8 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                 }
             }
             if (breakLoop) continue;
+
+            ++countLogicalEntries;
 
             ImGui::TableNextRow();
 
