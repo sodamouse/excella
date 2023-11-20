@@ -469,7 +469,11 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                     ImGui::EndTable();
                 }
 
-                if (ImGui::Button("Close")) ImGui::CloseCurrentPopup();
+                if (ImGui::Button("Close"))
+                {
+                    newTag.clear();
+                    ImGui::CloseCurrentPopup();
+                }
                 ImGui::EndPopup();
             }
             (void)ImGui::PopItemWidth();

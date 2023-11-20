@@ -1,3 +1,7 @@
+Version 1.14.0
+---------------------------------
+Fix a bug where new tag text input was not always cleared.
+
 Version: 1.13.0 (2023-11-01)
 ---------------------------------
 Add tags
