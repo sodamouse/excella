@@ -494,7 +494,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Edit Notes", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                if (ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500), flags)) Excella::dirty = true;
+                if (ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500))) Excella::dirty = true;
                 if (ImGui::Button("Close")) ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
             }

@@ -1,6 +1,10 @@
 Version 1.14.0
 ---------------------------------
+Minor performance improvements.
+
 Fix a bug where new tag text input was not always cleared.
+
+Fix a bug where Edit Notes was using a wrong ImGui flag.
 
 Version: 1.13.0 (2023-11-01)
 ---------------------------------
