@@ -1,5 +1,7 @@
 Version 1.14.0
 ---------------------------------
+Add new completion status: On-Hold
+
 Minor performance improvements.
 
 Fix a bug where new tag text input was not always cleared.

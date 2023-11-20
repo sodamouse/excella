@@ -56,10 +56,11 @@ enum Completion : u32 {
     WAITING,
     WATCHED,
     SKIPPED,
+    ONHOLD,
 };
 
 constexpr const char* completionStr[] {
-    "-", "Beaten", "Completed", "Endless", "Retired", "Unplayable", "Waiting", "Watched", "Skipped"
+    "-", "Beaten", "Completed", "Endless", "Retired", "Unplayable", "Waiting", "Watched", "Skipped", "On-Hold"
 };
 constexpr u64 COUNT_COMPLETION = ARRAY_SIZE(completionStr);
 
