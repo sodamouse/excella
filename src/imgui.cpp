@@ -159,20 +159,24 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     }
 
     ImGui::Separator();
-    static auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY;
+    static constexpr auto TABLE_FLAGS =
+        ImGuiTableFlags_Resizable   |
+        ImGuiTableFlags_Sortable    |
+        ImGuiTableFlags_ScrollY;
+
     ImGuiContext& g = *ImGui::GetCurrentContext();
 
-    static ImVec2 cellPadding(1.0f, 1.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
-    if (ImGui::BeginTable("Entries", 18, flags))
+    static constexpr ImVec2 CELL_PADDING(1.0f, 1.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, CELL_PADDING);
+    if (ImGui::BeginTable("Entries", 18, TABLE_FLAGS))
     {
         ImGuiTable* table = g.CurrentTable;
 
-        static auto flags = ImGuiTableColumnFlags_WidthFixed;
-        ImGui::TableSetupColumn("Title", flags, 475.0);
+        static auto COLUMN_FLAGS = ImGuiTableColumnFlags_WidthFixed;
+        ImGui::TableSetupColumn("Title", COLUMN_FLAGS, 475.0);
         ImGui::TableSetupColumn("Sorting Title", ImGuiTableColumnFlags_DefaultSort);
         ImGui::TableSetupColumn("Platform");
-        ImGui::TableSetupColumn("Region", flags, 50.0);
+        ImGui::TableSetupColumn("Region", COLUMN_FLAGS, 50.0);
         ImGui::TableSetupColumn("Release Year");
         ImGui::TableSetupColumn("Update Status", ImGuiTableColumnFlags_NoSort);
         ImGui::TableSetupColumn("Archived Version", ImGuiTableColumnFlags_NoSort);
@@ -180,13 +184,13 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         ImGui::TableSetupColumn("DLC", ImGuiTableColumnFlags_NoSort);
         ImGui::TableSetupColumn("Completion");
         ImGui::TableSetupColumn("Rating");
-        ImGui::TableSetupColumn("S", flags | ImGuiTableColumnFlags_NoSort, 25.0);
-        ImGui::TableSetupColumn("J", flags | ImGuiTableColumnFlags_NoSort, 25.0);
-        ImGui::TableSetupColumn("T", flags | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("S", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("J", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("T", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("Last Played");
-        ImGui::TableSetupColumn("T", flags | ImGuiTableColumnFlags_NoSort, 25.0);
-        ImGui::TableSetupColumn("N", flags | ImGuiTableColumnFlags_NoSort, 25.0);
-        ImGui::TableSetupColumn("X", flags | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("T", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("N", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("X", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
 
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
@@ -513,10 +517,10 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             if (focusNewEntry) ImGui::SetScrollHereY(0.5f); // @BUG Why is this grayed-out?
 
             // Highlight entries based on archive status
-            static auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
-            static auto red    = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
-            static auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
-            static auto green  = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
+            static constexpr auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
+            static constexpr auto red    = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
+            static constexpr auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
+            static constexpr auto green  = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
 
             auto& e = ENTRIES[i];
             switch (e.updateStatus)
@@ -707,10 +711,12 @@ void update_imgui(GLFWwindow* window)
     bool focusSearch = false;
     bool focusNewEntry = false;
 
-    static auto browserFlags = ImGuiFileBrowserFlags_EnterNewFilename |
-                               ImGuiFileBrowserFlags_CloseOnEsc       |
-                               ImGuiFileBrowserFlags_CreateNewDir;
-    static ImGui::FileBrowser browser(browserFlags);
+    static constexpr auto BROWSER_FLAGS =
+        ImGuiFileBrowserFlags_EnterNewFilename |
+        ImGuiFileBrowserFlags_CloseOnEsc       |
+        ImGuiFileBrowserFlags_CreateNewDir;
+
+    static ImGui::FileBrowser browser(BROWSER_FLAGS);
     static bool browserWantsSave = false;
     static bool browserWantsLoad = false;
 
@@ -740,12 +746,16 @@ void update_imgui(GLFWwindow* window)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    static auto flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+    static constexpr auto WINDOW_FLAGS =
+        ImGuiWindowFlags_NoDecoration   |
+        ImGuiWindowFlags_NoMove         |
+        ImGuiWindowFlags_NoSavedSettings;
+
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
 
-    ImGui::Begin("Excella", nullptr, flags);
+    ImGui::Begin("Excella", nullptr, WINDOW_FLAGS);
     {
         // main menu
         if (ImGui::BeginMainMenuBar())
