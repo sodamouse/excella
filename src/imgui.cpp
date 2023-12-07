@@ -65,10 +65,15 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     search.Draw("##On", -1.0f);
 
     // Filtering setup
+#if 0
+    // Having the filter counter as the label of the filter widget causes some weird behavior
+    // when typing in input boxes to filter elements.
     static char filterTextBuffer[64];
     memset(filterTextBuffer, 0, 64);
     sprintf(&filterTextBuffer[0], "Filter (%u)", countLogicalEntries);
     if (ImGui::TreeNodeEx(&filterTextBuffer[0], filterNodeFlags))
+#endif
+    if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
         if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
         {
@@ -89,12 +94,10 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         if (ImGui::InputInt("Rating", &filter.rating)) filter.ratingActive = true;
         ImGui::Separator();
 
-        if (ImGui::BeginTable("Completion", COUNT_COMPLETION)) // TODO this should be changed to correct no. of columns
+        if (ImGui::BeginTable("Completion", COUNT_COMPLETION))
         {
             for (u64 n = 0; n < COUNT_COMPLETION; ++n)
             {
-                if (n % 5 == 0) ImGui::TableNextRow();
-                
                 ImGui::TableNextColumn();
                 if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n])) filter.completionActive = true;
             }
