@@ -51,29 +51,29 @@ int main()
 
     if (!glfwInit()) return 1;
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, Excella::version, nullptr, nullptr);
-    if (!window) return 1;
+    Excella::window = glfwCreateWindow(800, 600, Excella::version, nullptr, nullptr);
+    if (!Excella::window) return 1;
 
-    glfwMakeContextCurrent(window);
-    glfwMaximizeWindow(window);
+    glfwMakeContextCurrent(Excella::window);
+    glfwMaximizeWindow(Excella::window);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontFromMemoryTTF(fontBytes, sizeof(fontBytes), 18);
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(Excella::window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(Excella::window))
     {
         glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        update_imgui(window);
+        update_imgui();
 
         glfwPollEvents();
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(Excella::window);
     }
 
     entryLoader.join();

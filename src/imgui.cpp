@@ -709,7 +709,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     ImGui::PopStyleVar();
 }
 
-void update_imgui(GLFWwindow* window)
+void update_imgui()
 {
     bool focusSearch = false;
     bool focusNewEntry = false;
@@ -724,7 +724,7 @@ void update_imgui(GLFWwindow* window)
     static bool browserWantsLoad = false;
 
     // @FEATURE (Mads): Show save prompt if excella dirty
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(window, true);
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
 
@@ -807,7 +807,7 @@ void update_imgui(GLFWwindow* window)
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(window, true);
+                if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(Excella::window, true);
 
                 ImGui::EndMenu();
             }
