@@ -70,7 +70,7 @@ int main()
         glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        update_imgui();
+        draw_one_frame();
 
         glfwPollEvents();
         glfwSwapBuffers(Excella::window);

@@ -48,6 +48,166 @@ static void (*showPopup)() = []() {};
 // @HACK move to context(?)
 static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
 
+void draw_table(bool focusSearch, bool focusEntry);
+
+void draw_one_frame()
+{
+    bool focusSearch = false;
+    bool focusNewEntry = false;
+
+    static constexpr auto BROWSER_FLAGS =
+        ImGuiFileBrowserFlags_EnterNewFilename |
+        ImGuiFileBrowserFlags_CloseOnEsc       |
+        ImGuiFileBrowserFlags_CreateNewDir;
+
+    static ImGui::FileBrowser browser(BROWSER_FLAGS);
+    static bool browserWantsSave = false;
+    static bool browserWantsLoad = false;
+
+    // @FEATURE (Mads): Show save prompt if excella dirty
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+    {
+        search.Clear();
+        filter = {};
+        create_entry();
+        focusNewEntry = true;
+    }
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
+    {
+        filterNodeOpen = !filterNodeOpen;
+        if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+        else filterNodeFlags = {};
+    }
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    static constexpr auto WINDOW_FLAGS =
+        ImGuiWindowFlags_NoDecoration   |
+        ImGuiWindowFlags_NoMove         |
+        ImGuiWindowFlags_NoSavedSettings;
+
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+
+    ImGui::Begin("Excella", nullptr, WINDOW_FLAGS);
+    {
+        // main menu
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Open database..."))
+                {
+                    browser.Open();
+                    browserWantsSave = false;
+                    browserWantsLoad = true;
+                }
+
+                if (ImGui::MenuItem("Save", "CTRL+s")) save_database(Excella::activeDbPath.c_str());
+
+                if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
+                {
+                    browser.Open();
+                    browserWantsSave = true;
+                    browserWantsLoad = false;
+                }
+
+                if (!Excella::cachedDbPaths.empty())
+                {
+                    ImGui::Separator();
+
+                    for (const auto& line : Excella::cachedDbPaths)
+                    {
+                        if (ImGui::MenuItem(line.c_str()))
+                        {
+                            Excella::activeDbPath = line;
+                            reset_database();
+                            load_database(Excella::activeDbPath.c_str());
+                        }
+                    }
+
+                    ImGui::Separator();
+                    if (ImGui::MenuItem("Clear Recent Items"))
+                    {
+                        Excella::cachedDbPaths.clear();
+                        save_cache_file();
+                    }
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(Excella::window, true);
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Entry"))
+            {
+                if (ImGui::MenuItem("Create entry", "CTRL+n"))
+                {
+                    search.Clear();
+                    filter = {};
+                    create_entry();
+                    focusNewEntry = true;
+                }
+
+                ImGui::EndMenu();
+            }
+
+            // @FEATURE There should be a count of entries currenty shown / total entries
+
+            ImGui::Text("%s", Excella::activeDbPath.c_str());
+
+            static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
+            static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
+            Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
+            if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
+
+            ImGui::EndMainMenuBar();
+        }
+
+        browser.Display();
+
+        if (browser.HasSelected() && browserWantsSave)
+        {
+            std::string newPath = browser.GetSelected().string();
+            Excella::activeDbPath = newPath.c_str();
+            save_database(Excella::activeDbPath.c_str());
+            browser.ClearSelected();
+            reset_database();
+            load_database(Excella::activeDbPath.c_str());
+        }
+
+        if (browser.HasSelected() && browserWantsLoad)
+        {
+            std::string newPath = browser.GetSelected().string();
+            Excella::activeDbPath = newPath.c_str();
+            reset_database();
+            load_database(Excella::activeDbPath.c_str());
+            browser.ClearSelected();
+        }
+
+        showPopup();
+        draw_table(focusSearch, focusNewEntry);
+    }
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 void draw_table(bool focusSearch, bool focusNewEntry)
 {
     ImGui::SeparatorText("Search");
@@ -56,7 +216,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     ImGui::SameLine();
     if (ImGui::Button("Clear All"))
     {
-        filter = Filter {};
+        filter = Filter{};
         search.Clear();
         activeTags.clear();
     }
@@ -73,98 +233,98 @@ void draw_table(bool focusSearch, bool focusNewEntry)
     sprintf(&filterTextBuffer[0], "Filter (%u)", countLogicalEntries);
     if (ImGui::TreeNodeEx(&filterTextBuffer[0], filterNodeFlags))
 #endif
-    if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
-    {
-        if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
+        if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
         {
-            for (u64 n = 0; n < COUNT_PLATFORM; ++n)
+            if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
             {
-                if (n % 16 == 0) ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n])) filter.platformActive = true;
+                for (u64 n = 0; n < COUNT_PLATFORM; ++n)
+                {
+                    if (n % 16 == 0) ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n])) filter.platformActive = true;
+                }
+                ImGui::EndTable();
             }
-            ImGui::EndTable();
-        }
-        ImGui::Separator();
+            ImGui::Separator();
 
-        if (ImGui::InputInt("Release Year", &filter.releaseYear)) filter.releaseYearActive = true;
-        if (ImGui::InputInt("Last Played", &filter.lastPlayed)) filter.lastPlayedActive = true;
-        ImGui::Separator();
+            if (ImGui::InputInt("Release Year", &filter.releaseYear)) filter.releaseYearActive = true;
+            if (ImGui::InputInt("Last Played", &filter.lastPlayed)) filter.lastPlayedActive = true;
+            ImGui::Separator();
 
-        if (ImGui::InputInt("Rating", &filter.rating)) filter.ratingActive = true;
-        ImGui::Separator();
+            if (ImGui::InputInt("Rating", &filter.rating)) filter.ratingActive = true;
+            ImGui::Separator();
 
-        if (ImGui::BeginTable("Completion", COUNT_COMPLETION))
-        {
-            for (u64 n = 0; n < COUNT_COMPLETION; ++n)
+            if (ImGui::BeginTable("Completion", COUNT_COMPLETION))
             {
-                ImGui::TableNextColumn();
-                if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n])) filter.completionActive = true;
+                for (u64 n = 0; n < COUNT_COMPLETION; ++n)
+                {
+                    ImGui::TableNextColumn();
+                    if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n])) filter.completionActive = true;
+                }
+                ImGui::EndTable();
             }
-            ImGui::EndTable();
-        }
-        ImGui::Separator();
+            ImGui::Separator();
 
-        if (ImGui::Checkbox("S", &filter.sActive)) {}
-        ImGui::SameLine();
-        if (ImGui::Checkbox("j", &filter.jActive)) {}
-        ImGui::SameLine();
-        if (ImGui::Checkbox("t", &filter.tActive)) {}
-        ImGui::Separator();
-
-        // Filter by tag
-        static std::string tagString;
-        if (ImGui::InputText("##On", &tagString));
-        ImGui::SameLine();
-        if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
-        {
-            activeTags.push_back(tagString);
-            tagString.clear();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Clear"))
-        {
-            activeTags.clear();
-        }
-        for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
-        {
-            if (ImGui::Button(activeTags[tagIdx].c_str())) activeTags.erase(activeTags.begin() + tagIdx);
+            if (ImGui::Checkbox("S", &filter.sActive)) {}
             ImGui::SameLine();
+            if (ImGui::Checkbox("j", &filter.jActive)) {}
+            ImGui::SameLine();
+            if (ImGui::Checkbox("t", &filter.tActive)) {}
+            ImGui::Separator();
+
+            // Filter by tag
+            static std::string tagString;
+            if (ImGui::InputText("##On", &tagString));
+            ImGui::SameLine();
+            if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
+            {
+                activeTags.push_back(tagString);
+                tagString.clear();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Clear"))
+            {
+                activeTags.clear();
+            }
+            for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
+            {
+                if (ImGui::Button(activeTags[tagIdx].c_str())) activeTags.erase(activeTags.begin() + tagIdx);
+                ImGui::SameLine();
+            }
+
+            // Filter test
+            bool test = false;
+            for (u64 i = 0; i < COUNT_PLATFORM; ++i)
+            {
+                if (filter.platformsSelected[i]) test = true;
+            }
+            filter.platformActive = test;
+
+            test = false;
+            for (u64 i = 0; i < COUNT_COMPLETION; ++i)
+            {
+                if (filter.completionsSelected[i])
+                    test = true;
+            }
+            filter.completionActive = test;
+
+            filter.active =
+                filter.platformActive ||
+                filter.releaseYearActive ||
+                filter.lastPlayedActive ||
+                filter.ratingActive ||
+                filter.completionActive ||
+                filter.sActive ||
+                filter.jActive ||
+                filter.tActive;
+
+            ImGui::TreePop();
         }
-
-        // Filter test
-        bool test = false;
-        for (u64 i = 0; i < COUNT_PLATFORM; ++i)
-        {
-            if (filter.platformsSelected[i]) test = true;
-        }
-        filter.platformActive = test;
-
-        test = false;
-        for (u64 i = 0; i < COUNT_COMPLETION; ++i)
-        {
-            if (filter.completionsSelected[i])
-                test = true;
-        }
-        filter.completionActive = test;
-
-        filter.active =
-            filter.platformActive    ||
-            filter.releaseYearActive ||
-            filter.lastPlayedActive  ||
-            filter.ratingActive      ||
-            filter.completionActive  ||
-            filter.sActive           ||
-            filter.jActive           ||
-            filter.tActive;
-
-        ImGui::TreePop();
-    }
 
     ImGui::Separator();
     static constexpr auto TABLE_FLAGS =
-        ImGuiTableFlags_Resizable   |
-        ImGuiTableFlags_Sortable    |
+        ImGuiTableFlags_Resizable |
+        ImGuiTableFlags_Sortable |
         ImGuiTableFlags_ScrollY;
 
     ImGuiContext& g = *ImGui::GetCurrentContext();
@@ -489,7 +649,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].notes);
             ImGui::PushItemWidth(-1);
-            static Texture edit      = load_texture_from_memory(&editBytes, editBytesSize);
+            static Texture edit = load_texture_from_memory(&editBytes, editBytesSize);
             static Texture editWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
             Texture* useEdit = ENTRIES[i].notes.size() == 0 ? &edit : &editWhite;
             if (ImGui::ImageButton("", (void*)(intptr_t)useEdit->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit Notes");
@@ -521,9 +681,9 @@ void draw_table(bool focusSearch, bool focusNewEntry)
 
             // Highlight entries based on archive status
             static constexpr auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
-            static constexpr auto red    = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
+            static constexpr auto red = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
             static constexpr auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
-            static constexpr auto green  = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
+            static constexpr auto green = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
 
             auto& e = ENTRIES[i];
             switch (e.updateStatus)
@@ -550,9 +710,9 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                 break;
             }
 
-            bool shouldHighlightGreen = (e.dlcStatus    == DOWNLOADED || e.dlcStatus == CS_NONE)   &&
-                                        (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) &&
-                                        (e.completion   == COMPLETED);
+            bool shouldHighlightGreen = (e.dlcStatus == DOWNLOADED || e.dlcStatus == CS_NONE) &&
+                (e.updateStatus == DOWNLOADED || e.updateStatus == LOCKED) &&
+                (e.completion == COMPLETED);
             if (shouldHighlightGreen) table->RowBgColor[1] = ImGui::GetColorU32(green);
 
             // Highlighting hovered row
@@ -568,7 +728,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             rowRect.ClipWith(table->BgClipRect);
 
             bool hover = ImGui::IsMouseHoveringRect(rowRect.Min, rowRect.Max, false) &&
-                         ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
+                ImGui::IsWindowHovered(ImGuiHoveredFlags_None);
             // !ImGui::IsAnyItemHovered(); This can optionally disable row highlighting if any cells are hovered.
 
             if (hover) table->RowBgColor[1] = ImGui::GetColorU32(ImGuiCol_Border);
@@ -580,15 +740,15 @@ void draw_table(bool focusSearch, bool focusNewEntry)
             if (sortSpecs->SpecsDirty)
             {
                 std::sort(
-                &ENTRIES[0], &ENTRIES[entryIdx],
-                [&sortSpecs](const Entry& lhs, const Entry& rhs) -> bool {
-                    for (i32 i = 0; i < sortSpecs->SpecsCount; ++i)     // i here is always 1...
-                    {
-                        const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
-                        bool sort = false;
-                        switch (currentSpecs->ColumnIndex)
+                    &ENTRIES[0], &ENTRIES[entryIdx],
+                    [&sortSpecs](const Entry& lhs, const Entry& rhs) -> bool {
+                        for (i32 i = 0; i < sortSpecs->SpecsCount; ++i)     // i here is always 1...
                         {
-                            // Title
+                            const ImGuiTableColumnSortSpecs* currentSpecs = &sortSpecs->Specs[i];
+                            bool sort = false;
+                            switch (currentSpecs->ColumnIndex)
+                            {
+                                // Title
                             case 0: {
                                 auto numeric = lhs.title.compare(rhs.title);
                                 if (numeric == 0) return false;
@@ -596,7 +756,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 return numeric > 0;
                             }; break;
 
-                            // Sorting Title
+                                // Sorting Title
                             case 1: {
                                 auto numeric = lhs.sortingTitle.compare(rhs.sortingTitle);
                                 if (numeric == 0) return false;
@@ -604,7 +764,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 return numeric > 0;
                             }; break;
 
-                            // Platform
+                                // Platform
                             case 2: {
                                 if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
                                 {
@@ -619,7 +779,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 }
                             }; break;
 
-                            // Region
+                                // Region
                             case 3: {
                                 if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
                                 {
@@ -634,7 +794,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 }
                             }; break;
 
-                            // Release year
+                                // Release year
                             case 4: {
                                 if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
                                 {
@@ -649,7 +809,7 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 }
                             }; break;
 
-                            // Completion
+                                // Completion
                             case 9: {
                                 if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
                                 {
@@ -664,18 +824,18 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 }
                             }; break;
 
-                            // Rating
+                                // Rating
                             case 10: {
                                 if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending) return lhs.rating < rhs.rating;
                                 if (lhs.rating == rhs.rating) return false;
                                 return lhs.rating > rhs.rating;
                             }; break;
 
-                            // S
-                            // J
-                            // T
+                                // S
+                                // J
+                                // T
 
-                            // Last played
+                                // Last played
                             case 14: {
                                 if (currentSpecs->SortDirection == ImGuiSortDirection_Ascending)
                                 {
@@ -694,12 +854,12 @@ void draw_table(bool focusSearch, bool focusNewEntry)
                                 assert(false && "Something fucky this way comes");
                                 return false;
                             }; break;
+                            }
+                            return currentSpecs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
                         }
-                        return currentSpecs->SortDirection == ImGuiSortDirection_Ascending ? sort : !sort;
-                    }
-                    assert(false && "Something fucky this way comes");
-                    return false;
-                });
+                        assert(false && "Something fucky this way comes");
+                        return false;
+                    });
 
                 sortSpecs->SpecsDirty = false;
             }
@@ -707,162 +867,4 @@ void draw_table(bool focusSearch, bool focusNewEntry)
         ImGui::EndTable();
     }
     ImGui::PopStyleVar();
-}
-
-void update_imgui()
-{
-    bool focusSearch = false;
-    bool focusNewEntry = false;
-
-    static constexpr auto BROWSER_FLAGS =
-        ImGuiFileBrowserFlags_EnterNewFilename |
-        ImGuiFileBrowserFlags_CloseOnEsc       |
-        ImGuiFileBrowserFlags_CreateNewDir;
-
-    static ImGui::FileBrowser browser(BROWSER_FLAGS);
-    static bool browserWantsSave = false;
-    static bool browserWantsLoad = false;
-
-    // @FEATURE (Mads): Show save prompt if excella dirty
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
-    {
-        search.Clear();
-        filter = {};
-        create_entry();
-        focusNewEntry = true;
-    }
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
-    {
-        filterNodeOpen = !filterNodeOpen;
-        if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
-        else filterNodeFlags = {};
-    }
-
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    static constexpr auto WINDOW_FLAGS =
-        ImGuiWindowFlags_NoDecoration   |
-        ImGuiWindowFlags_NoMove         |
-        ImGuiWindowFlags_NoSavedSettings;
-
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
-
-    ImGui::Begin("Excella", nullptr, WINDOW_FLAGS);
-    {
-        // main menu
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("Open database..."))
-                {
-                    browser.Open();
-                    browserWantsSave = false;
-                    browserWantsLoad = true;
-                }
-
-                if (ImGui::MenuItem("Save", "CTRL+s")) save_database(Excella::activeDbPath.c_str());
-
-                if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
-                {
-                    browser.Open();
-                    browserWantsSave = true;
-                    browserWantsLoad = false;
-                }
-
-                if (!Excella::cachedDbPaths.empty())
-                {
-                    ImGui::Separator();
-
-                    for (const auto& line : Excella::cachedDbPaths)
-                    {
-                        if (ImGui::MenuItem(line.c_str()))
-                        {
-                            Excella::activeDbPath = line;
-                            reset_database();
-                            load_database(Excella::activeDbPath.c_str());
-                        }
-                    }
-
-                    ImGui::Separator();
-                    if (ImGui::MenuItem("Clear Recent Items"))
-                    {
-                        Excella::cachedDbPaths.clear();
-                        save_cache_file();
-                    }
-                }
-
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(Excella::window, true);
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Entry"))
-            {
-                if (ImGui::MenuItem("Create entry", "CTRL+n"))
-                {
-                    search.Clear();
-                    filter = {};
-                    create_entry();
-                    focusNewEntry = true;
-                }
-
-                ImGui::EndMenu();
-            }
-
-            // @FEATURE There should be a count of entries currenty shown / total entries
-
-            ImGui::Text("%s", Excella::activeDbPath.c_str());
-
-            static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
-            static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
-            Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
-            if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
-
-            ImGui::EndMainMenuBar();
-        }
-
-        browser.Display();
-
-        if (browser.HasSelected() && browserWantsSave)
-        {
-            std::string newPath = browser.GetSelected().string();
-            Excella::activeDbPath = newPath.c_str();
-            save_database(Excella::activeDbPath.c_str());
-            browser.ClearSelected();
-            reset_database();
-            load_database(Excella::activeDbPath.c_str());
-        }
-
-        if (browser.HasSelected() && browserWantsLoad)
-        {
-            std::string newPath = browser.GetSelected().string();
-            Excella::activeDbPath = newPath.c_str();
-            reset_database();
-            load_database(Excella::activeDbPath.c_str());
-            browser.ClearSelected();
-        }
-
-        showPopup();
-        draw_table(focusSearch, focusNewEntry);
-    }
-    ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
