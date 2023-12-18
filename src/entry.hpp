@@ -1,7 +1,7 @@
 #pragma once
 
-#include "integer.hpp"
-#include "core.hpp"
+#include "core/core.hpp"
+#include "core/integer.hpp"
 #include <string>
 #include <vector>
 

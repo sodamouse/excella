@@ -1,6 +1,6 @@
 #pragma once
 
-#include "integer.hpp"
+#include "core/integer.hpp"
 #include <GLFW/glfw3.h>
 
 struct Texture

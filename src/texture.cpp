@@ -1,5 +1,5 @@
 #include "texture.hpp"
-#include "integer.hpp"
+#include "core/integer.hpp"
 
 #include <stb_image/stb_image.h>
 

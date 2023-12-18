@@ -1,7 +1,7 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
 #include "comfyg.hpp"
-#include "core.hpp"
+#include "core/core.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "excella.hpp"

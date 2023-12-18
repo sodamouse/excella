@@ -1,5 +1,5 @@
 #pragma once
 
-#include "integer.hpp"
+#include "core/integer.hpp"
 
 extern byte fontBytes[208576];

@@ -1,5 +1,5 @@
 #include "excella.hpp"
-#include "integer.hpp"
+#include "core/integer.hpp"
 
 namespace Excella {
 
