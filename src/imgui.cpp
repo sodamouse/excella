@@ -259,13 +259,13 @@ void draw_table()
     // Filtering setup
     if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
-        if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
+        if (ImGui::BeginTable("Platforms", 16))
         {
-            for (u64 n = 0; n < COUNT_PLATFORM; ++n)
+            for (u64 platform = 0; platform < COUNT_PLATFORM; ++platform)
             {
-                if (n % 16 == 0) ImGui::TableNextRow();
+                if (platform % 16 == 0) ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n])) filter.platformActive = true;
+                if (ImGui::Checkbox(platformStr[platform], &filter.platformsSelected[platform])) filter.platformActive = true;
             }
             ImGui::EndTable();
         }
