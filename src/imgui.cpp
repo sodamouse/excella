@@ -11,6 +11,16 @@
 #include <fstream>
 #include <cstring>
 
+// File browser
+static constexpr auto BROWSER_FLAGS =
+    ImGuiFileBrowserFlags_EnterNewFilename |
+    ImGuiFileBrowserFlags_CloseOnEsc       |
+    ImGuiFileBrowserFlags_CreateNewDir;
+
+static ImGui::FileBrowser browser(BROWSER_FLAGS);
+static bool browserWantsSave = false;
+static bool browserWantsLoad = false;
+
 // Search
 static ImGuiTextFilter search;
 static bool focusSearch   = false;
@@ -59,16 +69,6 @@ void draw_one_frame()
     focusSearch   = false;
     focusNewEntry = false;
 
-    static constexpr auto BROWSER_FLAGS =
-        ImGuiFileBrowserFlags_EnterNewFilename |
-        ImGuiFileBrowserFlags_CloseOnEsc       |
-        ImGuiFileBrowserFlags_CreateNewDir;
-
-    static ImGui::FileBrowser browser(BROWSER_FLAGS);
-    static bool browserWantsSave = false;
-    static bool browserWantsLoad = false;
-
-    // @FEATURE (Mads): Show save prompt if excella dirty
     handle_keyboard_events();
 
     ImGui_ImplOpenGL3_NewFrame();

@@ -8,6 +8,8 @@ Fix a bug where new tag text input was not always cleared.
 
 Fix a bug where Edit Notes was using a wrong ImGui flag.
 
+Fix a bug preventing saving and loading the database via browser from working.
+
 Version: 1.13.0 (2023-11-01)
 ---------------------------------
 Add tags
