@@ -333,13 +333,13 @@ void draw_table()
         filter.completionActive = test;
 
         filter.active =
-            filter.platformActive ||
+            filter.platformActive    ||
             filter.releaseYearActive ||
-            filter.lastPlayedActive ||
-            filter.ratingActive ||
-            filter.completionActive ||
-            filter.sActive ||
-            filter.jActive ||
+            filter.lastPlayedActive  ||
+            filter.ratingActive      ||
+            filter.completionActive  ||
+            filter.sActive           ||
+            filter.jActive           ||
             filter.tActive;
 
         ImGui::TreePop();
@@ -348,7 +348,7 @@ void draw_table()
     ImGui::Separator();
     static constexpr auto TABLE_FLAGS =
         ImGuiTableFlags_Resizable |
-        ImGuiTableFlags_Sortable |
+        ImGuiTableFlags_Sortable  |
         ImGuiTableFlags_ScrollY;
 
     ImGuiContext& g = *ImGui::GetCurrentContext();
@@ -397,8 +397,7 @@ void draw_table()
                     bool shouldSkip = true;
                     for (u64 j = 0; j < COUNT_PLATFORM; ++j)
                     {
-                        if (filter.platformsSelected[ENTRIES[i].platform])
-                            shouldSkip = false;
+                        if (filter.platformsSelected[ENTRIES[i].platform]) shouldSkip = false;
                     }
 
                     if (shouldSkip) continue;
@@ -702,9 +701,9 @@ void draw_table()
 
             // Highlight entries based on archive status
             static constexpr auto orange = ImVec4(0.6f, 0.4f, 0.2f, 1.0f);
-            static constexpr auto red = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
+            static constexpr auto red    = ImVec4(0.6f, 0.2f, 0.2f, 1.0f);
             static constexpr auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
-            static constexpr auto green = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
+            static constexpr auto green  = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
 
             auto& e = ENTRIES[i];
             switch (e.updateStatus)
