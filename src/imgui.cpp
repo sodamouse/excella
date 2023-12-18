@@ -11,7 +11,10 @@
 #include <fstream>
 #include <cstring>
 
+// Search
 static ImGuiTextFilter search;
+static bool focusSearch   = false;
+static bool focusNewEntry = false;
 
 struct Filter
 {
@@ -48,12 +51,13 @@ static void (*showPopup)() = []() {};
 // @HACK move to context(?)
 static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
 
+void handle_keyboard_events();
 void draw_table(bool focusSearch, bool focusEntry);
 
 void draw_one_frame()
 {
-    bool focusSearch = false;
-    bool focusNewEntry = false;
+    focusSearch   = false;
+    focusNewEntry = false;
 
     static constexpr auto BROWSER_FLAGS =
         ImGuiFileBrowserFlags_EnterNewFilename |
@@ -65,26 +69,7 @@ void draw_one_frame()
     static bool browserWantsLoad = false;
 
     // @FEATURE (Mads): Show save prompt if excella dirty
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
-    {
-        search.Clear();
-        filter = {};
-        create_entry();
-        focusNewEntry = true;
-    }
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
-    {
-        filterNodeOpen = !filterNodeOpen;
-        if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
-        else filterNodeFlags = {};
-    }
+    handle_keyboard_events();
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -206,6 +191,30 @@ void draw_one_frame()
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void handle_keyboard_events()
+{
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
+    {
+        search.Clear();
+        filter = {};
+        create_entry();
+        focusNewEntry = true;
+    }
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
+    {
+        filterNodeOpen = !filterNodeOpen;
+        if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+        else filterNodeFlags = {};
+    }
 }
 
 void draw_table(bool focusSearch, bool focusNewEntry)
