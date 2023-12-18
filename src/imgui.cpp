@@ -62,7 +62,7 @@ static void (*showPopup)() = []() {};
 static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
 
 void handle_keyboard_events();
-void draw_table(bool focusSearch, bool focusEntry);
+void draw_table();
 
 void draw_one_frame()
 {
@@ -185,7 +185,8 @@ void draw_one_frame()
         }
 
         showPopup();
-        draw_table(focusSearch, focusNewEntry);
+
+        draw_table();
     }
     ImGui::End();
 
@@ -217,7 +218,7 @@ void handle_keyboard_events()
     }
 }
 
-void draw_table(bool focusSearch, bool focusNewEntry)
+void draw_table()
 {
     ImGui::SeparatorText("Search");
     ImGui::SameLine();
