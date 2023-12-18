@@ -62,6 +62,7 @@ static void (*showPopup)() = []() {};
 static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
 
 void handle_keyboard_events();
+void draw_main_menu();
 void draw_table();
 
 void draw_one_frame()
@@ -87,81 +88,7 @@ void draw_one_frame()
     ImGui::Begin("Excella", nullptr, WINDOW_FLAGS);
     {
         // main menu
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("Open database..."))
-                {
-                    browser.Open();
-                    browserWantsSave = false;
-                    browserWantsLoad = true;
-                }
-
-                if (ImGui::MenuItem("Save", "CTRL+s")) save_database(Excella::activeDbPath.c_str());
-
-                if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
-                {
-                    browser.Open();
-                    browserWantsSave = true;
-                    browserWantsLoad = false;
-                }
-
-                if (!Excella::cachedDbPaths.empty())
-                {
-                    ImGui::Separator();
-
-                    for (const auto& line : Excella::cachedDbPaths)
-                    {
-                        if (ImGui::MenuItem(line.c_str()))
-                        {
-                            Excella::activeDbPath = line;
-                            reset_database();
-                            load_database(Excella::activeDbPath.c_str());
-                        }
-                    }
-
-                    ImGui::Separator();
-                    if (ImGui::MenuItem("Clear Recent Items"))
-                    {
-                        Excella::cachedDbPaths.clear();
-                        save_cache_file();
-                    }
-                }
-
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(Excella::window, true);
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Entry"))
-            {
-                if (ImGui::MenuItem("Create entry", "CTRL+n"))
-                {
-                    search.Clear();
-                    filter = {};
-                    create_entry();
-                    focusNewEntry = true;
-                }
-
-                ImGui::EndMenu();
-            }
-
-            // @FEATURE There should be a count of entries currenty shown / total entries
-
-            ImGui::Text("%s", Excella::activeDbPath.c_str());
-
-            static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
-            static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
-            Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
-            if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
-
-            ImGui::EndMainMenuBar();
-        }
+        draw_main_menu();
 
         browser.Display();
 
@@ -215,6 +142,83 @@ void handle_keyboard_events()
         filterNodeOpen = !filterNodeOpen;
         if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         else filterNodeFlags = {};
+    }
+}
+
+void draw_main_menu()
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Open database..."))
+            {
+                browser.Open();
+                browserWantsSave = false;
+                browserWantsLoad = true;
+            }
+
+            if (ImGui::MenuItem("Save", "CTRL+s")) save_database(Excella::activeDbPath.c_str());
+
+            if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
+            {
+                browser.Open();
+                browserWantsSave = true;
+                browserWantsLoad = false;
+            }
+
+            if (!Excella::cachedDbPaths.empty())
+            {
+                ImGui::Separator();
+
+                for (const auto& line : Excella::cachedDbPaths)
+                {
+                    if (ImGui::MenuItem(line.c_str()))
+                    {
+                        Excella::activeDbPath = line;
+                        reset_database();
+                        load_database(Excella::activeDbPath.c_str());
+                    }
+                }
+
+                ImGui::Separator();
+                if (ImGui::MenuItem("Clear Recent Items"))
+                {
+                    Excella::cachedDbPaths.clear();
+                    save_cache_file();
+                }
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(Excella::window, true);
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Entry"))
+        {
+            if (ImGui::MenuItem("Create entry", "CTRL+n"))
+            {
+                search.Clear();
+                filter = {};
+                create_entry();
+                focusNewEntry = true;
+            }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::Text("%s", Excella::activeDbPath.c_str());
+
+        static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
+        static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
+        Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
+        if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
+
+        ImGui::EndMainMenuBar();
     }
 }
 
