@@ -1,3 +1,8 @@
+Version 1.15.0
+---------------------------------
+Fix saving / loading database via browser menu not working at all.
+Add keyboard shortcut for `Save Database As...`
+
 Version 1.14.0
 ---------------------------------
 Add new completion status: On-Hold

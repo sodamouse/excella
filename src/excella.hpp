@@ -8,7 +8,7 @@ struct GLFWwindow;
 
 namespace Excella {
 
-constexpr const char* version = "Excella v1.14.0";
+constexpr const char* version = "Excella v1.15.0";
 extern std::string activeDbPath;
 extern std::string cacheFilePath;
 extern std::vector<std::string> cachedDbPaths;

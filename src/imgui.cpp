@@ -110,6 +110,18 @@ void handle_keyboard_events()
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
 
+    auto saveDatabaseAs =
+        ImGui::IsKeyDown(ImGuiKey_LeftCtrl)  &&
+        ImGui::IsKeyDown(ImGuiKey_LeftShift) &&
+        ImGui::IsKeyPressed(ImGuiKey_S);
+
+    if (saveDatabaseAs)
+    {
+        browserWantsSave = true;
+        browserWantsLoad = false;
+        browser.Open();
+    }
+
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))
     {
         search.Clear();
