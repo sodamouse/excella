@@ -63,9 +63,6 @@ static std::vector<std::string> activeTags;
 // Pop-up
 static void (*draw_popup)() = []() {};
 
-// @HACK move to context(?)
-static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
-
 void handle_keyboard_events();
 void draw_main_menu();
 void draw_file_browser();
@@ -208,7 +205,7 @@ void draw_main_menu()
 
         ImGui::Text("%s", Excella::activeDbPath.c_str());
 
-        static Texture disketteRed = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
+        static Texture disketteRed  = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
         static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
         Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
         if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
@@ -260,101 +257,93 @@ void draw_table()
     search.Draw("##On", -1.0f);
 
     // Filtering setup
-#if 0
-    // Having the filter counter as the label of the filter widget causes some weird behavior
-    // when typing in input boxes to filter elements.
-    static char filterTextBuffer[64];
-    memset(filterTextBuffer, 0, 64);
-    sprintf(&filterTextBuffer[0], "Filter (%u)", countLogicalEntries);
-    if (ImGui::TreeNodeEx(&filterTextBuffer[0], filterNodeFlags))
-#endif
-        if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
+    if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
+    {
+        if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
         {
-            if (ImGui::BeginTable("Platforms", COUNT_PLATFORM)) // @HACK this should be changed to correct number of columns
+            for (u64 n = 0; n < COUNT_PLATFORM; ++n)
             {
-                for (u64 n = 0; n < COUNT_PLATFORM; ++n)
-                {
-                    if (n % 16 == 0) ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n])) filter.platformActive = true;
-                }
-                ImGui::EndTable();
+                if (n % 16 == 0) ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                if (ImGui::Checkbox(platformStr[n], &filter.platformsSelected[n])) filter.platformActive = true;
             }
-            ImGui::Separator();
-
-            if (ImGui::InputInt("Release Year", &filter.releaseYear)) filter.releaseYearActive = true;
-            if (ImGui::InputInt("Last Played", &filter.lastPlayed)) filter.lastPlayedActive = true;
-            ImGui::Separator();
-
-            if (ImGui::InputInt("Rating", &filter.rating)) filter.ratingActive = true;
-            ImGui::Separator();
-
-            if (ImGui::BeginTable("Completion", COUNT_COMPLETION))
-            {
-                for (u64 n = 0; n < COUNT_COMPLETION; ++n)
-                {
-                    ImGui::TableNextColumn();
-                    if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n])) filter.completionActive = true;
-                }
-                ImGui::EndTable();
-            }
-            ImGui::Separator();
-
-            if (ImGui::Checkbox("S", &filter.sActive)) {}
-            ImGui::SameLine();
-            if (ImGui::Checkbox("j", &filter.jActive)) {}
-            ImGui::SameLine();
-            if (ImGui::Checkbox("t", &filter.tActive)) {}
-            ImGui::Separator();
-
-            // Filter by tag
-            static std::string tagString;
-            if (ImGui::InputText("##On", &tagString));
-            ImGui::SameLine();
-            if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
-            {
-                activeTags.push_back(tagString);
-                tagString.clear();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Clear"))
-            {
-                activeTags.clear();
-            }
-            for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
-            {
-                if (ImGui::Button(activeTags[tagIdx].c_str())) activeTags.erase(activeTags.begin() + tagIdx);
-                ImGui::SameLine();
-            }
-
-            // Filter test
-            bool test = false;
-            for (u64 i = 0; i < COUNT_PLATFORM; ++i)
-            {
-                if (filter.platformsSelected[i]) test = true;
-            }
-            filter.platformActive = test;
-
-            test = false;
-            for (u64 i = 0; i < COUNT_COMPLETION; ++i)
-            {
-                if (filter.completionsSelected[i])
-                    test = true;
-            }
-            filter.completionActive = test;
-
-            filter.active =
-                filter.platformActive ||
-                filter.releaseYearActive ||
-                filter.lastPlayedActive ||
-                filter.ratingActive ||
-                filter.completionActive ||
-                filter.sActive ||
-                filter.jActive ||
-                filter.tActive;
-
-            ImGui::TreePop();
+            ImGui::EndTable();
         }
+        ImGui::Separator();
+
+        if (ImGui::InputInt("Release Year", &filter.releaseYear)) filter.releaseYearActive = true;
+        if (ImGui::InputInt("Last Played", &filter.lastPlayed)) filter.lastPlayedActive = true;
+        ImGui::Separator();
+
+        if (ImGui::InputInt("Rating", &filter.rating)) filter.ratingActive = true;
+        ImGui::Separator();
+
+        if (ImGui::BeginTable("Completion", COUNT_COMPLETION))
+        {
+            for (u64 n = 0; n < COUNT_COMPLETION; ++n)
+            {
+                ImGui::TableNextColumn();
+                if (ImGui::Checkbox(completionStr[n], &filter.completionsSelected[n])) filter.completionActive = true;
+            }
+            ImGui::EndTable();
+        }
+        ImGui::Separator();
+
+        if (ImGui::Checkbox("S", &filter.sActive)) {}
+        ImGui::SameLine();
+        if (ImGui::Checkbox("j", &filter.jActive)) {}
+        ImGui::SameLine();
+        if (ImGui::Checkbox("t", &filter.tActive)) {}
+        ImGui::Separator();
+
+        // Filter by tag
+        static std::string tagString;
+        if (ImGui::InputText("##On", &tagString));
+        ImGui::SameLine();
+        if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
+        {
+            activeTags.push_back(tagString);
+            tagString.clear();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear"))
+        {
+            activeTags.clear();
+        }
+        for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
+        {
+            if (ImGui::Button(activeTags[tagIdx].c_str())) activeTags.erase(activeTags.begin() + tagIdx);
+            ImGui::SameLine();
+        }
+
+        // Filter test
+        bool test = false;
+        for (u64 i = 0; i < COUNT_PLATFORM; ++i)
+        {
+            if (filter.platformsSelected[i]) test = true;
+        }
+        filter.platformActive = test;
+
+        test = false;
+        for (u64 i = 0; i < COUNT_COMPLETION; ++i)
+        {
+            if (filter.completionsSelected[i])
+                test = true;
+        }
+        filter.completionActive = test;
+
+        filter.active =
+            filter.platformActive ||
+            filter.releaseYearActive ||
+            filter.lastPlayedActive ||
+            filter.ratingActive ||
+            filter.completionActive ||
+            filter.sActive ||
+            filter.jActive ||
+            filter.tActive;
+
+        ImGui::TreePop();
+    }
 
     ImGui::Separator();
     static constexpr auto TABLE_FLAGS =
@@ -393,7 +382,6 @@ void draw_table()
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
-        countLogicalEntries = 0;
         for (u64 i = 0; i < entryIdx; ++i)
         {
             if (ENTRIES[i].deleted) continue;
@@ -449,8 +437,6 @@ void draw_table()
                 }
             }
             if (breakLoop) continue;
-
-            ++countLogicalEntries;
 
             ImGui::TableNextRow();
 
