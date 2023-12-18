@@ -28,6 +28,7 @@ static ImGuiTextFilter search;
 static bool focusSearch   = false;
 static bool focusNewEntry = false;
 
+// Filter
 struct Filter
 {
     bool active = false;
@@ -56,9 +57,11 @@ static Filter filter {};
 bool filterNodeOpen = false;
 ImGuiTreeNodeFlags filterNodeFlags;
 
+// Tags
 static std::vector<std::string> activeTags;
 
-static void (*showPopup)() = []() {};
+// Pop-up
+static void (*draw_popup)() = []() {};
 
 // @HACK move to context(?)
 static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
@@ -90,14 +93,10 @@ void draw_one_frame()
 
     ImGui::Begin("Excella", nullptr, WINDOW_FLAGS);
     {
-        // main menu
         draw_main_menu();
-
         draw_file_browser();
-
-        showPopup();
-
         draw_table();
+        draw_popup();
     }
     ImGui::End();
 
