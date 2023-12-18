@@ -1,3 +1,5 @@
+// @FEATURE (Mads): Show save prompt if excella dirty
+
 #include "imgui.hpp"
 #include "database.hpp"
 #include "entry.hpp"
@@ -63,6 +65,7 @@ static u64 countLogicalEntries = 0; // activeEntrys - entries marked as deleted
 
 void handle_keyboard_events();
 void draw_main_menu();
+void draw_file_browser();
 void draw_table();
 
 void draw_one_frame()
@@ -90,26 +93,7 @@ void draw_one_frame()
         // main menu
         draw_main_menu();
 
-        browser.Display();
-
-        if (browser.HasSelected() && browserWantsSave)
-        {
-            std::string newPath = browser.GetSelected().string();
-            Excella::activeDbPath = newPath.c_str();
-            save_database(Excella::activeDbPath.c_str());
-            browser.ClearSelected();
-            reset_database();
-            load_database(Excella::activeDbPath.c_str());
-        }
-
-        if (browser.HasSelected() && browserWantsLoad)
-        {
-            std::string newPath = browser.GetSelected().string();
-            Excella::activeDbPath = newPath.c_str();
-            reset_database();
-            load_database(Excella::activeDbPath.c_str());
-            browser.ClearSelected();
-        }
+        draw_file_browser();
 
         showPopup();
 
@@ -219,6 +203,32 @@ void draw_main_menu()
         if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
 
         ImGui::EndMainMenuBar();
+    }
+}
+
+void draw_file_browser()
+{
+    browser.Display();
+
+    if (browser.HasSelected() && browserWantsSave)
+    {
+        std::string newPath = browser.GetSelected().string();
+        Excella::activeDbPath = newPath.c_str();
+        save_database(Excella::activeDbPath.c_str());
+        browser.ClearSelected();
+        reset_database();
+        load_database(Excella::activeDbPath.c_str());
+        browserWantsSave = false;
+    }
+
+    if (browser.HasSelected() && browserWantsLoad)
+    {
+        std::string newPath = browser.GetSelected().string();
+        Excella::activeDbPath = newPath.c_str();
+        reset_database();
+        load_database(Excella::activeDbPath.c_str());
+        browser.ClearSelected();
+        browserWantsLoad = false;
     }
 }
 
