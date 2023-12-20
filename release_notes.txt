@@ -6,6 +6,10 @@ Add keyboard shortcut for `Save Database As...`
 
 Minor UI improvements
 
+Add tag viewer
+This is a view that displays all the tags in the database. It can be used to quickly filter between 
+tags.
+
 Version 1.14.0
 ---------------------------------
 Add new completion status: On-Hold

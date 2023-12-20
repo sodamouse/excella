@@ -10,8 +10,9 @@
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
-#include <fstream>
 #include <cstring>
+#include <fstream>
+#include <map>
 
 // File browser
 static constexpr auto BROWSER_FLAGS =
@@ -190,6 +191,7 @@ void draw_main_menu()
             ImGui::EndMenu();
         }
 
+        static bool showTagsPopup = false;
         if (ImGui::BeginMenu("Entry"))
         {
             if (ImGui::MenuItem("Create entry", "CTRL+n"))
@@ -200,7 +202,60 @@ void draw_main_menu()
                 focusNewEntry = true;
             }
 
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Tags View")) showTagsPopup = true;
+
             ImGui::EndMenu();
+        }
+
+        if (showTagsPopup)
+        {
+            static std::map<std::string, i32> currentTagsInDatabase;
+            static bool populateMap = true;
+            ImGui::OpenPopup("Tags View");
+            
+            if (ImGui::BeginPopupModal("Tags View"))
+            {
+                if (populateMap)
+                {
+                    for (u64 i = 0; i < entryIdx; ++i)
+                    {
+                        for (const auto& tag : ENTRIES[i].tags) currentTagsInDatabase[tag]++;
+                        populateMap = false;
+                    }
+                }
+
+                if (ImGui::BeginTable("Tags", 2))
+                {
+                    for (const auto& kv : currentTagsInDatabase)
+                    {
+                        ImGui::TableNextColumn();
+                        if (ImGui::Selectable(kv.first.c_str())) activeTags.push_back(kv.first);
+                    
+                        ImGui::TableNextColumn();
+                        char buffer[256];
+                        sprintf(&buffer[0], "%i", kv.second);
+                        ImGui::Text(buffer);
+                    
+                        ImGui::TableNextRow();
+                    }
+
+                    ImGui::EndTable();
+                }
+
+                if (ImGui::Button("Close"))
+                {
+                    populateMap = true;
+                    currentTagsInDatabase.clear();
+
+                    showTagsPopup = false;
+
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
         }
 
         ImGui::Text("%s", Excella::activeDbPath.c_str());
