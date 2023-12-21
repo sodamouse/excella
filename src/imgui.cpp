@@ -61,6 +61,11 @@ ImGuiTreeNodeFlags filterNodeFlags;
 // Tags
 static std::vector<std::string> activeTags;
 
+// Tags view
+static std::map<std::string, i32> currentTagsInDatabase;
+static bool showTagsPopup = false;
+static bool populateCurrentTagsMap = true;
+
 // Pop-up
 static void (*draw_popup)() = []() {};
 
@@ -136,6 +141,17 @@ void handle_keyboard_events()
         if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         else filterNodeFlags = {};
     }
+
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_T))
+    {
+        showTagsPopup = !showTagsPopup;
+        if (!showTagsPopup)
+        {
+            populateCurrentTagsMap = true;
+            currentTagsInDatabase.clear();
+            ImGui::CloseCurrentPopup();
+        }
+    }
 }
 
 void draw_main_menu()
@@ -191,7 +207,6 @@ void draw_main_menu()
             ImGui::EndMenu();
         }
 
-        static bool showTagsPopup = false;
         if (ImGui::BeginMenu("Entry"))
         {
             if (ImGui::MenuItem("Create entry", "CTRL+n"))
@@ -211,19 +226,18 @@ void draw_main_menu()
 
         if (showTagsPopup)
         {
-            static std::map<std::string, i32> currentTagsInDatabase;
-            static bool populateMap = true;
             ImGui::OpenPopup("Tags View");
             
             if (ImGui::BeginPopupModal("Tags View"))
             {
-                if (populateMap)
+                if (populateCurrentTagsMap)
                 {
                     for (u64 i = 0; i < entryIdx; ++i)
                     {
                         for (const auto& tag : ENTRIES[i].tags) currentTagsInDatabase[tag]++;
-                        populateMap = false;
                     }
+
+                    populateCurrentTagsMap = false;
                 }
 
                 if (ImGui::BeginTable("Tags", 2))
@@ -246,7 +260,7 @@ void draw_main_menu()
 
                 if (ImGui::Button("Close"))
                 {
-                    populateMap = true;
+                    populateCurrentTagsMap = true;
                     currentTagsInDatabase.clear();
 
                     showTagsPopup = false;
