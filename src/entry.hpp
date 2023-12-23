@@ -4,6 +4,7 @@
 #include "core/integer.hpp"
 #include <string>
 #include <vector>
+#include <map>
 
 enum Platform : u32 {
     PC,
@@ -102,3 +103,5 @@ constexpr u64 ENTRIES_MAX = 2000;    // double every time the capacity is exceed
 extern Entry ENTRIES[];
 extern u64 entryIdx;
 Entry* create_entry();
+
+extern std::map<std::string, std::vector<std::string>> urls;

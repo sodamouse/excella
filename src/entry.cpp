@@ -11,3 +11,5 @@ Entry* create_entry()
     ++Excella::actualTotalEntries;
     return &ENTRIES[entryIdx++];
 }
+
+std::map<std::string, std::vector<std::string>> urls;

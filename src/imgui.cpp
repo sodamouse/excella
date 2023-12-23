@@ -66,6 +66,9 @@ static std::map<std::string, i32> currentTagsInDatabase;
 static bool showTagsPopup = false;
 static bool populateCurrentTagsMap = true;
 
+// urls
+static bool showUrlsPopup = false;
+
 // Pop-up
 static void (*draw_popup)() = []() {};
 
@@ -227,6 +230,8 @@ void draw_main_menu()
             sprintf(&buffer[0], "Total Entries: %lu", Excella::actualTotalEntries);
             ImGui::Text(buffer);
 
+            if (ImGui::MenuItem("URL Manager")) showUrlsPopup = true;
+
             ImGui::EndMenu();
         }
 
@@ -273,6 +278,36 @@ void draw_main_menu()
                     currentTagsInDatabase.clear();
 
                     showTagsPopup = false;
+
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
+        }
+
+        if (showUrlsPopup)
+        {
+            ImGui::OpenPopup("URL Manager");
+
+            if (ImGui::BeginPopupModal("URL Manager"))
+            {
+                static std::string newUrl;
+                ImGui::InputText("New URL", &newUrl);
+                ImGui::SameLine();
+                
+                if (ImGui::Button("Add")) urls[newUrl];
+
+                for (const auto& kv : urls)
+                {
+                    ImGui::Text(kv.first.c_str());
+                    ImGui::Separator();
+                    for (const auto& title : kv.second) ImGui::Text(title.c_str());
+                }
+
+                if (ImGui::Button("Close"))
+                {
+                    showUrlsPopup = false;
 
                     ImGui::CloseCurrentPopup();
                 }
@@ -337,7 +372,7 @@ void draw_table()
     // Filtering setup
     if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
-        if (ImGui::BeginTable("Platforms", 16))
+        if (ImGui::BeginTable("Platforms", 17))
         {
             for (u64 platform = 0; platform < COUNT_PLATFORM; ++platform)
             {
@@ -433,7 +468,7 @@ void draw_table()
 
     static constexpr ImVec2 CELL_PADDING(1.0f, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, CELL_PADDING);
-    if (ImGui::BeginTable("Entries", 18, TABLE_FLAGS))
+    if (ImGui::BeginTable("Entries", 19, TABLE_FLAGS))
     {
         ImGuiTable* table = g.CurrentTable;
 
@@ -454,6 +489,7 @@ void draw_table()
         ImGui::TableSetupColumn("T", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("Last Played");
         ImGui::TableSetupColumn("T", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
+        ImGui::TableSetupColumn("U", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("N", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("X", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
 
@@ -697,6 +733,7 @@ void draw_table()
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
+            // Tags
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].tags);
             ImGui::PushItemWidth(-1);
@@ -747,6 +784,73 @@ void draw_table()
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
+            // URLs
+            ImGui::TableNextColumn();
+            ImGui::PushID(&ENTRIES[i]);
+            ImGui::PushItemWidth(-1);
+            if (ImGui::ImageButton("", (void*)(intptr_t)useTags->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit URLs");
+            ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            if (ImGui::BeginPopupModal("Edit URLs", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                static std::string newUrl;
+                ImGui::InputText("New URL", &newUrl);
+                ImGui::SameLine();
+                if (ImGui::Button("Add"))
+                {
+                    if (newUrl.length() > 0)
+                    {
+                        urls[newUrl].push_back(ENTRIES[i].sortingTitle);    // @HACK: This should use uuid
+                        newUrl.clear();
+                    }
+                }
+
+                ImGui::SeparatorText("Current URLs");
+
+                static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
+                for (auto& kv : urls)
+                {
+                    for (auto& title : kv.second)
+                    {
+                        bool selected = false;
+                        if (title == ENTRIES[i].sortingTitle)
+                        {
+                            ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS);
+                            if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                                assert(false);
+                            else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                            {
+                                auto it = std::find(
+                                    kv.second.begin(),
+                                    kv.second.end(),
+                                    ENTRIES[i].sortingTitle
+                                );
+
+                                kv.second.erase(it);
+                            }
+                        }
+                    }
+                }
+
+                ImGui::SeparatorText("All URLs");
+
+                for (auto& kv : urls)
+                {
+                    bool selected = false;
+                    if (ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS))
+                    {
+                        kv.second.push_back(ENTRIES[i].sortingTitle);   // @HACK: This shoud use uuid.
+                    }
+                }
+
+                if (ImGui::Button("Close")) ImGui::CloseCurrentPopup(); // @HACK: This might need to do more.
+
+                ImGui::EndPopup();
+            }
+            (void)ImGui::PopItemWidth();
+            ImGui::PopID();
+
+            // Note
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].notes);
             ImGui::PushItemWidth(-1);
