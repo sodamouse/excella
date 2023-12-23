@@ -221,6 +221,12 @@ void draw_main_menu()
 
             if (ImGui::MenuItem("Tags View")) showTagsPopup = true;
 
+            ImGui::Separator();
+
+            static char buffer[16 + sizeof(u64)];
+            sprintf(&buffer[0], "Total Entries: %lu", Excella::actualTotalEntries);
+            ImGui::Text(buffer);
+
             ImGui::EndMenu();
         }
 
@@ -451,9 +457,12 @@ void draw_table()
         ImGui::TableSetupScrollFreeze(0, 1);
         ImGui::TableHeadersRow();
 
+        Excella::actualTotalEntries = 0;
         for (u64 i = 0; i < entryIdx; ++i)
         {
             if (ENTRIES[i].deleted) continue;
+
+            ++Excella::actualTotalEntries;
 
             // Search (fuzzy filtering based on entry title)
             if (search.IsActive() && !search.PassFilter(ENTRIES[i].title.c_str())) continue;
