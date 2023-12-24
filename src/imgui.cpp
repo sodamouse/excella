@@ -422,7 +422,7 @@ void draw_table()
 
         // Filter by tag
         static std::string tagString;
-        if (ImGui::InputText("##On", &tagString));
+        if (ImGui::InputText("##On", &tagString)) {}
         ImGui::SameLine();
         if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
         {

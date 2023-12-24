@@ -20,6 +20,8 @@ for creating / removing global URLs that can then be applied to each entry. The 
 the browser by clicking on them, or removed via right-clicking. This requires some further refinement,
 for example on how to determine which browser to open the links with.
 
+Fix a bug with Tag Filter's input field
+
 Version 1.14.0
 ---------------------------------
 Add new completion status: On-Hold
