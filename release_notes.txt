@@ -6,8 +6,8 @@ Add keyboard shortcut for `Save Database As...`
 
 Minor UI improvements
 
-Add tag viewer
-This is a view that displays all the tags in the database. It can be used to quickly filter between 
+Add Tag Manager
+This displays all the tags in the database. It can be used to quickly filter between
 tags.
 
 Add a counter for total entries in database under Entry menu.

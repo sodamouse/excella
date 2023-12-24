@@ -251,7 +251,10 @@ void draw_main_menu()
                     for (const auto& kv : currentTagsInDatabase)
                     {
                         ImGui::TableNextColumn();
-                        if (ImGui::Selectable(kv.first.c_str())) activeTags.push_back(kv.first);
+                        static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
+                        bool selected = false;
+                        if (ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS))
+                            activeTags.push_back(kv.first);
                     
                         ImGui::TableNextColumn();
                         char buffer[256];
