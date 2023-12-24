@@ -131,6 +131,31 @@ void load_database(const char* fp)
         }
     }
 
+    // URLs
+    in.read((char*)&count, sizeof(count));
+    for (u64 i = 0; i < count; ++i)
+    {
+        u64 size = 0;
+        in.read((char*)&size, sizeof(size));
+        std::string url;
+        url.resize(size);
+        in.read((char*)url.c_str(), size);
+
+        std::vector<std::string> titles;
+        u64 titleCount = 0;
+        in.read((char*)&titleCount, sizeof(titleCount));
+        for (u64 j = 0; j < titleCount; ++j)
+        {
+            in.read((char*)&size, sizeof(size));
+            std::string title;
+            title.resize(size);
+            in.read((char*)title.c_str(), size);
+            titles.push_back(title);
+        }
+
+        urls[url] = titles;
+    }
+
     Excella::activeDbPath = fp;
 
     if (std::find(Excella::cachedDbPaths.begin(), Excella::cachedDbPaths.end(),
@@ -161,6 +186,7 @@ void save_database(const char* fp)
             ++reduce;
             continue;
         }
+
         // title
         auto size = ENTRIES[i].title.size();
         out.write((const char*)&size, sizeof(size));
@@ -227,6 +253,26 @@ void save_database(const char* fp)
             size = tag.size();
             out.write((const char*)&size, sizeof(size));
             out.write(tag.data(), size);
+        }
+    }
+
+    // URLs
+    u64 count = urls.size();
+    out.write((const char*)&count, sizeof(count));
+
+    for (const auto& kv : urls)
+    {
+        u64 size = kv.first.length();
+        out.write((const char*)&size, sizeof(size));
+        out.write(kv.first.c_str(), size);
+
+        count = kv.second.size();
+        out.write((const char*)&count, sizeof(count));
+        for (const auto& title : kv.second)
+        {
+            size = title.length();
+            out.write((const char*)&size, sizeof(size));
+            out.write(title.c_str(), size);
         }
     }
 

@@ -14,6 +14,12 @@ Add a counter for total entries in database under Entry menu.
 
 Cap frame rate at 60
 
+Add support for URLs
+This includes linking an arbitrary number of URLs to each entry. There is also a barebones URL manager
+for creating / removing global URLs that can then be applied to each entry. The URLs can be opened in
+the browser by clicking on them, or removed via right-clicking. This requires some further refinement,
+for example on how to determine which browser to open the links with.
+
 Version 1.14.0
 ---------------------------------
 Add new completion status: On-Hold

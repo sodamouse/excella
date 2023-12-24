@@ -33,3 +33,6 @@ extern byte tagGreenBytes[1995];
 
 constexpr u64 tagBlackBytesSize = 1575;
 extern byte tagBlackBytes[1575];
+
+constexpr u64 urlBytesSize = 3254;
+extern byte urlBytes[3254];

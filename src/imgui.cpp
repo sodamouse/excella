@@ -9,6 +9,10 @@
 #include "file_browser/filebrowser.hpp"
 #include <GLFW/glfw3.h>
 
+#ifdef OS_WINDOWS
+#include <shellapi.h>
+#endif
+
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -298,11 +302,18 @@ void draw_main_menu()
                 
                 if (ImGui::Button("Add")) urls[newUrl];
 
+                static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
                 for (const auto& kv : urls)
                 {
-                    ImGui::Text(kv.first.c_str());
-                    ImGui::Separator();
-                    for (const auto& title : kv.second) ImGui::Text(title.c_str());
+                    bool selected = false;
+                    ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS);
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                    {
+                        urls.erase(kv.first);
+                        Excella::dirty = true;
+                        break;  // We must break here to allow the for-loop's constraints to update.
+                                // Otherwise, there will be an access violation.
+                    }
                 }
 
                 if (ImGui::Button("Close"))
@@ -788,7 +799,8 @@ void draw_table()
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i]);
             ImGui::PushItemWidth(-1);
-            if (ImGui::ImageButton("", (void*)(intptr_t)useTags->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit URLs");
+            static Texture url = load_texture_from_memory(&urlBytes, urlBytesSize);
+            if (ImGui::ImageButton("", (void*)(intptr_t)url.data, ImVec2(18, 18))) ImGui::OpenPopup("Edit URLs");
             ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Edit URLs", NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -802,6 +814,7 @@ void draw_table()
                     {
                         urls[newUrl].push_back(ENTRIES[i].sortingTitle);    // @HACK: This should use uuid
                         newUrl.clear();
+                        Excella::dirty = true;
                     }
                 }
 
@@ -817,7 +830,18 @@ void draw_table()
                         {
                             ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS);
                             if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                                assert(false);
+                            {
+#ifdef OS_WINDOWS
+                                ShellExecuteA(
+                                    NULL,
+                                    "open",
+                                    "C:\\Program Files\\LibreWolf\\librewolf.exe",  // @HACK obvious...
+                                    kv.first.c_str(),
+                                    NULL,
+                                    SW_SHOWDEFAULT);
+#endif
+                            }
+
                             else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
                             {
                                 auto it = std::find(
@@ -827,6 +851,7 @@ void draw_table()
                                 );
 
                                 kv.second.erase(it);
+                                Excella::dirty = true;
                             }
                         }
                     }
@@ -840,6 +865,7 @@ void draw_table()
                     if (ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS))
                     {
                         kv.second.push_back(ENTRIES[i].sortingTitle);   // @HACK: This shoud use uuid.
+                        Excella::dirty = true;
                     }
                 }
 
