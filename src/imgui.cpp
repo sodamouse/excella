@@ -61,7 +61,7 @@ ImGuiTreeNodeFlags filterNodeFlags;
 // Tags
 static std::vector<std::string> activeTags;
 
-// Tags view
+// Tag manager
 static std::map<std::string, i32> currentTagsInDatabase;
 static bool showTagsPopup = false;
 static bool populateCurrentTagsMap = true;
@@ -219,7 +219,7 @@ void draw_main_menu()
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Tags View")) showTagsPopup = true;
+            if (ImGui::MenuItem("Tag Manager...")) showTagsPopup = true;
 
             ImGui::Separator();
 
@@ -232,9 +232,9 @@ void draw_main_menu()
 
         if (showTagsPopup)
         {
-            ImGui::OpenPopup("Tags View");
+            ImGui::OpenPopup("Tag Manager");
             
-            if (ImGui::BeginPopupModal("Tags View"))
+            if (ImGui::BeginPopupModal("Tag Manager"))
             {
                 if (populateCurrentTagsMap)
                 {
