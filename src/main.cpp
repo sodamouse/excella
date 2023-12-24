@@ -56,6 +56,7 @@ int main()
 
     glfwMakeContextCurrent(Excella::window);
     glfwMaximizeWindow(Excella::window);
+    glfwSwapInterval(1);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

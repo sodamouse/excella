@@ -12,6 +12,8 @@ tags.
 
 Add a counter for total entries in database under Entry menu.
 
+Cap frame rate at 60
+
 Version 1.14.0
 ---------------------------------
 Add new completion status: On-Hold
