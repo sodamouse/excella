@@ -228,13 +228,14 @@ void draw_main_menu()
 
             if (ImGui::MenuItem("Tag Manager...")) showTagsPopup = true;
 
+            if (ImGui::MenuItem("URL Manager")) showUrlsPopup = true;
+
             ImGui::Separator();
 
-            static char buffer[16 + sizeof(u64)];
-            sprintf(&buffer[0], "Total Entries: %lu", Excella::actualTotalEntries);
+            static constexpr const char* fmt = "Total Entries: %lu / %lu";
+            static char buffer[std::char_traits<char>::length(fmt) + 256];
+            sprintf(&buffer[0], fmt, Excella::actualTotalEntries, ENTRIES_MAX);
             ImGui::Text(buffer);
-
-            if (ImGui::MenuItem("URL Manager")) showUrlsPopup = true;
 
             ImGui::EndMenu();
         }
@@ -765,24 +766,17 @@ void draw_table()
                     newTag.clear();
                     Excella::dirty = true;
                 }
-                if (ImGui::BeginTable("Tags", 2))
-                {
-                    for (u64 tagIdx = 0; tagIdx < ENTRIES[i].tags.size(); ++tagIdx)
-                    {
-                        ImGui::TableNextRow();
-                        ImGui::TableNextColumn();
-                        ImGui::Text(ENTRIES[i].tags[tagIdx].c_str(), &ENTRIES[i].tags[tagIdx]);
 
-                        ImGui::TableNextColumn();
-                        ImGui::PushID(&ENTRIES[i].tags[tagIdx]);
-                        if (ImGui::Button("Delete"))
-                        {
-                            ENTRIES[i].tags.erase(ENTRIES[i].tags.begin() + tagIdx);
-                            Excella::dirty = true;
-                        }
-                        ImGui::PopID();
+                static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
+
+                for (u64 tagIdx = 0; tagIdx < ENTRIES[i].tags.size(); ++tagIdx)
+                {
+                    bool selected = false;
+                    if (ImGui::Selectable(ENTRIES[i].tags[tagIdx].c_str(), &selected, SELECTABLE_FLAGS))
+                    {
+                        ENTRIES[i].tags.erase(ENTRIES[i].tags.begin() + tagIdx);
+                        Excella::dirty = true;
                     }
-                    ImGui::EndTable();
                 }
 
                 if (ImGui::Button("Close"))
@@ -790,6 +784,7 @@ void draw_table()
                     newTag.clear();
                     ImGui::CloseCurrentPopup();
                 }
+
                 ImGui::EndPopup();
             }
             (void)ImGui::PopItemWidth();

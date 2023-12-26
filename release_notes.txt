@@ -1,3 +1,7 @@
+Version 1.16.0
+---------------------------------
+Minor UI improvements
+
 Version 1.15.0
 ---------------------------------
 Fix saving / loading database via browser menu not working at all.
