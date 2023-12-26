@@ -792,7 +792,7 @@ void draw_table()
 
             // URLs
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i]);
+            ImGui::PushID(&ENTRIES[i].hasUrl);
             ImGui::PushItemWidth(-1);
             static Texture url = load_texture_from_memory(&urlBytes, urlBytesSize);
             if (ImGui::ImageButton("", (void*)(intptr_t)url.data, ImVec2(18, 18))) ImGui::OpenPopup("Edit URLs");
@@ -890,6 +890,7 @@ void draw_table()
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
+            // Delete button
             ImGui::TableNextColumn();
             ImGui::PushID(&ENTRIES[i].deleted);
             ImGui::PushItemWidth(-1);

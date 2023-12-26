@@ -1,6 +1,8 @@
-Version 1.16.0
+Version 1.15.1
 ---------------------------------
 Minor UI improvements
+
+Fix a bug preventing entries from being deleted.
 
 Version 1.15.0
 ---------------------------------

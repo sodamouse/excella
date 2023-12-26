@@ -68,6 +68,7 @@ constexpr u64 COUNT_COMPLETION = ARRAY_SIZE(completionStr);
 struct Entry
 {
     bool deleted = false;
+    bool hasUrl  = false;
 
     std::string title;
     std::string sortingTitle;
