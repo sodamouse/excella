@@ -4,6 +4,8 @@ Minor UI improvements
 
 Fix a bug preventing entries from being deleted.
 
+Actually cap framerate at 60 this time
+
 Version 1.15.0
 ---------------------------------
 Fix saving / loading database via browser menu not working at all.

@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fstream>
 #include <thread>
+#include <chrono>
 
 #ifdef OS_WINDOWS
 #include <Windows.h>
@@ -56,7 +57,6 @@ int main()
 
     glfwMakeContextCurrent(Excella::window);
     glfwMaximizeWindow(Excella::window);
-    glfwSwapInterval(1);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -66,8 +66,17 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(Excella::window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    constexpr double FPS = 1000 / 60.0;
+    auto lastTime = std::chrono::steady_clock::now();
+
     while (!glfwWindowShouldClose(Excella::window))
     {
+        auto now = std::chrono::steady_clock::now();
+        std::chrono::duration<double, std::milli> deltaTime = now - lastTime;
+        lastTime = now;
+
+        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(FPS - deltaTime.count()));
+
         glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
