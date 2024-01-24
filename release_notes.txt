@@ -6,6 +6,9 @@ Fix a bug preventing entries from being deleted.
 
 Actually cap framerate at 60 this time
 
+Prevent the database from being modified when current db operation has not finished
+This should prevent corrupting the database file on very slow machines and/or very large database files.
+
 Version 1.15.0
 ---------------------------------
 Fix saving / loading database via browser menu not working at all.

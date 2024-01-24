@@ -135,6 +135,7 @@ void handle_keyboard_events()
 {
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
 
+    // @HACK this should be threaded
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
 
     auto saveDatabaseAs =
@@ -193,6 +194,7 @@ void draw_main_menu()
                 browserWantsLoad = true;
             }
 
+            // @HACK this should be threaded
             if (ImGui::MenuItem("Save", "CTRL+s")) save_database(Excella::activeDbPath.c_str());
 
             if (ImGui::MenuItem("Save as...", "CTRL+SHIFT+s"))
@@ -212,7 +214,7 @@ void draw_main_menu()
                     {
                         Excella::activeDbPath = line;
                         reset_database();
-                        load_database(Excella::activeDbPath.c_str());
+                        load_database(Excella::activeDbPath.c_str());   // @HACK This should be threaded
                     }
                 }
 
@@ -350,6 +352,7 @@ void draw_main_menu()
         static Texture disketteRed  = load_texture_from_memory(&disketteRedBytes, disketteRedBytesSize);
         static Texture disketteGray = load_texture_from_memory(&disketteGrayBytes, disketteGrayBytesSize);
         Texture& diskette = Excella::dirty ? disketteRed : disketteGray;
+        // @HACK this should be threaded
         if (ImGui::ImageButton("", (void*)(intptr_t)diskette.data, ImVec2(18, 18))) save_database(Excella::activeDbPath.c_str());
 
         ImGui::EndMainMenuBar();
@@ -364,10 +367,10 @@ void draw_file_browser()
     {
         std::string newPath = browser.GetSelected().string();
         Excella::activeDbPath = newPath.c_str();
-        save_database(Excella::activeDbPath.c_str());
+        save_database(Excella::activeDbPath.c_str());   // @HACK this should be threaded
         browser.ClearSelected();
         reset_database();
-        load_database(Excella::activeDbPath.c_str());
+        load_database(Excella::activeDbPath.c_str());   // @HACK This should be threaded
         browserWantsSave = false;
     }
 
@@ -376,7 +379,7 @@ void draw_file_browser()
         std::string newPath = browser.GetSelected().string();
         Excella::activeDbPath = newPath.c_str();
         reset_database();
-        load_database(Excella::activeDbPath.c_str());
+        load_database(Excella::activeDbPath.c_str());   // @HACK this should be threaded
         browser.ClearSelected();
         browserWantsLoad = false;
     }

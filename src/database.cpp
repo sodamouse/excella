@@ -39,6 +39,8 @@ void reset_database()
 
 void load_database(const char* fp)
 {
+    Excella::entryLoaderThreadFinished = false;
+
     if (!std::filesystem::exists(fp))
     {
         std::cout << "Database not found. Creating...\n";
@@ -166,11 +168,14 @@ void load_database(const char* fp)
     }
 
     Excella::dirty = false;
+    Excella::entryLoaderThreadFinished = true;
 }
 
 void save_database(const char* fp)
 {
     if (!Excella::dirty) return;
+    if (!Excella::entryLoaderThreadFinished) return;
+    Excella::entryLoaderThreadFinished = false;
 
     std::fstream out(fp, std::ios::out | std::ios::binary);
     assert(out.is_open() && "Could not create output file");    // @HACK runtime error checking
@@ -282,6 +287,7 @@ void save_database(const char* fp)
     out.write((const char*)&entryIdx, sizeof(entryIdx));
 
     Excella::dirty = false;
+    Excella::entryLoaderThreadFinished = true;
 }
 
 void save_cache_file()

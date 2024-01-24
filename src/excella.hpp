@@ -15,6 +15,7 @@ extern std::vector<std::string> cachedDbPaths;
 extern u64 startHash;
 extern int actualTotalEntries;
 extern bool dirty;
+extern bool entryLoaderThreadFinished;
 extern GLFWwindow* window;
 
 } // namespace Excella
