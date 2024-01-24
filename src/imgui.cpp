@@ -81,7 +81,7 @@ void draw_main_menu();
 void draw_file_browser();
 void draw_table();
 
-void draw_one_frame()
+void update()
 {
     focusSearch   = false;
     focusNewEntry = false;

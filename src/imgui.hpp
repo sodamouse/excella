@@ -6,4 +6,4 @@
 #include <imgui/imgui_internal.h>
 #include <imgui/imgui_stdlib.h>
 
-void draw_one_frame();
+void update();
