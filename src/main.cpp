@@ -1,5 +1,3 @@
-// COPYRIGHT (C) sodamouse - See LICENSE.md
-
 #include "comfyg.hpp"
 #include "window.hpp"
 #include "database.hpp"
@@ -55,6 +53,8 @@ int main()
     while (!quit)
     {
         if (update_glfw_events()) quit = true;
+
+        // @TODO: Window re-size events
 
         auto now = std::chrono::steady_clock::now();
         std::chrono::duration<double, std::milli> deltaTime = now - lastTime;
