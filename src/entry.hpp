@@ -101,7 +101,7 @@ struct Entry
 };
 
 constexpr u64 ENTRIES_MAX = 2000;    // double every time the capacity is exceeded
-extern Entry ENTRIES[];
+extern Entry entries[];
 extern u64 entryIdx;
 Entry* create_entry();
 

@@ -269,7 +269,7 @@ void draw_main_menu()
                 {
                     for (u64 i = 0; i < entryIdx; ++i)
                     {
-                        for (const auto& tag : ENTRIES[i].tags) currentTagsInDatabase[tag]++;
+                        for (const auto& tag : entries[i].tags) currentTagsInDatabase[tag]++;
                     }
 
                     populateCurrentTagsMap = false;
@@ -531,12 +531,12 @@ void draw_table()
         Excella::actualTotalEntries = 0;
         for (u64 i = 0; i < entryIdx; ++i)
         {
-            if (ENTRIES[i].deleted) continue;
+            if (entries[i].deleted) continue;
 
             ++Excella::actualTotalEntries;
 
             // Search (fuzzy filtering based on entry title)
-            if (search.IsActive() && !search.PassFilter(ENTRIES[i].title.c_str())) continue;
+            if (search.IsActive() && !search.PassFilter(entries[i].title.c_str())) continue;
 
             // Filtering
             if (filter.active)
@@ -546,32 +546,32 @@ void draw_table()
                     bool shouldSkip = true;
                     for (u64 j = 0; j < COUNT_PLATFORM; ++j)
                     {
-                        if (filter.platformsSelected[ENTRIES[i].platform]) shouldSkip = false;
+                        if (filter.platformsSelected[entries[i].platform]) shouldSkip = false;
                     }
 
                     if (shouldSkip) continue;
                 }
 
-                if (filter.releaseYearActive && ENTRIES[i].releaseYear != filter.releaseYear) continue;
+                if (filter.releaseYearActive && entries[i].releaseYear != filter.releaseYear) continue;
 
-                if (filter.lastPlayedActive && ENTRIES[i].lastPlayed != filter.lastPlayed) continue;
+                if (filter.lastPlayedActive && entries[i].lastPlayed != filter.lastPlayed) continue;
 
-                if (filter.ratingActive && ENTRIES[i].rating != filter.rating) continue;
+                if (filter.ratingActive && entries[i].rating != filter.rating) continue;
 
                 if (filter.completionActive)
                 {
                     bool shouldSkip = true;
                     for (u64 j = 0; j < COUNT_COMPLETION; ++j)
                     {
-                        if (filter.completionsSelected[ENTRIES[i].completion]) shouldSkip = false;
+                        if (filter.completionsSelected[entries[i].completion]) shouldSkip = false;
                     }
 
                     if (shouldSkip) continue;
                 }
 
-                if (filter.sActive && !ENTRIES[i].s) continue;
-                if (filter.jActive && !ENTRIES[i].j) continue;
-                if (filter.tActive && !ENTRIES[i].t) continue;
+                if (filter.sActive && !entries[i].s) continue;
+                if (filter.jActive && !entries[i].j) continue;
+                if (filter.tActive && !entries[i].t) continue;
             }
 
             // Filtering by tag
@@ -580,7 +580,7 @@ void draw_table()
             {
                 for (const auto& tag : activeTags)
                 {
-                    if (std::find(ENTRIES[i].tags.begin(), ENTRIES[i].tags.end(), tag) == std::end(ENTRIES[i].tags))
+                    if (std::find(entries[i].tags.begin(), entries[i].tags.end(), tag) == std::end(entries[i].tags))
                         breakLoop = true;
                 }
             }
@@ -591,30 +591,30 @@ void draw_table()
             if (focusNewEntry) ImGui::SetKeyboardFocusHere();
 
             ImGui::TableSetColumnIndex(0);
-            ImGui::PushID(&ENTRIES[i].title);
+            ImGui::PushID(&entries[i].title);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "title", &ENTRIES[i].title)) Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "title", &entries[i].title)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].sortingTitle);
+            ImGui::PushID(&entries[i].sortingTitle);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "sorting title", &ENTRIES[i].sortingTitle)) Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "sorting title", &entries[i].sortingTitle)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].platform);
+            ImGui::PushID(&entries[i].platform);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##On", platformStr[ENTRIES[i].platform]))
+            if (ImGui::BeginCombo("##On", platformStr[entries[i].platform]))
             {
                 for (u64 n = 0; n < COUNT_PLATFORM; ++n)
                 {
-                    const bool isSelected = (ENTRIES[i].platform == n);
+                    const bool isSelected = (entries[i].platform == n);
                     if (ImGui::Selectable(platformStr[n], isSelected))
                     {
-                        ENTRIES[i].platform = (Platform)n;
+                        entries[i].platform = (Platform)n;
                         Excella::dirty = true;
                     }
 
@@ -626,16 +626,16 @@ void draw_table()
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].region);
+            ImGui::PushID(&entries[i].region);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##On", regionStr[ENTRIES[i].region]))
+            if (ImGui::BeginCombo("##On", regionStr[entries[i].region]))
             {
                 for (u64 n = 0; n < COUNT_REGION; ++n)
                 {
-                    const bool isSelected = (ENTRIES[i].region == n);
+                    const bool isSelected = (entries[i].region == n);
                     if (ImGui::Selectable(regionStr[n], isSelected))
                     {
-                        ENTRIES[i].region = (Region)n;
+                        entries[i].region = (Region)n;
                         Excella::dirty = true;
                     }
 
@@ -647,23 +647,23 @@ void draw_table()
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].releaseYear);
+            ImGui::PushID(&entries[i].releaseYear);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputInt("##On", &ENTRIES[i].releaseYear)) Excella::dirty = true;
+            if (ImGui::InputInt("##On", &entries[i].releaseYear)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].updateStatus);
+            ImGui::PushID(&entries[i].updateStatus);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].updateStatus]))
+            if (ImGui::BeginCombo("##On", contentStatusStr[entries[i].updateStatus]))
             {
                 for (u64 n = 0; n < COUNT_CONTENT_STATUS; ++n)
                 {
-                    const bool isSelected = (ENTRIES[i].updateStatus == n);
+                    const bool isSelected = (entries[i].updateStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
                     {
-                        ENTRIES[i].updateStatus = (ContentStatus)n;
+                        entries[i].updateStatus = (ContentStatus)n;
                         Excella::dirty = true;
                     }
 
@@ -675,30 +675,30 @@ void draw_table()
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].archivedVersion);
+            ImGui::PushID(&entries[i].archivedVersion);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "archived version", &ENTRIES[i].archivedVersion)) Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "archived version", &entries[i].archivedVersion)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].bestVersion);
+            ImGui::PushID(&entries[i].bestVersion);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputTextWithHint("##On", "known best version", &ENTRIES[i].bestVersion)) Excella::dirty = true;
+            if (ImGui::InputTextWithHint("##On", "known best version", &entries[i].bestVersion)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].dlcStatus);
+            ImGui::PushID(&entries[i].dlcStatus);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##On", contentStatusStr[ENTRIES[i].dlcStatus]))
+            if (ImGui::BeginCombo("##On", contentStatusStr[entries[i].dlcStatus]))
             {
                 for (u64 n = 0; n < 5; ++n)
                 {
-                    const bool isSelected = (ENTRIES[i].dlcStatus == n);
+                    const bool isSelected = (entries[i].dlcStatus == n);
                     if (ImGui::Selectable(contentStatusStr[n], isSelected))
                     {
-                        ENTRIES[i].dlcStatus = (ContentStatus)n;
+                        entries[i].dlcStatus = (ContentStatus)n;
                         Excella::dirty = true;
                     }
 
@@ -710,16 +710,16 @@ void draw_table()
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].completion);
+            ImGui::PushID(&entries[i].completion);
             ImGui::PushItemWidth(-1);
-            if (ImGui::BeginCombo("##On", completionStr[ENTRIES[i].completion]))
+            if (ImGui::BeginCombo("##On", completionStr[entries[i].completion]))
             {
                 for (u64 n = 0; n < COUNT_COMPLETION; ++n)
                 {
-                    const bool isSelected = (ENTRIES[i].completion == n);
+                    const bool isSelected = (entries[i].completion == n);
                     if (ImGui::Selectable(completionStr[n], isSelected))
                     {
-                        ENTRIES[i].completion = (Completion)n;
+                        entries[i].completion = (Completion)n;
                         Excella::dirty = true;
                     }
 
@@ -731,47 +731,47 @@ void draw_table()
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].rating);
+            ImGui::PushID(&entries[i].rating);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputInt("##On", &ENTRIES[i].rating)) Excella::dirty = true;
+            if (ImGui::InputInt("##On", &entries[i].rating)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].s);
+            ImGui::PushID(&entries[i].s);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Checkbox("##On", &ENTRIES[i].s)) Excella::dirty = true;
+            if (ImGui::Checkbox("##On", &entries[i].s)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].j);
+            ImGui::PushID(&entries[i].j);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Checkbox("##On", &ENTRIES[i].j)) Excella::dirty = true;
+            if (ImGui::Checkbox("##On", &entries[i].j)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].t);
+            ImGui::PushID(&entries[i].t);
             ImGui::PushItemWidth(-1);
-            if (ImGui::Checkbox("##On", &ENTRIES[i].t)) Excella::dirty = true;
+            if (ImGui::Checkbox("##On", &entries[i].t)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].lastPlayed);
+            ImGui::PushID(&entries[i].lastPlayed);
             ImGui::PushItemWidth(-1);
-            if (ImGui::InputInt("##On", &ENTRIES[i].lastPlayed)) Excella::dirty = true;
+            if (ImGui::InputInt("##On", &entries[i].lastPlayed)) Excella::dirty = true;
             (void)ImGui::PopItemWidth();
             ImGui::PopID();
 
             // Tags
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].tags);
+            ImGui::PushID(&entries[i].tags);
             ImGui::PushItemWidth(-1);
             static Texture tagsBlack = load_texture_from_memory(&tagBlackBytes, tagBlackBytesSize);
             static Texture tagsBlue = load_texture_from_memory(&tagGreenBytes, tagGreenBytesSize);
-            Texture* useTags = ENTRIES[i].tags.size() == 0 ? &tagsBlack : &tagsBlue;
+            Texture* useTags = entries[i].tags.size() == 0 ? &tagsBlack : &tagsBlue;
             if (ImGui::ImageButton("", (void*)(intptr_t)useTags->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit Tags");
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -782,19 +782,19 @@ void draw_table()
                 ImGui::SameLine();
                 if (ImGui::Button("Add") && newTag.size() > 0)
                 {
-                    ENTRIES[i].tags.push_back(newTag);
+                    entries[i].tags.push_back(newTag);
                     newTag.clear();
                     Excella::dirty = true;
                 }
 
                 static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
 
-                for (u64 tagIdx = 0; tagIdx < ENTRIES[i].tags.size(); ++tagIdx)
+                for (u64 tagIdx = 0; tagIdx < entries[i].tags.size(); ++tagIdx)
                 {
                     bool selected = false;
-                    if (ImGui::Selectable(ENTRIES[i].tags[tagIdx].c_str(), &selected, SELECTABLE_FLAGS))
+                    if (ImGui::Selectable(entries[i].tags[tagIdx].c_str(), &selected, SELECTABLE_FLAGS))
                     {
-                        ENTRIES[i].tags.erase(ENTRIES[i].tags.begin() + tagIdx);
+                        entries[i].tags.erase(entries[i].tags.begin() + tagIdx);
                         Excella::dirty = true;
                     }
                 }
@@ -812,7 +812,7 @@ void draw_table()
 
             // URLs
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].hasUrl);
+            ImGui::PushID(&entries[i].hasUrl);
             ImGui::PushItemWidth(-1);
             static Texture url = load_texture_from_memory(&urlBytes, urlBytesSize);
             if (ImGui::ImageButton("", (void*)(intptr_t)url.data, ImVec2(18, 18))) ImGui::OpenPopup("Edit URLs");
@@ -827,7 +827,7 @@ void draw_table()
                 {
                     if (newUrl.length() > 0)
                     {
-                        urls[newUrl].push_back(ENTRIES[i].sortingTitle);    // @HACK: This should use uuid
+                        urls[newUrl].push_back(entries[i].sortingTitle);    // @HACK: This should use uuid
                         newUrl.clear();
                         Excella::dirty = true;
                     }
@@ -841,7 +841,7 @@ void draw_table()
                     for (auto& title : kv.second)
                     {
                         bool selected = false;
-                        if (title == ENTRIES[i].sortingTitle)
+                        if (title == entries[i].sortingTitle)
                         {
                             ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS);
                             if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
@@ -862,7 +862,7 @@ void draw_table()
                                 auto it = std::find(
                                     kv.second.begin(),
                                     kv.second.end(),
-                                    ENTRIES[i].sortingTitle
+                                    entries[i].sortingTitle
                                 );
 
                                 kv.second.erase(it);
@@ -879,7 +879,7 @@ void draw_table()
                     bool selected = false;
                     if (ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS))
                     {
-                        kv.second.push_back(ENTRIES[i].sortingTitle);   // @HACK: This shoud use uuid.
+                        kv.second.push_back(entries[i].sortingTitle);   // @HACK: This shoud use uuid.
                         Excella::dirty = true;
                     }
                 }
@@ -893,17 +893,17 @@ void draw_table()
 
             // Note
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].notes);
+            ImGui::PushID(&entries[i].notes);
             ImGui::PushItemWidth(-1);
             static Texture edit = load_texture_from_memory(&editBytes, editBytesSize);
             static Texture editWhite = load_texture_from_memory(&editWhiteBytes, editWhiteBytesSize);
-            Texture* useEdit = ENTRIES[i].notes.size() == 0 ? &edit : &editWhite;
+            Texture* useEdit = entries[i].notes.size() == 0 ? &edit : &editWhite;
             if (ImGui::ImageButton("", (void*)(intptr_t)useEdit->data, ImVec2(18, 18))) ImGui::OpenPopup("Edit Notes");
             center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal("Edit Notes", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                if (ImGui::InputTextMultiline("##On", &ENTRIES[i].notes, ImVec2(500, 500))) Excella::dirty = true;
+                if (ImGui::InputTextMultiline("##On", &entries[i].notes, ImVec2(500, 500))) Excella::dirty = true;
                 if (ImGui::Button("Close")) ImGui::CloseCurrentPopup();
                 ImGui::EndPopup();
             }
@@ -912,12 +912,12 @@ void draw_table()
 
             // Delete button
             ImGui::TableNextColumn();
-            ImGui::PushID(&ENTRIES[i].deleted);
+            ImGui::PushID(&entries[i].deleted);
             ImGui::PushItemWidth(-1);
             static Texture trashcan = load_texture_from_memory(&trashcanBytes, trashcanBytesSize);
             if (ImGui::ImageButton("", (void*)(intptr_t)trashcan.data, ImVec2(18, 18)))
             {
-                ENTRIES[i].deleted = true;
+                entries[i].deleted = true;
                 --Excella::actualTotalEntries;
                 Excella::dirty = true;
             }
@@ -932,7 +932,7 @@ void draw_table()
             static constexpr auto yellow = ImVec4(0.6f, 0.6f, 0.0f, 1.0f);
             static constexpr auto green  = ImVec4(0.2f, 0.6f, 0.4f, 1.0f);
 
-            auto& e = ENTRIES[i];
+            auto& e = entries[i];
             switch (e.updateStatus)
             {
             case AVAILABLE:
@@ -987,7 +987,7 @@ void draw_table()
             if (sortSpecs->SpecsDirty)
             {
                 std::sort(
-                    &ENTRIES[0], &ENTRIES[entryIdx],
+                    &entries[0], &entries[entryIdx],
                     [&sortSpecs](const Entry& lhs, const Entry& rhs) -> bool {
                         for (i32 i = 0; i < sortSpecs->SpecsCount; ++i)     // i here is always 1...
                         {

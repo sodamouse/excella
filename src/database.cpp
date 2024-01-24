@@ -29,10 +29,7 @@ void create_database(const char* fp)
 
 void reset_database()
 {
-    for (u64 i = 0; i < entryIdx; ++i)
-    {
-        ENTRIES[i] = {};
-    }
+    for (u64 i = 0; i < entryIdx; ++i) entries[i] = {};
     entryIdx = 0;
     Excella::actualTotalEntries = 0;
 }
@@ -186,74 +183,74 @@ void save_database(const char* fp)
 
     for (u32 i = 0; i < entryIdx; ++i)
     {
-        if (ENTRIES[i].deleted)
+        if (entries[i].deleted)
         {
             ++reduce;
             continue;
         }
 
         // title
-        auto size = ENTRIES[i].title.size();
+        auto size = entries[i].title.size();
         out.write((const char*)&size, sizeof(size));
-        out.write(ENTRIES[i].title.data(), size);
+        out.write(entries[i].title.data(), size);
 
         // sortingTitle
-        size = ENTRIES[i].sortingTitle.size();
+        size = entries[i].sortingTitle.size();
         out.write((const char*)&size, sizeof(size));
-        out.write(ENTRIES[i].sortingTitle.data(), size);
+        out.write(entries[i].sortingTitle.data(), size);
 
         // platform
-        out.write((const char*)&ENTRIES[i].platform, sizeof(u32));
+        out.write((const char*)&entries[i].platform, sizeof(u32));
 
         // region
-        out.write((const char*)&ENTRIES[i].region, sizeof(u32));
+        out.write((const char*)&entries[i].region, sizeof(u32));
 
         // releaseYear
-        out.write((const char*)&ENTRIES[i].releaseYear, sizeof(i32));
+        out.write((const char*)&entries[i].releaseYear, sizeof(i32));
 
         // updateStatus
-        out.write((const char*)&ENTRIES[i].updateStatus, sizeof(u32));
+        out.write((const char*)&entries[i].updateStatus, sizeof(u32));
 
         // archivedVersion
-        size = ENTRIES[i].archivedVersion.size();
+        size = entries[i].archivedVersion.size();
         out.write((const char*)&size, sizeof(size));
-        out.write(ENTRIES[i].archivedVersion.data(), size);
+        out.write(entries[i].archivedVersion.data(), size);
 
         // bestVersion
-        size = ENTRIES[i].bestVersion.size();
+        size = entries[i].bestVersion.size();
         out.write((const char*)&size, sizeof(size));
-        out.write(ENTRIES[i].bestVersion.data(), size);
+        out.write(entries[i].bestVersion.data(), size);
 
         // dlcStatus
-        out.write((const char*)&ENTRIES[i].dlcStatus, sizeof(u32));
+        out.write((const char*)&entries[i].dlcStatus, sizeof(u32));
 
         // completion
-        out.write((const char*)&ENTRIES[i].completion, sizeof(u32));
+        out.write((const char*)&entries[i].completion, sizeof(u32));
 
         // rating
-        out.write((const char*)&ENTRIES[i].rating, sizeof(i32));
+        out.write((const char*)&entries[i].rating, sizeof(i32));
 
         // s
-        out.write((const char*)&ENTRIES[i].s, sizeof(bool));
+        out.write((const char*)&entries[i].s, sizeof(bool));
 
         // j
-        out.write((const char*)&ENTRIES[i].j, sizeof(bool));
+        out.write((const char*)&entries[i].j, sizeof(bool));
 
         // t
-        out.write((const char*)&ENTRIES[i].t, sizeof(bool));
+        out.write((const char*)&entries[i].t, sizeof(bool));
 
         // lastPlayed
-        out.write((const char*)&ENTRIES[i].lastPlayed, sizeof(i32));
+        out.write((const char*)&entries[i].lastPlayed, sizeof(i32));
 
         // notes
-        size = ENTRIES[i].notes.size();
+        size = entries[i].notes.size();
         out.write((const char*)&size, sizeof(size));
-        out.write(ENTRIES[i].notes.data(), size);
+        out.write(entries[i].notes.data(), size);
 
         // tags
-        size = ENTRIES[i].tags.size();
+        size = entries[i].tags.size();
         out.write((const char*)&size, sizeof(size));
-        for (const auto& tag : ENTRIES[i].tags)
+        for (const auto& tag : entries[i].tags)
         {
             size = tag.size();
             out.write((const char*)&size, sizeof(size));
