@@ -1,11 +1,17 @@
 // @FEATURE (Mads): Show save prompt if excella dirty
 
 #include "imgui.hpp"
+#include "font.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "excella.hpp"
 #include "texture.hpp"
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_internal.h>
+#include <imgui/imgui_stdlib.h>
 #include "file_browser/filebrowser.hpp"
 #include <GLFW/glfw3.h>
 
@@ -17,6 +23,17 @@
 #include <cstring>
 #include <fstream>
 #include <map>
+
+void init_imgui()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontFromMemoryTTF(fontBytes, sizeof(fontBytes), 18);
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui_ImplGlfw_InitForOpenGL(Excella::window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+}
 
 // File browser
 static constexpr auto BROWSER_FLAGS =

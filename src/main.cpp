@@ -1,14 +1,11 @@
 // COPYRIGHT (C) sodamouse - See LICENSE.md
 
 #include "comfyg.hpp"
-#include "core/core.hpp"
+#include "window.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "excella.hpp"
-#include "font.hpp"
 #include "imgui.hpp"
-
-#include <GLFW/glfw3.h>
 
 #include <filesystem>
 #include <fstream>
@@ -42,48 +39,31 @@ int main()
     {
         std::fstream cache(Excella::cacheFilePath, std::ios::in);
         std::string line;
-        while (cache >> line)
-        {
-            Excella::cachedDbPaths.push_back(line);
-        }
+        while (cache >> line) Excella::cachedDbPaths.push_back(line);
     }
 
     std::thread entryLoader(load_database, *dbPath);
 
-    if (!glfwInit()) return 1;
+    init_glfw(800, 600);
 
-    Excella::window = glfwCreateWindow(800, 600, Excella::version, nullptr, nullptr);
-    if (!Excella::window) return 1;
-
-    glfwMakeContextCurrent(Excella::window);
-    glfwMaximizeWindow(Excella::window);
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromMemoryTTF(fontBytes, sizeof(fontBytes), 18);
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui_ImplGlfw_InitForOpenGL(Excella::window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    init_imgui();
 
     constexpr double FPS = 1000 / 60.0;
     auto lastTime = std::chrono::steady_clock::now();
 
-    while (!glfwWindowShouldClose(Excella::window))
+    bool quit = false;
+    while (!quit)
     {
+        if (update_glfw_events()) quit = true;
+
         auto now = std::chrono::steady_clock::now();
         std::chrono::duration<double, std::milli> deltaTime = now - lastTime;
         lastTime = now;
-
         std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(FPS - deltaTime.count()));
 
-        glClearColor(0.1, 0.1, 0.1, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        clear_render_context();
         update();
-
-        glfwPollEvents();
-        glfwSwapBuffers(Excella::window);
+        swap_buffers();
     }
 
     entryLoader.join();
