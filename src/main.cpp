@@ -7,8 +7,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <thread>
-#include <chrono>
 
 #ifdef OS_WINDOWS
 #include <Windows.h>
@@ -46,24 +44,17 @@ int main()
 
     init_imgui();
 
-    constexpr double FPS = 1000 / 60.0;
-    auto lastTime = std::chrono::steady_clock::now();
-
+    using namespace std::chrono_literals;
     bool quit = false;
     while (!quit)
     {
         if (update_glfw_events()) quit = true;
-
         // @TODO: Window re-size events
-
-        auto now = std::chrono::steady_clock::now();
-        std::chrono::duration<double, std::milli> deltaTime = now - lastTime;
-        lastTime = now;
-        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(FPS - deltaTime.count()));
-
         clear_render_context();
         update();
         swap_buffers();
+
+        std::this_thread::sleep_for(10ms);
     }
 
     entryLoader.join();
