@@ -476,6 +476,44 @@ void draw_main_menu()
                     ImGui::TreePop();
                 }
 
+                if (ImGui::TreeNodeEx("Tags"))
+                {
+                    ImGuiTextFilter filter;
+                    ImGui::PushItemWidth(-1);
+                    filter.Draw();
+                    ImGui::PopItemWidth();
+
+                    if (ImGui::BeginTable("Details", 3))
+                    {
+                        std::map<std::string, u64> counts;
+
+                        for (u64 i = 0; i < entryIdx; ++i)
+                        {
+                            for (const auto& tag : entries[i].tags)
+                                counts[tag]++;
+                        }
+
+
+                        for (const auto& kv : counts)
+                        {
+                            if (!filter.PassFilter(kv.first.c_str())) continue;
+
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%s", kv.first.c_str());
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", kv.second);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%.2f", (float)kv.second / entryIdx * 100);
+                        }
+
+                        ImGui::EndTable();
+                    }
+
+                    ImGui::TreePop();
+                }
 
                 if (ImGui::Button("Close"))
                 {
