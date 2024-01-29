@@ -87,8 +87,11 @@ static std::map<std::string, i32> currentTagsInDatabase;
 static bool showTagsPopup = false;
 static bool populateCurrentTagsMap = true;
 
-// urls
+// URLs
 static bool showUrlsPopup = false;
+
+// Statistics
+static bool showStatisticsPopup = false;
 
 // Pop-up
 static void (*draw_popup)() = []() {};
@@ -242,9 +245,11 @@ void draw_main_menu()
 
             if (ImGui::MenuItem("Tag Manager...")) showTagsPopup = true;
 
-            if (ImGui::MenuItem("URL Manager")) showUrlsPopup = true;
+            if (ImGui::MenuItem("URL Manager...")) showUrlsPopup = true;
 
             ImGui::Separator();
+
+            if (ImGui::MenuItem("Statistics...")) showStatisticsPopup = true;
 
             static constexpr const char* fmt = "Total Entries: %lu / %lu";
             static char buffer[std::char_traits<char>::length(fmt) + 256];
@@ -336,6 +341,58 @@ void draw_main_menu()
                 if (ImGui::Button("Close"))
                 {
                     showUrlsPopup = false;
+
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
+        }
+
+        if (showStatisticsPopup)
+        {
+            ImGui::OpenPopup("URL Manager");
+
+            if (ImGui::BeginPopupModal("URL Manager"))
+            {
+                if (ImGui::BeginTable("Statistics", 2))
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text("Total Entries");
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%i / %i", entryIdx, ENTRIES_MAX);
+                 
+                    ImGui::EndTable();
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::BeginTable("Details", 3))
+                {
+                    u64 counts[COUNT_COMPLETION]{};
+
+                    for (u64 i = 0; i < entryIdx; ++i) counts[entries[i].completion]++;
+
+                    for (u64 completion = 0; completion < COUNT_COMPLETION; ++completion)
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::Text(completionStr[completion]);
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%i", counts[completion]);
+
+                        ImGui::TableNextColumn();
+                        ImGui::Text("%.2f", (float)counts[completion] / entryIdx * 100);
+                    }
+
+                    ImGui::EndTable();
+                }
+
+                if (ImGui::Button("Close"))
+                {
+                    showStatisticsPopup = false;
 
                     ImGui::CloseCurrentPopup();
                 }

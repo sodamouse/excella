@@ -13,6 +13,10 @@ Add excluding entries by tag
 Entries can now be filtered-out via tags. Simply right click on the tag's name in Tag Manager or use the
 new -Tag button in the filtering drop-down to create exclusive tags.
 
+Add new statistics page
+This is a second attempt at implementing a statistics view. For now, the view shows the total number of entries,
+as well as the breakdown of entry 'completion state'. Plans are to add more entry details as well as graphs.
+
 Version 1.15.0
 ---------------------------------
 Fix saving / loading database via browser menu not working at all.
