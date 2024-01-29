@@ -100,7 +100,7 @@ struct Entry
     std::vector<std::string> tags;
 };
 
-constexpr u64 ENTRIES_MAX = 2000;    // double every time the capacity is exceeded
+constexpr u64 MAX_ENTRIES = 2000;    // double every time the capacity is exceeded
 extern Entry entries[];
 extern u64 entryIdx;
 Entry* create_entry();

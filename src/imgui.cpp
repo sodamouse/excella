@@ -253,7 +253,7 @@ void draw_main_menu()
 
             static constexpr const char* fmt = "Total Entries: %lu / %lu";
             static char buffer[std::char_traits<char>::length(fmt) + 256];
-            sprintf(&buffer[0], fmt, Excella::actualTotalEntries, ENTRIES_MAX);
+            sprintf(&buffer[0], fmt, Excella::actualTotalEntries, MAX_ENTRIES);
             ImGui::Text(buffer);
 
             ImGui::EndMenu();
@@ -361,7 +361,7 @@ void draw_main_menu()
                     ImGui::TableNextColumn();
                     ImGui::Text("Total Entries");
                     ImGui::TableNextColumn();
-                    ImGui::Text("%i / %i", entryIdx, ENTRIES_MAX);
+                    ImGui::Text("%i / %i", entryIdx, MAX_ENTRIES);
                  
                     ImGui::EndTable();
                 }

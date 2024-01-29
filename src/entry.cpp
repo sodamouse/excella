@@ -1,7 +1,7 @@
 #include "entry.hpp"
 #include "excella.hpp"
 
-Entry entries[ENTRIES_MAX];
+Entry entries[MAX_ENTRIES];
 u64 entryIdx = 0;
 
 Entry* create_entry()
