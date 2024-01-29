@@ -1,4 +1,9 @@
-Version 1.15.1
+Version 1.16.0
+---------------------------------
+Add more statistics data
+Add detailed breakdowns for platform, release year, and last played year
+
+Version 1.15.1 (2024-01-29)
 ---------------------------------
 Minor UI improvements
 

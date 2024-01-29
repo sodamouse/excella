@@ -368,27 +368,114 @@ void draw_main_menu()
 
                 ImGui::Separator();
 
-                if (ImGui::BeginTable("Details", 3))
+                if (ImGui::TreeNodeEx("Completion"))
                 {
-                    u64 counts[COUNT_COMPLETION]{};
-
-                    for (u64 i = 0; i < entryIdx; ++i) counts[entries[i].completion]++;
-
-                    for (u64 completion = 0; completion < COUNT_COMPLETION; ++completion)
+                    if (ImGui::BeginTable("Details", 3))
                     {
-                        ImGui::TableNextRow();
-                        ImGui::TableNextColumn();
-                        ImGui::Text(completionStr[completion]);
+                        u64 counts[COUNT_COMPLETION]{};
 
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%i", counts[completion]);
+                        for (u64 i = 0; i < entryIdx; ++i) counts[entries[i].completion]++;
 
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%.2f", (float)counts[completion] / entryIdx * 100);
+                        for (u64 completion = 0; completion < COUNT_COMPLETION; ++completion)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text(completionStr[completion]);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", counts[completion]);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%.2f", (float)counts[completion] / entryIdx * 100);
+                        }
+
+                        ImGui::EndTable();
                     }
 
-                    ImGui::EndTable();
+                    ImGui::TreePop();
                 }
+
+                if (ImGui::TreeNodeEx("Platform"))
+                {
+                    if (ImGui::BeginTable("Details", 3))
+                    {
+                        u64 counts[COUNT_PLATFORM]{};
+
+                        for (u64 i = 0; i < entryIdx; ++i) counts[entries[i].platform]++;
+
+                        for (u64 platform = 0; platform < COUNT_PLATFORM; ++platform)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text(platformStr[platform]);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", counts[platform]);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%.2f", (float)counts[platform] / entryIdx * 100);
+                        }
+
+                        ImGui::EndTable();
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Release Year"))
+                {
+                    if (ImGui::BeginTable("Details", 3))
+                    {
+                        std::map<u64, u64> counts;
+
+                        for (u64 i = 0; i < entryIdx; ++i) counts[entries[i].releaseYear]++;
+
+                        for (const auto& kv : counts)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", kv.first);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", kv.second);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%.2f", (float)kv.second / entryIdx * 100);
+                        }
+
+                        ImGui::EndTable();
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNodeEx("Last Played Year"))
+                {
+                    if (ImGui::BeginTable("Details", 3))
+                    {
+                        std::map<u64, u64> counts;
+
+                        for (u64 i = 0; i < entryIdx; ++i) counts[entries[i].lastPlayed]++;
+
+                        for (const auto& kv : counts)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", kv.first);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%i", kv.second);
+
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%.2f", (float)kv.second / entryIdx * 100);
+                        }
+
+                        ImGui::EndTable();
+                    }
+
+                    ImGui::TreePop();
+                }
+
 
                 if (ImGui::Button("Close"))
                 {
