@@ -88,3 +88,7 @@ Add new type `u64`
 Replace all instances of size_t with u64. On an amd64 machine, they are both 8 unsigned bytes, so this currently makes no functional difference.
 
 Fix creating new entry while search / filter active would not focus the new entry correctly
+
+Version: 1.12.0 (2023-07-09)
+---------------------------------
+Excella 1.0 released.
