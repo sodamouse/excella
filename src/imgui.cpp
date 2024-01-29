@@ -79,8 +79,8 @@ static Filter filter {};
 bool filterNodeOpen = false;
 
 // Tags
-static std::vector<std::string> activeTags;
-static std::vector<std::string> activeNegativeTags;
+static std::vector<std::string> inclusiveTags;
+static std::vector<std::string> exclusiveTags;
 
 // Tag manager
 static std::map<std::string, i32> currentTagsInDatabase;
@@ -278,8 +278,10 @@ void draw_main_menu()
                         static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
                         bool selected = false;
                         if (ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS))
-                            activeTags.push_back(kv.first);
-                    
+                            inclusiveTags.push_back(kv.first);
+                        if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+                            exclusiveTags.push_back(kv.first);
+
                         ImGui::TableNextColumn();
                         char buffer[256];
                         sprintf(&buffer[0], "%i", kv.second);
@@ -390,13 +392,17 @@ void draw_table()
     {
         filter = Filter{};
         search.Clear();
-        activeTags.clear();
+        inclusiveTags.clear();
+        exclusiveTags.clear();
     }
 
     if (focusSearch) ImGui::SetKeyboardFocusHere();
     search.Draw("##On", -1.0f);
 
     // Filtering setup
+    ImGuiTreeNodeFlags filterNodeFlags  = 0;
+    if (filterNodeOpen) filterNodeFlags = ImGuiTreeNodeFlags_DefaultOpen;
+
     if (ImGui::TreeNodeEx("Filter", filterNodeFlags))
     {
         if (ImGui::BeginTable("Platforms", 17))
@@ -440,19 +446,34 @@ void draw_table()
         static std::string tagString;
         if (ImGui::InputText("##On", &tagString)) {}
         ImGui::SameLine();
-        if (ImGui::Button("Add Tag Filter") && tagString.size() > 0)
+        if (ImGui::Button("+Tag") && tagString.size() > 0)
         {
-            activeTags.push_back(tagString);
+            inclusiveTags.push_back(tagString);
+            tagString.clear();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("-Tag") && tagString.size() > 0)
+        {
+            exclusiveTags.push_back(tagString);
             tagString.clear();
         }
         ImGui::SameLine();
         if (ImGui::Button("Clear"))
         {
-            activeTags.clear();
+            inclusiveTags.clear();
+            exclusiveTags.clear();
         }
-        for (u64 tagIdx = 0; tagIdx < activeTags.size(); ++tagIdx)
+        for (u64 tagIdx = 0; tagIdx < inclusiveTags.size(); ++tagIdx)
         {
-            if (ImGui::Button(activeTags[tagIdx].c_str())) activeTags.erase(activeTags.begin() + tagIdx);
+            if (ImGui::Button(inclusiveTags[tagIdx].c_str())) inclusiveTags.erase(inclusiveTags.begin() + tagIdx);
+            ImGui::SameLine();
+        }
+        for (u64 tagIdx = 0; tagIdx < exclusiveTags.size(); ++tagIdx)
+        {
+            static constexpr ImVec4 RED_COLOR{ 1.0, 0.2, 0.2, 1.0 };
+            ImGui::PushStyleColor(ImGuiCol_Button, RED_COLOR);
+            if (ImGui::Button(exclusiveTags[tagIdx].c_str())) exclusiveTags.erase(exclusiveTags.begin() + tagIdx);
+            ImGui::PopStyleColor();
             ImGui::SameLine();
         }
 
@@ -571,11 +592,20 @@ void draw_table()
 
             // Filtering by tag
             auto breakLoop = false;
-            if (!activeTags.empty())
+            if (!inclusiveTags.empty())
             {
-                for (const auto& tag : activeTags)
+                for (const auto& tag : inclusiveTags)
                 {
                     if (std::find(entries[i].tags.begin(), entries[i].tags.end(), tag) == std::end(entries[i].tags))
+                        breakLoop = true;
+                }
+            }
+            if (breakLoop) continue;
+            if (!exclusiveTags.empty())
+            {
+                for (const auto& tag : exclusiveTags)
+                {
+                    if (std::find(entries[i].tags.begin(), entries[i].tags.end(), tag) != std::end(entries[i].tags))
                         breakLoop = true;
                 }
             }

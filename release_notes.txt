@@ -9,6 +9,10 @@ Actually cap framerate at 60 this time
 Prevent the database from being modified when current db operation has not finished
 This should prevent corrupting the database file on very slow machines and/or very large database files.
 
+Add excluding entries by tag
+Entries can now be filtered-out via tags. Simply right click on the tag's name in Tag Manager or use the
+new -Tag button in the filtering drop-down to create exclusive tags.
+
 Version 1.15.0
 ---------------------------------
 Fix saving / loading database via browser menu not working at all.
