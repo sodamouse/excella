@@ -77,10 +77,10 @@ struct Filter
 
 static Filter filter {};
 bool filterNodeOpen = false;
-ImGuiTreeNodeFlags filterNodeFlags;
 
 // Tags
 static std::vector<std::string> activeTags;
+static std::vector<std::string> activeNegativeTags;
 
 // Tag manager
 static std::map<std::string, i32> currentTagsInDatabase;
@@ -160,12 +160,7 @@ void handle_keyboard_events()
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
 
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G))
-    {
-        filterNodeOpen = !filterNodeOpen;
-        if (filterNodeOpen) filterNodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
-        else filterNodeFlags = {};
-    }
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G)) filterNodeOpen = !filterNodeOpen;
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_T))
     {
