@@ -333,7 +333,7 @@ void draw_main_menu()
                     {
                         urls.erase(kv.first);
                         Excella::dirty = true;
-                        break;  // We must break here to allow the for-loop's constraints to update.
+                        break;  // @NOTE: We must break here to allow the for-loop's constraints to update.
                                 // Otherwise, there will be an access violation.
                     }
                 }
@@ -1040,7 +1040,7 @@ void draw_table()
                     }
                 }
 
-                ImGui::SeparatorText("Current URLs");
+                ImGui::SeparatorText("URLs");
 
                 static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
                 for (auto& kv : urls)
@@ -1076,18 +1076,6 @@ void draw_table()
                                 Excella::dirty = true;
                             }
                         }
-                    }
-                }
-
-                ImGui::SeparatorText("All URLs");
-
-                for (auto& kv : urls)
-                {
-                    bool selected = false;
-                    if (ImGui::Selectable(kv.first.c_str(), &selected, SELECTABLE_FLAGS))
-                    {
-                        kv.second.push_back(entries[i].sortingTitle);   // @HACK: This shoud use uuid.
-                        Excella::dirty = true;
                     }
                 }
 
