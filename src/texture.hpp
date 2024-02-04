@@ -36,3 +36,6 @@ extern byte tagBlackBytes[1575];
 
 constexpr u64 urlBytesSize = 3254;
 extern byte urlBytes[3254];
+
+constexpr u64 iconBytesSize = 104280;
+extern byte iconBytes[104280];

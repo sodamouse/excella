@@ -1,8 +1,10 @@
 #include "window.hpp"
 #include "excella.hpp"
 #include "core/integer.hpp"
+#include "texture.hpp"
 
 #include <GLFW/glfw3.h>
+#include <stb_image/stb_image.h>
 
 #include <iostream>
 
@@ -16,6 +18,10 @@ void init_glfw(i32 width, i32 height)
     glfwInit();
 
     Excella::window = glfwCreateWindow(width, height, Excella::version, nullptr, nullptr);
+
+    GLFWimage icons[1];
+    icons[0].pixels = stbi_load_from_memory(iconBytes, iconBytesSize, &icons[0].width, &icons[0].height, 0, 4);
+    glfwSetWindowIcon(Excella::window, 1, icons);
 
     glfwMakeContextCurrent(Excella::window);
     glfwMaximizeWindow(Excella::window);
