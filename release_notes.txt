@@ -7,6 +7,12 @@ Add application icon :3
 
 An individual entry's URL menu no longer shows list of all possible entries as it was not useful.
 
+Enable horizontal scrolling of the main table.
+This fixes a long standing limitation where it was not possible to horizontally scroll the main
+application table. This meant that the table columns were squished together and inaccessible at
+display resolutions below 1920x1080. Column widths are now dynamically set depending on display
+resolution, which should fix this issue altogether.
+
 Version 1.15.1 (2024-01-29)
 ---------------------------------
 With this version, I feel that I am approaching the end of the line with Excella's
@@ -14,7 +20,7 @@ development. The application has matured quite a bit over the months, and there 
 only a few small things to iron out.
 
 These are:
-- Excella needs a fitting icon :)
+DONE - Excella needs a fitting icon :)
 - Loading databases is currently only threaded at startup. Other loading instances should
 be threaded as well.
 - The keyboard shortcut for opening / closing the filter node breaks when the user

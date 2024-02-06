@@ -692,7 +692,8 @@ void draw_table()
     static constexpr auto TABLE_FLAGS =
         ImGuiTableFlags_Resizable |
         ImGuiTableFlags_Sortable  |
-        ImGuiTableFlags_ScrollY;
+        ImGuiTableFlags_ScrollY   |
+        ImGuiTableFlags_ScrollX;
 
     ImGuiContext& g = *ImGui::GetCurrentContext();
 
@@ -701,23 +702,27 @@ void draw_table()
     if (ImGui::BeginTable("Entries", 19, TABLE_FLAGS))
     {
         ImGuiTable* table = g.CurrentTable;
-
+        
+        int width;
+        int height;
+        glfwGetWindowSize(Excella::window, &width, &height);
+        double k = width / 10;
         static auto COLUMN_FLAGS = ImGuiTableColumnFlags_WidthFixed;
-        ImGui::TableSetupColumn("Title", COLUMN_FLAGS, 475.0);
-        ImGui::TableSetupColumn("Sorting Title", ImGuiTableColumnFlags_DefaultSort);
-        ImGui::TableSetupColumn("Platform");
-        ImGui::TableSetupColumn("Region", COLUMN_FLAGS, 50.0);
-        ImGui::TableSetupColumn("Release Year");
-        ImGui::TableSetupColumn("Update Status", ImGuiTableColumnFlags_NoSort);
-        ImGui::TableSetupColumn("Archived Version", ImGuiTableColumnFlags_NoSort);
-        ImGui::TableSetupColumn("Best Version", ImGuiTableColumnFlags_NoSort);
-        ImGui::TableSetupColumn("DLC", ImGuiTableColumnFlags_NoSort);
-        ImGui::TableSetupColumn("Completion");
-        ImGui::TableSetupColumn("Rating");
+        ImGui::TableSetupColumn("Title", COLUMN_FLAGS,                              k * 3);
+        ImGui::TableSetupColumn("Sorting Title", ImGuiTableColumnFlags_DefaultSort, k / 2.0);
+        ImGui::TableSetupColumn("Platform", COLUMN_FLAGS,                           k / 2.0);
+        ImGui::TableSetupColumn("Region", COLUMN_FLAGS,                             k / 2.0);
+        ImGui::TableSetupColumn("Release Year", COLUMN_FLAGS,                       k / 2.0);
+        ImGui::TableSetupColumn("Update Status", ImGuiTableColumnFlags_NoSort,      k / 1.6);
+        ImGui::TableSetupColumn("Archived Version", ImGuiTableColumnFlags_NoSort,   k / 2.0);
+        ImGui::TableSetupColumn("Best Version", ImGuiTableColumnFlags_NoSort,       k / 2.0);
+        ImGui::TableSetupColumn("DLC", ImGuiTableColumnFlags_NoSort,                k / 2.0);
+        ImGui::TableSetupColumn("Completion",                                       k / 2.0);
+        ImGui::TableSetupColumn("Rating", COLUMN_FLAGS, 100.0);
         ImGui::TableSetupColumn("S", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("J", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("T", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
-        ImGui::TableSetupColumn("Last Played");
+        ImGui::TableSetupColumn("Last Played", COLUMN_FLAGS,                        k / 2.0);
         ImGui::TableSetupColumn("T", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("U", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("N", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
