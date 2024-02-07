@@ -19,4 +19,3 @@ make config=release
 
 # TODO
 1. Disable spawning multiple instances
-3. Overhaul statistics page with new features and graphs
