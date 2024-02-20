@@ -702,13 +702,14 @@ void draw_table()
     if (ImGui::BeginTable("Entries", 19, TABLE_FLAGS))
     {
         ImGuiTable* table = g.CurrentTable;
-        
+
+        // Column setup
         int width;
         int height;
         glfwGetWindowSize(Excella::window, &width, &height);
         double k = width / 10;
         static auto COLUMN_FLAGS = ImGuiTableColumnFlags_WidthFixed;
-        ImGui::TableSetupColumn("Title",            COLUMN_FLAGS,                                       k * 3.0);
+        ImGui::TableSetupColumn("Title",            COLUMN_FLAGS,                                       k * 2.75);
         ImGui::TableSetupColumn("Sorting Title",    COLUMN_FLAGS | ImGuiTableColumnFlags_DefaultSort,   k / 2.0);
         ImGui::TableSetupColumn("Platform",         COLUMN_FLAGS,                                       k / 2.0);
         ImGui::TableSetupColumn("Region",           COLUMN_FLAGS,                                       k / 2.0);
@@ -716,8 +717,8 @@ void draw_table()
         ImGui::TableSetupColumn("Update Status",    COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort,        k / 1.6);
         ImGui::TableSetupColumn("Archived Version", COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort,        k / 2.0);
         ImGui::TableSetupColumn("Best Version",     COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort,        k / 2.0);
-        ImGui::TableSetupColumn("DLC",              COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort,        k / 2.0);
-        ImGui::TableSetupColumn("Completion",       COLUMN_FLAGS,                                       k / 2.0);
+        ImGui::TableSetupColumn("DLC",              COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort,        k / 1.6);
+        ImGui::TableSetupColumn("Completion",       COLUMN_FLAGS,                                       k / 1.6);
         ImGui::TableSetupColumn("Rating",           COLUMN_FLAGS, 100.0);
         ImGui::TableSetupColumn("S",                COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
         ImGui::TableSetupColumn("J",                COLUMN_FLAGS | ImGuiTableColumnFlags_NoSort, 25.0);
