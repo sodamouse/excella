@@ -478,7 +478,7 @@ void draw_main_menu()
 
                 if (ImGui::TreeNodeEx("Tags"))
                 {
-                    ImGuiTextFilter filter;
+                    static ImGuiTextFilter filter;
                     ImGui::PushItemWidth(-1);
                     filter.Draw();
                     ImGui::PopItemWidth();
