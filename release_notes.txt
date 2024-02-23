@@ -13,6 +13,15 @@ application table. This meant that the table columns were squished together and 
 display resolutions below 1920x1080. Column widths are now dynamically set depending on display
 resolution, which should fix this issue altogether.
 
+Overhaul Tag Manager
+- Re-work Tag Manager UI
+- Add tag filtering
+- Add purging a tag from the database
+
+Fix statistics page's tag filter input text not being fixed on enter.
+
+Fix statistics page being called "URL Manager" by mistake
+
 Version 1.15.1 (2024-01-29)
 ---------------------------------
 With this version, I feel that I am approaching the end of the line with Excella's
@@ -20,18 +29,13 @@ development. The application has matured quite a bit over the months, and there 
 only a few small things to iron out.
 
 These are:
-DONE - Excella needs a fitting icon :)
-- Loading databases is currently only threaded at startup. Other loading instances should
-be threaded as well.
-- The keyboard shortcut for opening / closing the filter node breaks when the user
-interacts with the element with the mouse.
-- I could also add graphs to the statistics view, but at this point I'm not sure
-how useful they would be.
-- I could also remove the hard-coded entry limits and use a dynamic array instead,
-but I'm not yet sure if I would want to do that at this point.
-- Tag manager UI could use some touch-up.
-- I could add UUIDs to entries to simplify some things and improve performance, but
-the gains would only matter theoretically.
+- DONE Excella needs a fitting icon :)
+- DONE Tag manager UI could use some touch-up.
+- I could add UUIDs to entries to simplify some things and improve performance, but the gains would only matter theoretically.
+- Loading databases is currently only threaded at startup. Other loading instances should be threaded as well.
+- The keyboard shortcut for opening / closing the filter node breaks when the user interacts with the element with the mouse.
+- I could also add graphs to the statistics view, but at this point I'm not sure how useful they would be.
+- I could also remove the hard-coded entry limits and use a dynamic array instead, but I'm not yet sure if I would want to do that at this point.
 
 Afterwards, Excella's development will cease and work will move to maintenance mode only.
 
