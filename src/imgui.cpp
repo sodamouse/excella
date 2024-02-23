@@ -267,6 +267,7 @@ void draw_main_menu()
             {
                 if (populateCurrentTagsMap)
                 {
+                    currentTagsInDatabase.clear();
                     for (u64 i = 0; i < entryIdx; ++i)
                     {
                         for (const auto& tag : entries[i].tags) currentTagsInDatabase[tag]++;
@@ -283,7 +284,7 @@ void draw_main_menu()
                 filter.Draw();
                 ImGui::PopItemWidth();
 
-                if (ImGui::BeginTable("Tags", 2))
+                if (ImGui::BeginTable("Tags", 3))
                 {
                     for (const auto& kv : currentTagsInDatabase)
                     {
@@ -301,6 +302,21 @@ void draw_main_menu()
                         char buffer[256];
                         sprintf(&buffer[0], "%i", kv.second);
                         ImGui::Text(buffer);
+
+                        ImGui::TableNextColumn();
+                        if (ImGui::Button("Purge"))
+                        {
+                            for (u64 i = 0; i < entryIdx; ++i)
+                            {
+                                auto begin = entries[i].tags.begin();
+                                auto end   = entries[i].tags.end();
+
+                                if (auto it = std::find(begin, end, kv.first); it != end) entries[i].tags.erase(it);
+                            }
+
+                            Excella::dirty = true;
+                            populateCurrentTagsMap = true;
+                        }
                     
                         ImGui::TableNextRow();
                     }
