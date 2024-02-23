@@ -161,6 +161,7 @@ void handle_keyboard_events()
         focusNewEntry = true;
     }
 
+    // @FIX: Breaks UI if modal pop-ups are open.
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G)) filterNodeOpen = !filterNodeOpen;
@@ -261,9 +262,14 @@ void draw_main_menu()
 
         if (showTagsPopup)
         {
+            static bool pOpen = true;
             ImGui::OpenPopup("Tag Manager");
-            
-            if (ImGui::BeginPopupModal("Tag Manager"))
+
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            // @TODO: Set reasonable window size
+
+            if (ImGui::BeginPopupModal("Tag Manager", &pOpen))
             {
                 if (populateCurrentTagsMap)
                 {
@@ -284,8 +290,24 @@ void draw_main_menu()
                 filter.Draw();
                 ImGui::PopItemWidth();
 
-                if (ImGui::BeginTable("Tags", 3))
+                ImGui::Separator();
+
+                static constexpr auto TABLE_FLAGS =
+                    ImGuiTableFlags_Resizable |
+                    ImGuiTableFlags_Sortable  |
+                    ImGuiTableFlags_ScrollY   |
+                    ImGuiTableFlags_ScrollX;
+
+                if (ImGui::BeginTable("Tags", 3, TABLE_FLAGS))
                 {
+
+                    ImGui::TableSetupColumn("Tag");
+                    ImGui::TableSetupColumn("Count");
+                    ImGui::TableSetupColumn("Purge");
+
+                    ImGui::TableSetupScrollFreeze(0, 1);
+                    ImGui::TableHeadersRow();
+
                     for (const auto& kv : currentTagsInDatabase)
                     {
                         if (!filter.PassFilter(kv.first.c_str())) continue;
@@ -304,6 +326,7 @@ void draw_main_menu()
                         ImGui::Text(buffer);
 
                         ImGui::TableNextColumn();
+                        ImGui::PushID(&kv.first);
                         if (ImGui::Button("Purge"))
                         {
                             for (u64 i = 0; i < entryIdx; ++i)
@@ -317,6 +340,7 @@ void draw_main_menu()
                             Excella::dirty = true;
                             populateCurrentTagsMap = true;
                         }
+                        ImGui::PopID();
                     
                         ImGui::TableNextRow();
                     }
@@ -324,17 +348,17 @@ void draw_main_menu()
                     ImGui::EndTable();
                 }
 
-                if (ImGui::Button("Close"))
-                {
-                    populateCurrentTagsMap = true;
-                    currentTagsInDatabase.clear();
-
-                    showTagsPopup = false;
-
-                    ImGui::CloseCurrentPopup();
-                }
-
                 ImGui::EndPopup();
+            }
+
+            if (!pOpen)
+            {
+                currentTagsInDatabase.clear();
+                populateCurrentTagsMap = true;
+
+                ImGui::CloseCurrentPopup();
+                showTagsPopup = false;
+                pOpen = true;
             }
         }
 
