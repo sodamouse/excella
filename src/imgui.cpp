@@ -269,7 +269,10 @@ void draw_main_menu()
 
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-            // @TODO: Set reasonable window size
+            int width  = 0;
+            int height = 0;
+            glfwGetWindowSize(Excella::window, &width, &height);
+            ImGui::SetNextWindowSize({width / 4.0f, height / 2.0f}, ImGuiCond_FirstUseEver);
 
             if (ImGui::BeginPopupModal("Tag Manager", &pOpen))
             {
@@ -300,12 +303,13 @@ void draw_main_menu()
                     ImGuiTableFlags_ScrollY   |
                     ImGuiTableFlags_ScrollX;
 
-                if (ImGui::BeginTable("Tags", 3, TABLE_FLAGS))
-                {
+                static constexpr auto COLUMN_FLAGS = ImGuiTableColumnFlags_WidthFixed;
 
-                    ImGui::TableSetupColumn("Tag");
-                    ImGui::TableSetupColumn("Count");
-                    ImGui::TableSetupColumn("Purge");
+                if (ImGui::BeginTable("TableTags", 3, TABLE_FLAGS))
+                {
+                    ImGui::TableSetupColumn("Tag",       COLUMN_FLAGS, 300.0f);
+                    ImGui::TableSetupColumn("Count",     COLUMN_FLAGS, 50.0f);
+                    ImGui::TableSetupColumn("Purge",     COLUMN_FLAGS, 50.0f);
 
                     ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableHeadersRow();
@@ -756,11 +760,11 @@ void draw_table()
         ImGuiTable* table = g.CurrentTable;
 
         // Column setup
-        int width;
-        int height;
+        int width  = 0;
+        int height = 0;
         glfwGetWindowSize(Excella::window, &width, &height);
         double k = width / 10;
-        static auto COLUMN_FLAGS = ImGuiTableColumnFlags_WidthFixed;
+        static constexpr auto COLUMN_FLAGS = ImGuiTableColumnFlags_WidthFixed;
         ImGui::TableSetupColumn("Title",            COLUMN_FLAGS,                                       k * 2.75);
         ImGui::TableSetupColumn("Sorting Title",    COLUMN_FLAGS | ImGuiTableColumnFlags_DefaultSort,   k / 2.0);
         ImGui::TableSetupColumn("Platform",         COLUMN_FLAGS,                                       k / 2.0);
