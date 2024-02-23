@@ -138,6 +138,21 @@ void handle_keyboard_events()
 {
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
 
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_T))
+    {
+        showTagsPopup = !showTagsPopup;
+        if (!showTagsPopup)
+        {
+            populateCurrentTagsMap = true;
+            currentTagsInDatabase.clear();
+
+            ImGui::CloseCurrentPopup();
+            showTagsPopup = false;
+        }
+    }
+
+    if (showTagsPopup || showUrlsPopup || showStatisticsPopup) return;
+
     // @HACK this should be threaded
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S)) save_database(Excella::activeDbPath.c_str());
 
@@ -161,23 +176,9 @@ void handle_keyboard_events()
         focusNewEntry = true;
     }
 
-    // @FIX: Breaks UI if modal pop-ups are open.
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
+    if (!showTagsPopup && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_F)) focusSearch = true;
 
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G)) filterNodeOpen = !filterNodeOpen;
-
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_T))
-    {
-        showTagsPopup = !showTagsPopup;
-        if (!showTagsPopup)
-        {
-            populateCurrentTagsMap = true;
-            currentTagsInDatabase.clear();
-
-            ImGui::CloseCurrentPopup();
-            showTagsPopup = false;
-        }
-    }
+    if (!showTagsPopup && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_G)) filterNodeOpen = !filterNodeOpen;
 }
 
 void draw_main_menu()
