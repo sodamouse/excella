@@ -11,5 +11,6 @@ int actualTotalEntries = 0;
 bool dirty = false;
 bool entryLoaderThreadFinished = false;
 GLFWwindow* window = nullptr;
+bool quit = false;
 
 } // namespace Excella

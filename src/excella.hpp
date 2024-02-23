@@ -17,5 +17,6 @@ extern int actualTotalEntries;
 extern bool dirty;
 extern bool entryLoaderThreadFinished;
 extern GLFWwindow* window;
+extern bool quit;
 
 } // namespace Excella

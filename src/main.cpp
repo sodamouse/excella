@@ -45,10 +45,9 @@ int main()
     init_imgui();
 
     using namespace std::chrono_literals;
-    bool quit = false;
-    while (!quit)
+    while (!Excella::quit)
     {
-        if (update_glfw_events()) quit = true;
+        update_glfw_events();
         // @TODO: Window re-size events
         clear_render_context();
         update();

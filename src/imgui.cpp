@@ -136,7 +136,7 @@ void update()
 
 void handle_keyboard_events()
 {
-    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(Excella::window, true);
+    if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_Q)) Excella::quit = true;
 
     if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_T))
     {
@@ -230,7 +230,7 @@ void draw_main_menu()
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Quit", "CTRL+q"))  glfwSetWindowShouldClose(Excella::window, true);
+            if (ImGui::MenuItem("Quit", "CTRL+q")) Excella::quit = true;
 
             ImGui::EndMenu();
         }

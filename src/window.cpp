@@ -27,10 +27,10 @@ void init_glfw(i32 width, i32 height)
     glfwMaximizeWindow(Excella::window);
 }
 
-bool update_glfw_events()
+void update_glfw_events()
 {
     glfwPollEvents();
-    return glfwWindowShouldClose(Excella::window);
+    if(glfwWindowShouldClose(Excella::window)) Excella::quit = true;
 }
 
 void clear_render_context()
