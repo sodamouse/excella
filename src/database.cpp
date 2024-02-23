@@ -36,6 +36,8 @@ void reset_database()
 
 void load_database(const char* fp)
 {
+    if (!Excella::entryLoaderThreadFinished) return;
+
     Excella::entryLoaderThreadFinished = false;
 
     if (!std::filesystem::exists(fp))

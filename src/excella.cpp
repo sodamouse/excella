@@ -9,8 +9,8 @@ std::vector<std::string> cachedDbPaths;
 u64 startHash;
 int actualTotalEntries = 0;
 bool dirty = false;
-bool entryLoaderThreadFinished = false;
+bool entryLoaderThreadFinished = true;
 GLFWwindow* window = nullptr;
-bool quit = false;
+std::atomic<bool> quit = false;
 
 } // namespace Excella

@@ -3,6 +3,7 @@
 #include "core/integer.hpp"
 #include <string>
 #include <vector>
+#include <atomic>
 
 struct GLFWwindow;
 
@@ -17,6 +18,6 @@ extern int actualTotalEntries;
 extern bool dirty;
 extern bool entryLoaderThreadFinished;
 extern GLFWwindow* window;
-extern bool quit;
+extern std::atomic<bool> quit;
 
 } // namespace Excella
