@@ -173,7 +173,9 @@ void handle_keyboard_events()
         {
             populateCurrentTagsMap = true;
             currentTagsInDatabase.clear();
+
             ImGui::CloseCurrentPopup();
+            showTagsPopup = false;
         }
     }
 }
