@@ -351,11 +351,11 @@ void draw_main_menu()
 
         if (showStatisticsPopup)
         {
-            ImGui::OpenPopup("URL Manager");
+            ImGui::OpenPopup("Statistics");
 
-            if (ImGui::BeginPopupModal("URL Manager"))
+            if (ImGui::BeginPopupModal("Statistics"))
             {
-                if (ImGui::BeginTable("Statistics", 2))
+                if (ImGui::BeginTable("Stats", 2))
                 {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
