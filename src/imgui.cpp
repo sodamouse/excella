@@ -275,10 +275,20 @@ void draw_main_menu()
                     populateCurrentTagsMap = false;
                 }
 
+                static ImGuiTextFilter filter;
+
+                if (ImGui::Button("Clear")) filter.Clear();
+                ImGui::SameLine();
+                ImGui::PushItemWidth(-1);
+                filter.Draw();
+                ImGui::PopItemWidth();
+
                 if (ImGui::BeginTable("Tags", 2))
                 {
                     for (const auto& kv : currentTagsInDatabase)
                     {
+                        if (!filter.PassFilter(kv.first.c_str())) continue;
+
                         ImGui::TableNextColumn();
                         static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
                         bool selected = false;
