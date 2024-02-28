@@ -263,7 +263,7 @@ void draw_main_menu()
 
         if (showTagsPopup)
         {
-            static bool pOpen = true;
+            static bool popen = true;
             ImGui::OpenPopup("Tag Manager");
 
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -271,9 +271,9 @@ void draw_main_menu()
             int width  = 0;
             int height = 0;
             glfwGetWindowSize(Excella::window, &width, &height);
-            ImGui::SetNextWindowSize({width / 4.0f, height / 2.0f}, ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize({width / 3.0f, height / 2.0f}, ImGuiCond_FirstUseEver);
 
-            if (ImGui::BeginPopupModal("Tag Manager", &pOpen))
+            if (ImGui::BeginPopupModal("Tag Manager", &popen))
             {
                 if (populateCurrentTagsMap)
                 {
@@ -356,14 +356,14 @@ void draw_main_menu()
                 ImGui::EndPopup();
             }
 
-            if (!pOpen)
+            if (!popen)
             {
                 currentTagsInDatabase.clear();
                 populateCurrentTagsMap = true;
 
                 ImGui::CloseCurrentPopup();
                 showTagsPopup = false;
-                pOpen = true;
+                popen = true;
             }
         }
 
@@ -371,13 +371,19 @@ void draw_main_menu()
         {
             ImGui::OpenPopup("URL Manager");
 
-            if (ImGui::BeginPopupModal("URL Manager"))
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            int width  = 0;
+            int height = 0;
+            glfwGetWindowSize(Excella::window, &width, &height);
+            ImGui::SetNextWindowSize({width / 2.0f, height / 2.0f}, ImGuiCond_FirstUseEver);
+
+            if (ImGui::BeginPopupModal("URL Manager", &showUrlsPopup))
             {
-                static std::string newUrl;
-                ImGui::InputText("New URL", &newUrl);
-                ImGui::SameLine();
-                
-                if (ImGui::Button("Add")) urls[newUrl];
+                ImGui::Text("Total URLs: %lu", urls.size());
+                ImGui::Text("Right click a URL to remove from database. Entries are updated on database save.");
+
+                ImGui::Separator();
 
                 static constexpr auto SELECTABLE_FLAGS = ImGuiSelectableFlags_DontClosePopups;
                 for (const auto& kv : urls)
@@ -391,13 +397,6 @@ void draw_main_menu()
                         break;  // @NOTE: We must break here to allow the for-loop's constraints to update.
                                 // Otherwise, there will be an access violation.
                     }
-                }
-
-                if (ImGui::Button("Close"))
-                {
-                    showUrlsPopup = false;
-
-                    ImGui::CloseCurrentPopup();
                 }
 
                 ImGui::EndPopup();
