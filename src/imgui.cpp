@@ -407,7 +407,14 @@ void draw_main_menu()
         {
             ImGui::OpenPopup("Statistics");
 
-            if (ImGui::BeginPopupModal("Statistics"))
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            int width  = 0;
+            int height = 0;
+            glfwGetWindowSize(Excella::window, &width, &height);
+            ImGui::SetNextWindowSize({width / 2.0f, height / 2.0f}, ImGuiCond_FirstUseEver);
+
+            if (ImGui::BeginPopupModal("Statistics", &showStatisticsPopup))
             {
                 if (ImGui::BeginTable("Stats", 2))
                 {
@@ -567,13 +574,6 @@ void draw_main_menu()
                     }
 
                     ImGui::TreePop();
-                }
-
-                if (ImGui::Button("Close"))
-                {
-                    showStatisticsPopup = false;
-
-                    ImGui::CloseCurrentPopup();
                 }
 
                 ImGui::EndPopup();
