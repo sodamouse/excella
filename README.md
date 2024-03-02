@@ -2,20 +2,16 @@
 Excella is a fast and lightweight GPU-enabled database application for keeping track of my games collection. It is designed only with my needs in mind, but you may find some use for it as a starting point for your own applications.
 
 ## Features
-![](/screenshot/screenshot.png)
-- Fuzzy searching entries by name
-- Extensive filtering options
-- Conditional entry highlighting
-- Sorting columns by value
+- Fast and light weight
+- Extensive searching, filtering, and sorting options
 - Adding notes to entries
+- URL manager
 
-## Building
-``` shell
-git clone https://github.com/sodamouse/excella.git && cd excella
-premake gmake
+## Building on Windows
+``` bash
+git clone https://git.sr.ht/~sodamouse/excella && cd excella
+premake5 vs2022
 cd build
-make config=release
+vcvarsall x64
+MSBuild /property:Configuration=Release
 ```
-
-# TODO
-1. Disable spawning multiple instances
