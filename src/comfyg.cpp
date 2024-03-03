@@ -1,2 +1,2 @@
-#define COMFYG_IMPL
-#include "comfyg.hpp"
+#define COMFYG_IMPLEMENTATION
+#include <comfyg.hpp>

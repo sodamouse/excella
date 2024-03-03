@@ -1,9 +1,10 @@
-#include "comfyg.hpp"
 #include "window.hpp"
 #include "database.hpp"
 #include "entry.hpp"
 #include "excella.hpp"
 #include "imgui.hpp"
+
+#include <comfyg.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -20,7 +21,7 @@ int main()
 #ifdef OS_UNIX
     std::string username       = std::getenv("USER");
     std::string configFilePath = "/home/" + username + "/.config/excella/excella.conf";
-    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "./cache.db");
+    const char** cacheFilePath = Comfyg::config_str("cache_file_path", "cache.db");
 #endif // OS_UNIX
 
 #ifdef OS_WINDOWS

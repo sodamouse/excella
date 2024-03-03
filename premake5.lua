@@ -92,6 +92,7 @@ project "excella"
 
     includedirs {
         "vendor",
+        "vendor/comfyg-1.0.0",
         "vendor/glfw/include"
     }
 

@@ -1,11 +1,6 @@
-// TODO Free indent
-// TODO Comment syntax
-
 #pragma once
 
-#ifdef OS_WINDOWS
-#include <string>
-#endif
+// Copyright (c) 2024 sodamouse - See LICENSE.md
 
 namespace Comfyg {
 
@@ -13,16 +8,18 @@ bool* config_bool(const char* name, bool defaultValue);
 int* config_int(const char* name, int defaultValue);
 double* config_double(const char* name, double defaultValue);
 const char** config_str(const char* name, const char* defaultValue);
-void load_config_file(const char* path);
+
+bool load_config_file(const char* path);
 
 } // namespace Comfyg
 
-#ifdef COMFYG_IMPL
+#ifdef COMFYG_IMPLEMENTATION
 
 #include <cassert>
 #include <fstream>
-#include <iostream>
-#include <vector>
+#include <cstdio>
+#include <string>
+#include <filesystem>
 
 #define CHAR_ARRAY_SIZE(x) (sizeof(x) / sizeof(char))
 
@@ -48,13 +45,17 @@ struct Config
 };
 
 constexpr std::size_t CONFIG_MAX = 99;
-Config CONFIGS[CONFIG_MAX]{};
+Config configs[CONFIG_MAX]{};
 std::size_t config_index = 0;
-char COMMENT_GLYPHS[]{'#', '%', '[', ']', '(', ')', '/', '$'};
+constexpr char COMMENT_GLYPHS[] {'#', '%', '[', ']', '(', ')', '/', '$'};
+
+constexpr std::size_t SPLITS_MAX = 2;
+std::string SPLITS[SPLITS_MAX];
+std::size_t splitIdx = 0;
 
 Config* config_new(ConfigType type, const char* name)
 {
-    auto* config = &CONFIGS[config_index++];
+    auto* config = &configs[config_index++];
     config->type = type;
     config->name = name;
 
@@ -93,61 +94,60 @@ const char** config_str(const char* name, const char* defaultValue)
     return &config->asStr;
 }
 
-std::vector<std::string> split_string(const std::string& str, char delimiter)
+void split_string(const std::string& str, char delimiter)
 {
     auto strSize = str.size();
     assert(strSize && "String cannot be empty");
-    std::vector<std::string> splits;
 
     std::size_t beg = 0;
     std::size_t size = 0;
+    bool found = false;
     for (std::size_t i = 0; i <= strSize; ++i)
     {
-        if (str[i] == delimiter)
+        if (str[i] == delimiter && !found)
         {
-            splits.emplace_back(str.substr(beg, size));
+            SPLITS[splitIdx++] = str.substr(beg, size);
             beg = i + 1;
             size = 0;
+            found = true;
         }
 
         if (i == strSize)
         {
-            splits.emplace_back(str.substr(beg, strSize));
+            SPLITS[splitIdx++] = str.substr(beg, strSize);
             break;
         }
 
         ++size;
     }
 
-    return splits;
+    splitIdx = 0;
 }
 
 std::string strip_string(const std::string& str)
 {
-    auto firstIndex = 0;
+    std::size_t firstIndex = 0;
     for (; str[firstIndex] == ' '; ++firstIndex)
-        ;
+    {}
 
     auto lastIndex = str.size() - 1;
     for (; str[lastIndex] == ' '; --lastIndex)
-        ;
+    {}
 
     return str.substr(firstIndex, lastIndex - firstIndex + 1);
 }
 
-void load_config_file(const char* path)
+bool load_config_file(const char* path)
 {
+    if (!std::filesystem::exists(path)) return false;
+
     std::fstream file(path, std::ios::in);
-    if (!file.is_open())
-    {
-        std::cout << "Could not load config file: `" << path << "`\n";
-        return;
-    }
+
+    if (!file.is_open()) return false;
 
     std::string line;
 
     // Stores a pair of strings, corresponding to key/value of a single config.
-    std::vector<std::string> kv;
     while (std::getline(file, line))
     {
         if (line.size() == 0)
@@ -155,52 +155,48 @@ void load_config_file(const char* path)
 
         for (std::size_t i = 0; i < CHAR_ARRAY_SIZE(COMMENT_GLYPHS); ++i)
         {
-            if (line[0] == COMMENT_GLYPHS[i])
-                goto cnt;
+            if (line[0] == COMMENT_GLYPHS[i]) goto cnt; // Skip the entire while loop
         }
 
-        kv = split_string(line, '=');
-        kv[0] = strip_string(kv[0]);
-        kv[1] = strip_string(kv[1]);
+        split_string(line, '=');
+        SPLITS[0] = strip_string(SPLITS[0]);
+        SPLITS[1] = strip_string(SPLITS[1]);
 
-        if (kv[0].size() == 0 || kv[1].size() == 0)
+        if (SPLITS[0].size() == 0 || SPLITS[1].size() == 0)
             continue;
 
         for (std::size_t i = 0; i < config_index; ++i)
         {
-            if (CONFIGS[i].name == kv[0])
+            if (configs[i].name == SPLITS[0])
             {
-                switch (CONFIGS[i].type)
+                switch (configs[i].type)
                 {
                 case CONFIG_BOOL: {
-                    if (kv[1] == "false")
+                    if (SPLITS[1] == "false")
                     {
-                        CONFIGS[i].asBool = false;
+                        configs[i].asBool = false;
                     }
 
-                    else if (kv[1] == "true")
+                    else if (SPLITS[1] == "true")
                     {
-                        CONFIGS[i].asBool = true;
+                        configs[i].asBool = true;
                     }
 
                     else
                     {
-                        std::cout << "Option `" << CONFIGS[i].name
-                                  << "` expects `true` or `false` but `" << kv[1]
-                                  << "` was provided.\n";
-                        exit(1);
+                        fprintf(stderr, "Could not parse value assigned to `%s` as bool.\n", configs[i].name);
                     }
                 }
                 break;
                 case CONFIG_INT: {
                     try
                     {
-                        CONFIGS[i].asInt = std::stoi(kv[1]);
+                        configs[i].asInt = std::stoi(SPLITS[1]);
                     }
 
                     catch (const std::exception& error)
                     {
-                        std::cerr << "Could not parse `" << kv[1] << "` as integer.\n";
+                        fprintf(stderr, "Could not parse value assigned to `%s` as integer.\n", configs[i].name);
                         exit(1);
                     }
                 }
@@ -208,22 +204,22 @@ void load_config_file(const char* path)
                 case CONFIG_DOUBLE: {
                     try
                     {
-                        CONFIGS[i].asDouble = std::atof(kv[1].c_str());
+                        configs[i].asDouble = std::atof(SPLITS[1].c_str());
                     }
 
                     catch (const std::exception& error)
                     {
-                        std::cerr << "Could not parse `" << kv[1] << "` as double.\n";
+                        fprintf(stderr, "Could not parse value assigned to `%s` as double.\n", configs[i].name);
                         exit(1);
                     }
                 }
                 break;
                 case CONFIG_STR: {
                     // Some tools see this as a memory leak. Those tools are wrong.
-                    char* str = new char[kv[1].size() + 1];
-                    std::copy(kv[1].begin(), kv[1].end(), str);
-                    str[kv[1].size()] = 0;
-                    CONFIGS[i].asStr = str;
+                    char* str = new char[SPLITS[1].size() + 1];
+                    std::copy(SPLITS[1].begin(), SPLITS[1].end(), str);
+                    str[SPLITS[1].size()] = 0;
+                    configs[i].asStr = str;
                 }
                 break;
                 }
@@ -231,6 +227,8 @@ void load_config_file(const char* path)
         }
     cnt:;
     }
+
+    return true;
 }
 
 } // namespace Comfyg
