@@ -39,7 +39,9 @@ int main()
         while (cache >> line) Excella::cachedDbPaths.push_back(line);
     }
 
-    std::thread entryLoader(load_database, *dbPath);
+    Excella::activeDbPath = *dbPath;
+
+    std::thread entryLoader(load_database, Excella::activeDbPath.c_str());
 
     init_glfw(800, 600);
 
